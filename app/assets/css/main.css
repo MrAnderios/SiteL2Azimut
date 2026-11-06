@@ -1,0 +1,240 @@
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+:root {
+  /* Фон: тёплый почти чёрный */
+  --color-bg: #0a0806;
+  --color-bg-2: #110d09;
+  --color-surface: #16110c;
+  --color-surface-2: #1e1710;
+
+  /* Золото */
+  --gold-100: #fff4cf;
+  --gold-300: #f6d47c;
+  --gold-500: #e2ab3f;
+  --gold-700: #a8721f;
+  --gold-900: #5a3a0c;
+  --color-accent: var(--gold-500);
+  --color-accent-hover: var(--gold-300);
+  --gradient-gold: linear-gradient(180deg, var(--gold-100) 0%, var(--gold-300) 35%, var(--gold-500) 65%, var(--gold-700) 100%);
+  --gradient-gold-btn: linear-gradient(180deg, var(--gold-300) 0%, var(--gold-500) 55%, var(--gold-700) 100%);
+
+  /* Текст и линии */
+  --color-text: #f3ece0;
+  --color-text-muted: #a99d8a;
+  --color-line: rgb(226 171 63 / 0.18);
+  --color-line-strong: rgb(226 171 63 / 0.45);
+  --color-border: var(--color-line);
+
+  --font-body: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Cormorant SC', 'Times New Roman', serif;
+
+  --container: 1200px;
+  --gutter: 16px;
+  --section-gap: clamp(72px, 10vw, 128px);
+  --radius: 4px;
+  --header-height: 72px;
+
+  --shadow-glow: 0 0 32px rgb(226 171 63 / 0.25);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-height);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+::selection {
+  background: var(--gold-500);
+  color: var(--color-bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-300);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Золотой градиентный текст */
+.text-gold {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Панель с золотыми уголками — базовая «рамка» для карточек */
+.panel {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.03), transparent 40%),
+    var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.4s var(--ease-out);
+}
+
+.panel::before,
+.panel::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--gold-500);
+  border-style: solid;
+  pointer-events: none;
+  transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out);
+}
+
+.panel::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+
+.panel::after {
+  right: -1px;
+  bottom: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+.panel--interactive:hover {
+  border-color: var(--color-line-strong);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-4px);
+}
+
+.panel--interactive:hover::before,
+.panel--interactive:hover::after {
+  width: 28px;
+  height: 28px;
+}
+
+/* Маркер-ромб для списков */
+.list-diamond {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.list-diamond li {
+  position: relative;
+  padding-left: 26px;
+}
+
+.list-diamond li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0.5em;
+  width: 8px;
+  height: 8px;
+  background: var(--gradient-gold-btn);
+  transform: rotate(45deg);
+  box-shadow: 0 0 8px rgb(226 171 63 / 0.6);
+}
+
+/* ==========================================================================
+   Reveal on scroll (см. plugins/reveal.ts)
+   ========================================================================== */
+[data-reveal] {
+  transition:
+    opacity 0.8s var(--ease-out) var(--reveal-delay, 0ms),
+    transform 0.8s var(--ease-out) var(--reveal-delay, 0ms);
+}
+
+.reveal-ready [data-reveal]:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
