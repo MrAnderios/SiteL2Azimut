@@ -1,0 +1,85 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Не запускать два деплоя одновременно; новый пуш ждёт окончания текущего.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      APP_DIR: /var/www/azimut
+      SERVICE: azimut
+      KEEP_RELEASES: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Pack build
+        run: tar -czf release.tar.gz -C .output .
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host server
+            HostName ${{ secrets.SSH_HOST }}
+            Port ${{ secrets.SSH_PORT || '22' }}
+            User ${{ secrets.SSH_USER }}
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+          EOF
+
+      - name: Upload release
+        run: |
+          RELEASE="$APP_DIR/releases/${GITHUB_SHA::7}-$(date +%Y%m%d%H%M%S)"
+          echo "RELEASE=$RELEASE" >> "$GITHUB_ENV"
+          ssh server "mkdir -p '$RELEASE'"
+          scp release.tar.gz "server:$RELEASE/release.tar.gz"
+          ssh server "cd '$RELEASE' && tar -xzf release.tar.gz && rm release.tar.gz"
+
+      - name: Switch and restart
+        run: |
+          ssh server bash -s <<EOF
+          set -euo pipefail
+          ln -sfn '$RELEASE' '$APP_DIR/current'
+          sudo /usr/bin/systemctl restart '$SERVICE'
+          # Оставляем только последние релизы
+          cd '$APP_DIR/releases'
+          ls -1t | tail -n +$((KEEP_RELEASES + 1)) | xargs -r rm -rf
+          EOF
+
+      - name: Health check
+        run: |
+          ssh server bash -s <<'EOF'
+          for i in $(seq 1 15); do
+            if curl -fsS -o /dev/null http://127.0.0.1:3000/; then
+              echo "OK"; exit 0
+            fi
+            sleep 2
+          done
+          echo "Сайт не ответил после рестарта"
+          journalctl -u azimut -n 50 --no-pager || true
+          exit 1
+          EOF

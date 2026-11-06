@@ -14,6 +14,11 @@ npm run generate   # статическая сборка в .output/public/
 npm run preview    # просмотр production-сборки
 ```
 
+## Деплой
+
+Пуш в `main` автоматически деплоит сайт на сервер через GitHub Actions.
+Настройка сервера Ubuntu и секретов описана в [docs/DEPLOY.md](docs/DEPLOY.md).
+
 ## Структура
 
 ```
