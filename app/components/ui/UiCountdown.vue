@@ -2,6 +2,8 @@
 const props = defineProps<{
   /** ISO-дата с часовым поясом, до которой идёт отсчёт */
   to: string
+  /** Подписи единиц на текущем языке */
+  labels: { days: string, hours: string, minutes: string, seconds: string }
 }>()
 
 const target = new Date(props.to).getTime()
@@ -31,10 +33,10 @@ const units = computed(() => {
     return String(mod ? v % mod : v).padStart(2, '0')
   }
   return [
-    { value: part(86_400_000), label: 'дней' },
-    { value: part(3_600_000, 24), label: 'часов' },
-    { value: part(60_000, 60), label: 'минут' },
-    { value: part(1000, 60), label: 'секунд' },
+    { value: part(86_400_000), key: 'days', label: props.labels.days },
+    { value: part(3_600_000, 24), key: 'hours', label: props.labels.hours },
+    { value: part(60_000, 60), key: 'minutes', label: props.labels.minutes },
+    { value: part(1000, 60), key: 'seconds', label: props.labels.seconds },
   ]
 })
 </script>
@@ -43,7 +45,7 @@ const units = computed(() => {
   <div class="countdown" role="timer" aria-live="off">
     <slot v-if="finished" name="finished" />
     <template v-else>
-      <div v-for="(u, i) in units" :key="u.label" class="countdown__unit">
+      <div v-for="(u, i) in units" :key="u.key" class="countdown__unit">
         <span class="countdown__value">{{ u.value }}</span>
         <span class="countdown__label">{{ u.label }}</span>
         <span v-if="i < units.length - 1" class="countdown__sep" aria-hidden="true">:</span>

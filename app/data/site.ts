@@ -1,10 +1,10 @@
-// Единый источник контента лендинга. Перенесено со старого сайта l2azimut.com.
+// Данные лендинга, не зависящие от языка: ссылки, даты, рейты, картинки.
+// Тексты — в app/locales/ru.ts и app/locales/en.ts.
 import type { IconName } from '~/components/ui/UiIcon.vue'
+import type { Messages } from '~/locales/ru'
 
 export const site = {
   name: 'Azimut',
-  tagline: 'Классический сервер Lineage 2 Epilogue с улучшениями и дополнениями.',
-  footerText: 'Высокопроизводительный сервер Lineage 2 Epilogue для игроков Сибири, Дальнего Востока и Азии.',
   email: 'help@azimut-l2.ru',
 }
 
@@ -27,25 +27,18 @@ export const socials = [
   // TODO: на старом сайте Instagram вёл на главную instagram.com — нужна ссылка на профиль
 ]
 
-// Основной старт сервера — к нему идёт обратный отсчёт в hero
-export const launch = {
-  date: '2026-11-27T19:00:00+03:00',
-  label: '27.11.2026 19:00 (МСК)',
-}
+// Основной старт сервера — к нему идёт обратный отсчёт в hero.
+// Подписи дат для каждого языка — в locales (hero.launchLabel / hero.obtLabel).
+export const launch = { date: '2026-11-27T19:00:00+03:00' }
 
 // Открытый бета-тест
-export const obt = {
-  date: '2026-11-20T19:00:00+03:00',
-  label: '20.11.2026 19:00 (МСК)',
-}
+export const obt = { date: '2026-11-20T19:00:00+03:00' }
 
 export interface Rate {
   label: string
   value: string
   image: string
 }
-
-export const ratesIntro = 'Старт осеннего Low Rate сервера с уклоном на споил и крафт.'
 
 export const rates: Rate[] = [
   { label: 'XP / SP', value: 'x2', image: '/images/rates/xp-sp.jpg' },
@@ -55,93 +48,37 @@ export const rates: Rate[] = [
   { label: 'Raid Boss', value: 'x5', image: '/images/rates/raid-boss.jpg' },
 ]
 
-export const streams = {
-  title: 'Стримы AzimutLive',
-  text: 'Следите за прямыми трансляциями наших игроков и администрации. Здесь кипит жизнь сервера Azimut в режиме реального времени.',
-}
-
-export const features = {
-  title: 'Сервер для игроков со всего мира',
-  intro:
-    'Мы понимаем, что игрокам из Сибири, Дальнего Востока и Азии неудобно играть на европейских серверах с московской временной зоной. Поэтому все серверные мероприятия по возможности будут усредняться по временным зонам.',
-  list: [
-    'Community Board с минимальным донатом, влияющим на игровой процесс',
-    'Полное отсутствие шмота и расходных материалов в Community Board',
-    'Community Buff без бафов 3-й профессии',
-    'Эвенты',
-    'Новые инстанс-зоны для комфортной игры из разных часовых поясов',
-    'Доработана актуальность эпиков и некоторых игровых классов',
-    'Сервисы поднятия рейтов и прокачки',
-  ],
-}
-
-export const bonuses: { title: string, icon: IconName }[] = [
-  { title: 'Бонус переходящим кланам', icon: 'users' },
-  { title: 'Бонусы раннего доната', icon: 'gift' },
+export const bonuses: { key: keyof Messages['bonuses']['items'], icon: IconName }[] = [
+  { key: 'clans', icon: 'users' },
+  { key: 'earlyDonate', icon: 'gift' },
 ]
 
-export const stability = {
-  title: 'Стабильность',
-  text: 'Сервер установлен в мощном дата-центре, DDoS-защита. Защита от ботов Smart Guard.',
-  items: [
-    { title: 'Мощный дата-центр', icon: 'server' },
-    { title: 'DDoS-защита', icon: 'shield' },
-    { title: 'Защита от ботов Smart Guard', icon: 'bot' },
-  ] as { title: string, icon: IconName }[],
-}
-
-export interface StartStep {
-  title: string
-  text: string
-  image: string
-  action: { label: string, href: string }
-}
-
-export const startSteps: StartStep[] = [
-  {
-    title: 'Регистрация аккаунта',
-    text: 'Зарегистрируйте мастер-аккаунт для регистрации игровых аккаунтов.',
-    image: '/images/start/register.jpg',
-    action: { label: 'Регистрация', href: links.register },
-  },
-  {
-    title: 'Патч Azimut',
-    text: 'Необходим для корректного отображения предметов и умений.',
-    image: '/images/start/patch.jpg',
-    action: { label: 'Скачать патч', href: links.patch },
-  },
-  {
-    title: 'Клиент игры',
-    text: 'Чистый клиент Lineage 2 Epilogue. Не забудьте установить патч сервера.',
-    image: '/images/start/client.jpg',
-    action: { label: 'Скачать клиент', href: links.client },
-  },
-  {
-    title: 'Updater Azimut',
-    text: 'Автоматическое обновление файлов до актуальной версии.',
-    image: '/images/start/updater.jpg',
-    action: { label: 'Скачать лаунчер', href: links.updater },
-  },
+export const stability: { key: keyof Messages['stability']['items'], icon: IconName }[] = [
+  { key: 'datacenter', icon: 'server' },
+  { key: 'ddos', icon: 'shield' },
+  { key: 'bots', icon: 'bot' },
 ]
 
-export const community = {
-  title: 'Join the Azimut community',
-  text: 'Присоединяйтесь к нашему сообществу игроков из Сибири, Дальнего Востока и Азии. Мы создали для вас уникальную среду для общения, где вы найдёте ответы на все вопросы и поддержку от команды Azimut.',
-}
+export const startSteps: { key: keyof Messages['start']['steps'], image: string, href: string }[] = [
+  { key: 'register', image: '/images/start/register.jpg', href: links.register },
+  { key: 'patch', image: '/images/start/patch.jpg', href: links.patch },
+  { key: 'client', image: '/images/start/client.jpg', href: links.client },
+  { key: 'updater', image: '/images/start/updater.jpg', href: links.updater },
+]
 
-// Баннеры рейтингов/топов серверов
-export const banners = [
+// Баннеры рейтингов/топов серверов. Если у баннера есть labelKey — подпись берётся из locales.
+export const banners: { label: string, labelKey?: keyof Messages['community']['banners'], href: string, image: string }[] = [
   { label: 'L2Elo', href: 'https://l2elo.com/', image: '/images/banners/l2elo.png' },
-  { label: 'Новые сервера Lineage 2', href: 'https://l2-servera.com', image: '/images/banners/l2-servera.gif' },
+  { label: 'L2-servera', labelKey: 'l2servera', href: 'https://l2-servera.com', image: '/images/banners/l2-servera.gif' },
   { label: 'L2Argument', href: 'https://l2argument.ru', image: '/images/banners/l2argument.jpg' },
   { label: 'L2Spot', href: 'https://l2spot.com/', image: '/images/banners/l2spot.png' },
   { label: 'L2Vote', href: 'https://t.me/L2Vote_bot?start=388', image: '/images/banners/l2vote.png' },
 ]
 
-export const nav = [
-  { label: 'Рейты', href: '#rates' },
-  { label: 'Особенности', href: '#features' },
-  { label: 'Магазин', href: '#store' },
-  { label: 'Начать игру', href: '#start' },
-  { label: 'Сообщество', href: '#community' },
+export const nav: { key: keyof Messages['nav'], href: string }[] = [
+  { key: 'rates', href: '#rates' },
+  { key: 'features', href: '#features' },
+  { key: 'store', href: '#store' },
+  { key: 'start', href: '#start' },
+  { key: 'community', href: '#community' },
 ]

@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { startSteps } from '~/data/site'
+
+const t = useContent()
 </script>
 
 <template>
-  <UiSection id="start" eyebrow="Четыре шага" title="Начать игру" tone="dark">
+  <UiSection id="start" :eyebrow="t.start.eyebrow" :title="t.start.title" tone="dark">
     <ol class="start">
-      <li v-for="(step, i) in startSteps" :key="step.title" v-reveal="i * 100" class="start__card panel panel--interactive">
+      <li v-for="(step, i) in startSteps" :key="step.key" v-reveal="i * 100" class="start__card panel panel--interactive">
         <div class="start__media">
           <img :src="step.image" alt="" width="800" height="800" loading="lazy">
           <span class="start__num">{{ String(i + 1).padStart(2, '0') }}</span>
         </div>
         <div class="start__body">
-          <h3 class="start__title">{{ step.title }}</h3>
-          <p class="start__text">{{ step.text }}</p>
-          <UiButton :href="step.action.href" :variant="i === 0 ? 'primary' : 'secondary'" size="sm">
-            {{ step.action.label }}
+          <h3 class="start__title">{{ t.start.steps[step.key].title }}</h3>
+          <p class="start__text">{{ t.start.steps[step.key].text }}</p>
+          <UiButton :href="step.href" :variant="i === 0 ? 'primary' : 'secondary'" size="sm">
+            {{ t.start.steps[step.key].action }}
           </UiButton>
         </div>
       </li>

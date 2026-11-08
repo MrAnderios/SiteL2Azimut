@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { bonuses, links, stability } from '~/data/site'
+
+const t = useContent()
 </script>
 
 <!-- Бонусы и стабильность — две колонки в одном ряду -->
@@ -7,22 +9,22 @@ import { bonuses, links, stability } from '~/data/site'
   <section id="bonuses" class="perks">
     <div class="container perks__grid">
       <div v-reveal class="perks__col">
-        <h2 class="perks__title text-gold">Бонусы</h2>
+        <h2 class="perks__title text-gold">{{ t.bonuses.title }}</h2>
         <ul class="perks__list">
-          <li v-for="item in bonuses" :key="item.title" class="perks__item panel panel--interactive">
+          <li v-for="item in bonuses" :key="item.key" class="perks__item panel panel--interactive">
             <span class="perks__icon"><UiIcon :name="item.icon" /></span>
-            {{ item.title }}
+            {{ t.bonuses.items[item.key] }}
           </li>
         </ul>
-        <UiButton :href="links.telegramBonuses" variant="ghost" size="sm">Подробнее →</UiButton>
+        <UiButton :href="links.telegramBonuses" variant="ghost" size="sm">{{ t.bonuses.more }}</UiButton>
       </div>
 
       <div id="stability" v-reveal="120" class="perks__col">
-        <h2 class="perks__title text-gold">{{ stability.title }}</h2>
+        <h2 class="perks__title text-gold">{{ t.stability.title }}</h2>
         <ul class="perks__list">
-          <li v-for="item in stability.items" :key="item.title" class="perks__item panel panel--interactive">
+          <li v-for="item in stability" :key="item.key" class="perks__item panel panel--interactive">
             <span class="perks__icon"><UiIcon :name="item.icon" /></span>
-            {{ item.title }}
+            {{ t.stability.items[item.key] }}
           </li>
         </ul>
       </div>

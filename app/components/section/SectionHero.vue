@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { launch, links, obt, site } from '~/data/site'
+import { launch, links, obt } from '~/data/site'
+
+const t = useContent()
 
 // Детерминированные параметры искр — одинаковые на сервере и клиенте (без hydration mismatch)
 const embers = Array.from({ length: 22 }, (_, i) => ({
@@ -26,34 +28,34 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
       <p class="hero__eyebrow">Lineage II · Epilogue</p>
       <h1 class="hero__title text-gold">Azimut</h1>
       <UiOrnament class="hero__ornament" />
-      <p class="hero__subtitle">{{ site.tagline }}</p>
+      <p class="hero__subtitle">{{ t.site.tagline }}</p>
 
       <div class="hero__actions">
-        <UiButton href="#start" size="lg">Войти на сервер</UiButton>
+        <UiButton href="#start" size="lg">{{ t.hero.play }}</UiButton>
         <UiButton :href="links.telegram" variant="secondary" size="lg" icon="telegram">Telegram</UiButton>
       </div>
 
       <div class="hero__launch">
-        <span class="hero__launch-label">До старта сервера</span>
-        <UiCountdown :to="launch.date" class="hero__countdown">
+        <span class="hero__launch-label">{{ t.hero.countdownLabel }}</span>
+        <UiCountdown :to="launch.date" :labels="t.countdown" class="hero__countdown">
           <template #finished>
-            <span class="hero__launch-date">Сервер открыт!</span>
+            <span class="hero__launch-date">{{ t.hero.opened }}</span>
           </template>
         </UiCountdown>
         <div class="hero__dates">
           <span class="hero__date">
-            <span class="hero__date-label">ОБТ</span>
-            <time :datetime="obt.date">{{ obt.label }}</time>
+            <span class="hero__date-label">{{ t.hero.obt }}</span>
+            <time :datetime="obt.date">{{ t.hero.obtLabel }}</time>
           </span>
           <span class="hero__date hero__date--main">
-            <span class="hero__date-label">Старт</span>
-            <time :datetime="launch.date">{{ launch.label }}</time>
+            <span class="hero__date-label">{{ t.hero.launch }}</span>
+            <time :datetime="launch.date">{{ t.hero.launchLabel }}</time>
           </span>
         </div>
       </div>
     </div>
 
-    <a href="#rates" class="hero__scroll" aria-label="Прокрутить к рейтам">
+    <a href="#rates" class="hero__scroll" :aria-label="t.hero.scrollAria">
       <UiIcon name="arrowDown" :size="20" />
     </a>
   </section>

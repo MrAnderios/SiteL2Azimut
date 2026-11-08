@@ -1,5 +1,6 @@
 <script setup lang="ts">
-useHead({ title: 'Главная | Azimut' })
+const t = useContent()
+useHead(() => ({ title: t.value.meta.pageTitle }))
 </script>
 
 <template>

@@ -3,15 +3,33 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  modules: ['@nuxtjs/i18n'],
+
   css: ['~/assets/css/main.css'],
+
+  // Тексты лежат в app/locales/*.ts и подключаются через useContent();
+  // модуль i18n отвечает за маршруты (/ — русский, /en — английский), определение языка и SEO-теги.
+  i18n: {
+    locales: [
+      { code: 'ru', language: 'ru-RU', name: 'Русский' },
+      { code: 'en', language: 'en-US', name: 'English' },
+    ],
+    defaultLocale: 'ru',
+    strategy: 'prefix_except_default',
+    // Полный адрес сайта для hreflang/canonical — задаётся через NUXT_PUBLIC_I18N_BASE_URL
+    baseUrl: '',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'azimut_lang',
+      redirectOn: 'root',
+      fallbackLocale: 'ru',
+    },
+  },
 
   app: {
     head: {
-      htmlAttrs: { lang: 'ru' },
-      title: 'Azimut — Lineage 2 Epilogue',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Azimut — классический сервер Lineage 2 Epilogue с улучшениями и дополнениями. ОБТ 20.11.2026, старт 27.11.2026.' },
         { name: 'theme-color', content: '#0a0806' },
       ],
       link: [

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { features, links } from '~/data/site'
+import { links } from '~/data/site'
+
+const t = useContent()
 </script>
 
 <template>
@@ -11,23 +13,23 @@ import { features, links } from '~/data/site'
         </div>
         <div class="features__badge">
           <UiIcon name="globe" :size="22" />
-          <span>Мероприятия под разные часовые пояса</span>
+          <span>{{ t.features.badge }}</span>
         </div>
       </div>
 
       <div v-reveal="120" class="features__content">
-        <p class="features__eyebrow">Особенности</p>
-        <h2 class="features__title text-gold">{{ features.title }}</h2>
-        <p class="features__intro">{{ features.intro }}</p>
+        <p class="features__eyebrow">{{ t.features.eyebrow }}</p>
+        <h2 class="features__title text-gold">{{ t.features.title }}</h2>
+        <p class="features__intro">{{ t.features.intro }}</p>
         <ul class="features__list list-diamond">
-          <li v-for="item in features.list" :key="item">{{ item }}</li>
+          <li v-for="item in t.features.list" :key="item">{{ item }}</li>
         </ul>
         <p class="features__more">
-          Подробнее — в нашем <a :href="links.telegram" target="_blank" rel="noopener">Telegram-канале</a>.
+          {{ t.features.moreBefore }} <a :href="links.telegram" target="_blank" rel="noopener">{{ t.features.moreLink }}</a>{{ t.features.moreAfter }}
         </p>
         <div class="features__actions">
-          <UiButton :href="links.telegramDescription" variant="secondary">Описание</UiButton>
-          <UiButton :href="links.telegramBonuses" variant="secondary">Бонусы</UiButton>
+          <UiButton :href="links.telegramDescription" variant="secondary">{{ t.features.description }}</UiButton>
+          <UiButton :href="links.telegramBonuses" variant="secondary">{{ t.features.bonuses }}</UiButton>
         </div>
       </div>
     </div>

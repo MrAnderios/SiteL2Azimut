@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { banners, community, links } from '~/data/site'
+import { banners, links } from '~/data/site'
+
+const t = useContent()
 </script>
 
 <template>
@@ -7,17 +9,17 @@ import { banners, community, links } from '~/data/site'
     <div class="container">
       <div v-reveal class="community__card panel">
         <div class="community__content">
-          <p class="community__eyebrow">Сообщество</p>
-          <h2 class="community__title text-gold">{{ community.title }}</h2>
-          <p class="community__text">{{ community.text }}</p>
+          <p class="community__eyebrow">{{ t.community.eyebrow }}</p>
+          <h2 class="community__title text-gold">{{ t.community.title }}</h2>
+          <p class="community__text">{{ t.community.text }}</p>
         </div>
-        <UiButton :href="links.telegram" size="lg" icon="telegram">Перейти в Telegram</UiButton>
+        <UiButton :href="links.telegram" size="lg" icon="telegram">{{ t.community.telegram }}</UiButton>
       </div>
 
-      <ul v-reveal="120" class="community__banners" aria-label="Мы в рейтингах серверов">
+      <ul v-reveal="120" class="community__banners" :aria-label="t.community.bannersAria">
         <li v-for="banner in banners" :key="banner.href">
-          <a :href="banner.href" target="_blank" rel="noopener" :title="banner.label">
-            <img :src="banner.image" :alt="banner.label" loading="lazy">
+          <a :href="banner.href" target="_blank" rel="noopener" :title="banner.labelKey ? t.community.banners[banner.labelKey] : banner.label">
+            <img :src="banner.image" :alt="banner.labelKey ? t.community.banners[banner.labelKey] : banner.label" loading="lazy">
           </a>
         </li>
       </ul>

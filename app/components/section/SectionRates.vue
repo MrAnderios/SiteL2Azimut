@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { rates, ratesIntro } from '~/data/site'
+import { rates } from '~/data/site'
+
+const t = useContent()
 </script>
 
 <template>
-  <UiSection id="rates" eyebrow="Low Rate" title="Рейты сервера" :subtitle="ratesIntro">
+  <UiSection id="rates" :eyebrow="t.rates.eyebrow" :title="t.rates.title" :subtitle="t.rates.intro">
     <ul class="rates">
       <li v-for="(rate, i) in rates" :key="rate.label" v-reveal="i * 80" class="rates__item panel panel--interactive">
         <div class="rates__medal">

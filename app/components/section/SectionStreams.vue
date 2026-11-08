@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { streams } from '~/data/site'
+const t = useContent()
 </script>
 
 <template>
@@ -11,8 +11,8 @@ import { streams } from '~/data/site'
           <span class="streams__live">Live</span>
         </div>
         <div>
-          <h2 class="streams__title text-gold">{{ streams.title }}</h2>
-          <p class="streams__text">{{ streams.text }}</p>
+          <h2 class="streams__title text-gold">{{ t.streams.title }}</h2>
+          <p class="streams__text">{{ t.streams.text }}</p>
         </div>
         <!-- TODO: список/встраивание стримов -->
       </div>

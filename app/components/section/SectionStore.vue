@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { links } from '~/data/site'
+
+const t = useContent()
 </script>
 
 <template>
@@ -8,9 +10,9 @@ import { links } from '~/data/site'
     <div class="container store__inner">
       <img v-reveal src="/images/coin.webp" alt="Coin of Luck" class="store__coin" width="2048" height="896" loading="lazy">
       <div v-reveal="120" class="store__content">
-        <p class="store__eyebrow">Магазин</p>
+        <p class="store__eyebrow">{{ t.store.eyebrow }}</p>
         <h2 class="store__title text-gold">Coin of Luck</h2>
-        <UiButton :href="links.store" size="lg">Купить Coin of Luck</UiButton>
+        <UiButton :href="links.store" size="lg">{{ t.store.buy }}</UiButton>
       </div>
     </div>
   </section>

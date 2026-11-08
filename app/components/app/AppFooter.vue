@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nav, site, socials } from '~/data/site'
 
+const t = useContent()
 const year = new Date().getFullYear()
 </script>
 
@@ -10,22 +11,22 @@ const year = new Date().getFullYear()
     <div class="container footer__inner">
       <div class="footer__about">
         <img src="/images/logo.png" alt="Azimut" width="148" height="40" class="footer__logo" loading="lazy">
-        <p>{{ site.footerText }}</p>
+        <p>{{ t.site.footerText }}</p>
       </div>
 
-      <nav class="footer__col" aria-label="Разделы">
-        <h4 class="footer__heading">Навигация</h4>
-        <a v-for="item in nav" :key="item.href" :href="item.href">{{ item.label }}</a>
+      <nav class="footer__col" :aria-label="t.footer.navAria">
+        <h4 class="footer__heading">{{ t.footer.nav }}</h4>
+        <a v-for="item in nav" :key="item.href" :href="item.href">{{ t.nav[item.key] }}</a>
       </nav>
 
       <div class="footer__col">
-        <h4 class="footer__heading">Связь</h4>
+        <h4 class="footer__heading">{{ t.footer.contacts }}</h4>
         <a v-for="item in socials" :key="item.href" :href="item.href" target="_blank" rel="noopener">{{ item.label }}</a>
         <a :href="`mailto:${site.email}`">{{ site.email }}</a>
       </div>
     </div>
     <div class="footer__bottom">
-      <div class="container">© {{ year }} {{ site.name }}. Lineage II является товарным знаком NCSOFT Corporation.</div>
+      <div class="container">© {{ year }} {{ site.name }}. {{ t.footer.copyright }}</div>
     </div>
   </footer>
 </template>
@@ -63,7 +64,6 @@ const year = new Date().getFullYear()
 
 .footer__logo {
   height: 30px;
-  width: auto;
 }
 
 .footer__col {

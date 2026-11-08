@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { links, nav } from '~/data/site'
 
+const t = useContent()
+const { locale, locales } = useI18n()
+const localePath = useLocalePath()
+const switchLocalePath = useSwitchLocalePath()
+
 const scrolled = ref(false)
 const menuOpen = ref(false)
 
@@ -25,22 +30,37 @@ onBeforeUnmount(() => {
 <template>
   <header class="header" :class="{ 'is-scrolled': scrolled || menuOpen, 'is-open': menuOpen }">
     <div class="container header__inner">
-      <NuxtLink to="/" class="header__logo" aria-label="Azimut — на главную" @click="closeMenu">
+      <NuxtLink :to="localePath('/')" class="header__logo" :aria-label="t.header.homeAria" @click="closeMenu">
         <img src="/images/logo.png" alt="Azimut" width="148" height="40">
       </NuxtLink>
 
-      <nav id="main-nav" class="header__nav" aria-label="Основная навигация">
-        <a v-for="item in nav" :key="item.href" :href="item.href" @click="closeMenu">{{ item.label }}</a>
+      <nav id="main-nav" class="header__nav" :aria-label="t.header.navAria">
+        <a v-for="item in nav" :key="item.href" :href="item.href" @click="closeMenu">{{ t.nav[item.key] }}</a>
       </nav>
 
       <div class="header__actions">
-        <UiButton :href="links.login" size="sm">Войти</UiButton>
+        <div class="header__lang" role="group" :aria-label="t.header.langAria">
+          <NuxtLink
+            v-for="l in locales"
+            :key="l.code"
+            :to="switchLocalePath(l.code)"
+            :hreflang="l.language"
+            :lang="l.code"
+            :title="l.name"
+            :aria-current="l.code === locale ? 'true' : undefined"
+            :class="{ 'is-active': l.code === locale }"
+            @click="closeMenu"
+          >
+            {{ l.code }}
+          </NuxtLink>
+        </div>
+        <UiButton :href="links.login" size="sm">{{ t.header.login }}</UiButton>
         <button
           type="button"
           class="header__burger"
           :aria-expanded="menuOpen"
           aria-controls="main-nav"
-          :aria-label="menuOpen ? 'Закрыть меню' : 'Открыть меню'"
+          :aria-label="menuOpen ? t.header.closeMenu : t.header.openMenu"
           @click="menuOpen = !menuOpen"
         >
           <UiIcon :name="menuOpen ? 'close' : 'menu'" />
@@ -118,6 +138,30 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.header__lang {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.header__lang a {
+  padding: 6px;
+  color: var(--color-text-muted);
+  transition: color 0.2s;
+}
+
+.header__lang a + a {
+  border-left: 1px solid var(--color-line-strong);
+}
+
+.header__lang a:hover,
+.header__lang a.is-active {
+  color: var(--gold-300);
 }
 
 .header__burger {
