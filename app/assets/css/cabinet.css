@@ -1,0 +1,305 @@
+/* ==========================================================================
+   Личный кабинет: формы, таблицы, бейджи. Префикс cab- — чтобы не пересекаться с лендингом.
+   ========================================================================== */
+
+.cab-page {
+  display: grid;
+  gap: 24px;
+}
+
+/* Иначе широкие таблицы растягивают сетку шире экрана вместо прокрутки внутри .cab-table-wrap */
+.cab-page > *,
+.cab-grid > * {
+  min-width: 0;
+}
+
+.cab-panel {
+  padding: clamp(20px, 3vw, 28px);
+}
+
+.cab-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: var(--gold-300);
+  font-size: clamp(22px, 2.6vw, 28px);
+}
+
+.cab-panel__title .cab-accent {
+  color: var(--color-text);
+}
+
+.cab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.cab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Формы */
+.cab-form {
+  display: grid;
+  gap: 16px;
+}
+
+.cab-field {
+  display: grid;
+  gap: 6px;
+}
+
+.cab-field > span,
+.cab-label {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cab-input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius);
+  background: rgb(0 0 0 / 0.35);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cab-input::placeholder {
+  color: rgb(169 157 138 / 0.6);
+}
+
+.cab-input:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 3px rgb(226 171 63 / 0.15);
+}
+
+.cab-input--sm {
+  width: 110px;
+  padding: 7px 10px;
+  font-size: 14px;
+}
+
+select.cab-input {
+  appearance: none;
+  padding-right: 36px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23e2ab3f' stroke-width='1.6'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center,
+    rgb(0 0 0 / 0.35);
+}
+
+.cab-inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.cab-hint {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.cab-empty {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.cab-link {
+  color: var(--gold-300);
+  border-bottom: 1px solid var(--color-line-strong);
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.cab-link:hover {
+  color: var(--gold-100);
+  border-color: var(--gold-300);
+}
+
+/* Уведомление внутри страницы */
+.cab-note {
+  padding: 14px 18px;
+  border: 1px solid var(--color-line-strong);
+  border-left: 3px solid var(--gold-500);
+  border-radius: var(--radius);
+  background: rgb(226 171 63 / 0.06);
+  font-size: 14px;
+}
+
+.cab-note--error {
+  border-color: rgb(214 92 92 / 0.45);
+  border-left-color: #d65c5c;
+  background: rgb(214 92 92 / 0.08);
+}
+
+/* Таблицы */
+.cab-table-wrap {
+  overflow-x: auto;
+  margin-inline: -4px;
+  padding-inline: 4px;
+}
+
+.cab-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.cab-table th {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-line-strong);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cab-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-line);
+  vertical-align: middle;
+}
+
+.cab-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.cab-table .cab-num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cab-table .cab-nowrap {
+  white-space: nowrap;
+}
+
+.cab-table .cab-empty-row {
+  padding-block: 18px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* Бейджи статусов */
+.cab-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cab-badge--pending { color: var(--gold-300); }
+.cab-badge--paid,
+.cab-badge--online { color: #6fcf8e; }
+.cab-badge--canceled,
+.cab-badge--expired { color: #d68080; }
+.cab-badge--offline { color: var(--color-text-muted); }
+
+/* Переключатель */
+.cab-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.cab-toggle input {
+  position: absolute;
+  opacity: 0;
+}
+
+.cab-toggle__track {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 24px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.35);
+  transition: background 0.2s;
+}
+
+.cab-toggle__track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  transition: transform 0.2s var(--ease-out), background 0.2s;
+}
+
+.cab-toggle input:checked + .cab-toggle__track {
+  background: rgb(226 171 63 / 0.25);
+}
+
+.cab-toggle input:checked + .cab-toggle__track::after {
+  transform: translateX(20px);
+  background: var(--gold-300);
+}
+
+.cab-toggle input:focus-visible + .cab-toggle__track {
+  outline: 2px solid var(--gold-300);
+  outline-offset: 3px;
+}
+
+/* Таблица, которая на узком экране превращается в карточки: подпись колонки — из data-label */
+@media (max-width: 640px) {
+  .cab-table--stack thead {
+    display: none;
+  }
+
+  .cab-table--stack,
+  .cab-table--stack tbody,
+  .cab-table--stack tr,
+  .cab-table--stack td {
+    display: block;
+  }
+
+  .cab-table--stack tr {
+    padding-block: 12px;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .cab-table--stack tr:last-child {
+    border-bottom: 0;
+  }
+
+  .cab-table--stack td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    border: 0;
+  }
+
+  .cab-table--stack td[data-label]::before {
+    content: attr(data-label);
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+}

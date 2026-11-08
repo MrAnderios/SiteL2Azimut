@@ -9,8 +9,10 @@ export const site = {
 }
 
 export const links = {
-  login: 'https://a-bilding.ru/Register/login.php',
-  register: 'https://a-bilding.ru/Register/login.php',
+  // Личный кабинет (внутренние страницы, языковой префикс добавляет UiButton)
+  login: '/login',
+  cabinet: '/cabinet',
+  register: '/register',
   patch: 'https://drive.google.com/file/d/1j4D_xYExtOzeKC-ZUh5VHaPcPvj9zH01/view?usp=sharing',
   client: 'https://drive.google.com/file/d/1WdfNdyyZqIsxi5epQJ032w7eKRXU80xn/view?usp=sharing',
   updater: 'https://disk.yandex.ru/d/8O0FbQBAX7OpXA',

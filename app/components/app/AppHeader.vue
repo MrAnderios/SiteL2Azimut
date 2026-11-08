@@ -5,6 +5,10 @@ const t = useContent()
 const { locale, locales } = useI18n()
 const localePath = useLocalePath()
 const switchLocalePath = useSwitchLocalePath()
+// Лендинг рендерится без обращения к сессии; вошедшим кнопка «Войти» меняется на «Кабинет» уже в браузере
+const auth = useAuth()
+const user = auth.user
+onMounted(() => auth.ensure())
 
 const scrolled = ref(false)
 const menuOpen = ref(false)
@@ -54,7 +58,7 @@ onBeforeUnmount(() => {
             {{ l.code }}
           </NuxtLink>
         </div>
-        <UiButton :href="links.login" size="sm">{{ t.header.login }}</UiButton>
+        <UiButton :href="user ? links.cabinet : links.login" size="sm">{{ user ? t.header.cabinet : t.header.login }}</UiButton>
         <button
           type="button"
           class="header__burger"

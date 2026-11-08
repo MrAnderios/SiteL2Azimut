@@ -5,7 +5,30 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/i18n'],
 
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/cabinet.css'],
+
+  // Серверные настройки личного кабинета. Значения задаются переменными окружения
+  // (NUXT_DB_HOST, NUXT_SESSION_PASSWORD и т.д.) — см. .env.example. В репозиторий секреты не кладём.
+  runtimeConfig: {
+    // Ключ шифрования cookie сессии, не короче 32 символов
+    sessionPassword: '',
+    // База логин-сервера (accounts, master_accounts, платежи, рефералы)
+    db: { host: '', port: 3306, user: '', password: '', database: 'la2' },
+    // Доступ к игровым БД; если host/user пустые — используется db
+    gameDb: { host: '', port: 0, user: '', password: '' },
+    // Логины мастер-аккаунтов с доступом к админ-панели, через запятую
+    adminLogins: 'admin',
+  },
+
+  nitro: {
+    experimental: { tasks: true },
+    // Проверка реферальных наград раз в 10 минут (раньше — cron_referrals.php)
+    scheduledTasks: { '*/10 * * * *': ['referrals:check'] },
+  },
+
+  routeRules: {
+    '/api/**': { headers: { 'cache-control': 'no-store' } },
+  },
 
   // Тексты лежат в app/locales/*.ts и подключаются через useContent();
   // модуль i18n отвечает за маршруты (/ — русский, /en — английский), определение языка и SEO-теги.

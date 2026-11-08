@@ -3,21 +3,32 @@ import type { IconName } from './UiIcon.vue'
 
 const props = withDefaults(
   defineProps<{
+    /** Ссылка. Внутренние пути ('/cabinet') указываются без языкового префикса — он добавится сам. */
     href?: string
     variant?: 'primary' | 'secondary' | 'ghost'
     size?: 'sm' | 'md' | 'lg'
     icon?: IconName
+    type?: 'button' | 'submit'
+    disabled?: boolean
+    /** Показывает, что действие выполняется, и блокирует кнопку */
+    loading?: boolean
   }>(),
-  { variant: 'primary', size: 'md' },
+  { variant: 'primary', size: 'md', type: 'button' },
 )
 
+const localePath = useLocalePath()
 const isExternal = computed(() => !!props.href && /^https?:\/\//.test(props.href))
-const classes = computed(() => ['btn', `btn--${props.variant}`, `btn--${props.size}`])
+const isInternal = computed(() => !!props.href && props.href.startsWith('/') && !props.href.startsWith('//'))
+const classes = computed(() => ['btn', `btn--${props.variant}`, `btn--${props.size}`, { 'is-loading': props.loading }])
 </script>
 
 <template>
+  <NuxtLink v-if="isInternal" :to="localePath(href!)" :class="classes">
+    <UiIcon v-if="icon" :name="icon" :size="size === 'lg' ? 20 : 18" />
+    <span><slot /></span>
+  </NuxtLink>
   <a
-    v-if="href"
+    v-else-if="href"
     :href="href"
     :target="isExternal ? '_blank' : undefined"
     :rel="isExternal ? 'noopener' : undefined"
@@ -26,7 +37,7 @@ const classes = computed(() => ['btn', `btn--${props.variant}`, `btn--${props.si
     <UiIcon v-if="icon" :name="icon" :size="size === 'lg' ? 20 : 18" />
     <span><slot /></span>
   </a>
-  <button v-else type="button" :class="classes">
+  <button v-else :type="type" :class="classes" :disabled="disabled || loading" :aria-busy="loading || undefined">
     <UiIcon v-if="icon" :name="icon" :size="size === 'lg' ? 20 : 18" />
     <span><slot /></span>
   </button>
@@ -75,6 +86,17 @@ const classes = computed(() => ['btn', `btn--${props.variant}`, `btn--${props.si
 
 .btn:active {
   transform: translateY(1px);
+}
+
+.btn:disabled,
+.btn:disabled:hover {
+  cursor: default;
+  filter: saturate(0.4) brightness(0.75);
+  transform: none;
+}
+
+.btn.is-loading {
+  cursor: progress;
 }
 
 .btn--sm { --cut: 7px; padding: 9px 18px; font-size: 11px; }

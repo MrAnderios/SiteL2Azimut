@@ -16,8 +16,16 @@ npm run preview    # просмотр production-сборки
 
 ## Деплой
 
-Пуш в `main` автоматически деплоит сайт на сервер через GitHub Actions.
-Настройка сервера Ubuntu и секретов описана в [docs/DEPLOY.md](docs/DEPLOY.md).
+При пуше в `main` GitHub Actions собирает статический сайт (`npm run generate`) и заливает его на хостинг по FTP.
+Какие секреты задать и как развернуть сайт на своём сервере Ubuntu (это нужно для личного кабинета),
+описано в [docs/DEPLOY.md](docs/DEPLOY.md).
+
+## Личный кабинет
+
+Регистрация, игровые аккаунты, баланс Coin of Luck, оплата по СБП, реферальная программа и админ-панель
+(`/login`, `/cabinet`, `/admin`). Бэкенд — серверные маршруты Nuxt (`server/api`), база — MySQL логин-сервера L2.
+Для работы нужны переменные окружения из [`.env.example`](.env.example).
+Подробности и план перехода со старой PHP-CMS — [docs/CABINET.md](docs/CABINET.md).
 
 ## Структура
 
@@ -35,6 +43,8 @@ app/
    ├─ ui/                  # UiButton, UiSection, UiIcon, UiOrnament
    └─ section/             # разделы лендинга (SectionHero, SectionRates, …)
 public/images/             # изображения
+shared/cabinet.ts          # настройки и типы личного кабинета (общие для сервера и фронта)
+server/                    # бэкенд кабинета: api/, utils/, tasks/; robots.txt и sitemap.xml
 ```
 
 Чтобы поменять текст, правьте `app/locales/ru.ts` и `app/locales/en.ts`, ссылку или дату — `app/data/site.ts`.
