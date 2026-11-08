@@ -4,8 +4,9 @@ import type { Messages } from './ru'
 const en: Messages = {
   meta: {
     title: 'Azimut — Lineage 2 Epilogue',
-    pageTitle: 'Home | Azimut',
-    description: 'Azimut is a classic Lineage 2 Epilogue server with improvements and additions. Open beta on Nov 20, 2026, launch on Nov 27, 2026.',
+    pageTitle: 'Azimut — Lineage 2 Epilogue x2 server | Launch Nov 27, 2026',
+    description: 'Azimut is a classic Lineage 2 Epilogue x2 server with improvements for players from Siberia, the Russian Far East and Asia. Open beta on Nov 20, launch on Nov 27, 2026.',
+    ogImageAlt: 'Azimut logo over a knight in golden armor',
   },
 
   site: {

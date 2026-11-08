@@ -16,8 +16,9 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'ru',
     strategy: 'prefix_except_default',
-    // Полный адрес сайта для hreflang/canonical — задаётся через NUXT_PUBLIC_I18N_BASE_URL
-    baseUrl: '',
+    // Полный адрес сайта (без слеша в конце) для canonical, hreflang, og:url, og:image и sitemap.
+    // На сервере переопределяется переменной окружения NUXT_PUBLIC_I18N_BASE_URL.
+    baseUrl: 'https://l2azimut.ru',
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'azimut_lang',
@@ -31,9 +32,17 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'theme-color', content: '#0a0806' },
+        { name: 'color-scheme', content: 'dark' },
+        { name: 'format-detection', content: 'telephone=no' },
+        { name: 'apple-mobile-web-app-title', content: 'Azimut' },
+        { name: 'application-name', content: 'Azimut' },
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/site.webmanifest' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {

@@ -3,8 +3,9 @@
 const ru = {
   meta: {
     title: 'Azimut — Lineage 2 Epilogue',
-    pageTitle: 'Главная | Azimut',
-    description: 'Azimut — классический сервер Lineage 2 Epilogue с улучшениями и дополнениями. ОБТ 20.11.2026, старт 27.11.2026.',
+    pageTitle: 'Azimut — сервер Lineage 2 Epilogue x2 | Старт 27.11.2026',
+    description: 'Azimut — классический сервер Lineage 2 Epilogue x2 с улучшениями и дополнениями для игроков Сибири, Дальнего Востока и Азии. ОБТ 20.11.2026, старт 27.11.2026.',
+    ogImageAlt: 'Логотип Azimut на фоне рыцаря в золотых доспехах',
   },
 
   site: {

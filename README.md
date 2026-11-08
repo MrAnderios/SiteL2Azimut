@@ -47,5 +47,12 @@ public/images/             # изображения
 При первом заходе на `/` посетитель с английским языком браузера перенаправляется на `/en`;
 выбор языка в шапке запоминается в cookie `azimut_lang`.
 
-Для абсолютных ссылок `hreflang` задайте адрес сайта переменной окружения
-`NUXT_PUBLIC_I18N_BASE_URL=https://ваш-домен` на сервере.
+## SEO
+
+- Адрес сайта для canonical, `hreflang`, `og:url`, `og:image`, `robots.txt` и `sitemap.xml` —
+  `i18n.baseUrl` в `nuxt.config.ts` (по умолчанию `https://l2azimut.ru`). На сервере его можно
+  переопределить переменной `NUXT_PUBLIC_I18N_BASE_URL=https://ваш-домен` (без слеша в конце).
+- Заголовок, описание и alt превью — `meta` в `app/locales/*.ts`; общие мета-теги и JSON-LD — `app/app.vue`.
+- `/robots.txt` и `/sitemap.xml` отдаются из `server/routes/`; новые страницы добавляйте в `sitemap.xml.ts`.
+- Иконки (`favicon.ico`, `favicon-*.png`, `apple-touch-icon.png`, `icon-192/512.png`), манифест
+  `site.webmanifest` и превью для соцсетей `og-image.jpg` (1200×630) лежат в `public/`.
