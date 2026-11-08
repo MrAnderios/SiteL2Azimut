@@ -6,9 +6,14 @@ const { locale, locales } = useI18n()
 const localePath = useLocalePath()
 const switchLocalePath = useSwitchLocalePath()
 // Лендинг рендерится без обращения к сессии; вошедшим кнопка «Войти» меняется на «Кабинет» уже в браузере
+// Если новый кабинет выключен (статика без API), сессию не запрашиваем, кнопка ведёт в старую CMS
+const cabinetEnabled = useCabinetEnabled()
 const auth = useAuth()
 const user = auth.user
-onMounted(() => auth.ensure())
+const cabinetHref = computed(() => cabinetEnabled ? (user.value ? links.cabinet : links.login) : links.legacyCabinet)
+onMounted(() => {
+  if (cabinetEnabled) auth.ensure()
+})
 
 const scrolled = ref(false)
 const menuOpen = ref(false)
@@ -58,7 +63,7 @@ onBeforeUnmount(() => {
             {{ l.code }}
           </NuxtLink>
         </div>
-        <UiButton :href="user ? links.cabinet : links.login" size="sm">{{ user ? t.header.cabinet : t.header.login }}</UiButton>
+        <UiButton :href="cabinetHref" size="sm">{{ user ? t.header.cabinet : t.header.login }}</UiButton>
         <button
           type="button"
           class="header__burger"

@@ -13,6 +13,8 @@ export const links = {
   login: '/login',
   cabinet: '/cabinet',
   register: '/register',
+  // Старая PHP-CMS: сюда ведут ссылки на кабинет, пока новый выключен (см. useCabinetEnabled)
+  legacyCabinet: 'https://a-bilding.ru/Register/login.php',
   patch: 'https://drive.google.com/file/d/1j4D_xYExtOzeKC-ZUh5VHaPcPvj9zH01/view?usp=sharing',
   client: 'https://drive.google.com/file/d/1WdfNdyyZqIsxi5epQJ032w7eKRXU80xn/view?usp=sharing',
   updater: 'https://disk.yandex.ru/d/8O0FbQBAX7OpXA',

@@ -16,9 +16,10 @@ npm run preview    # просмотр production-сборки
 
 ## Деплой
 
-При пуше в `main` GitHub Actions собирает статический сайт (`npm run generate`) и заливает его на хостинг по FTP.
-Какие секреты задать и как развернуть сайт на своём сервере Ubuntu (это нужно для личного кабинета),
-описано в [docs/DEPLOY.md](docs/DEPLOY.md).
+При пуше в `main` GitHub Actions деплоит сайт как Node-приложение на свой сервер Ubuntu (с личным кабинетом).
+Сервер готовится скриптами из `scripts/server/`. Запасной вариант — статика по FTP на хостинг
+(переменная репозитория `DEPLOY_TARGET=ftp`; кабинет при этом выключен, ссылки ведут в старую CMS).
+Секреты, шаги и диагностика — в [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Личный кабинет
 
@@ -45,6 +46,7 @@ app/
 public/images/             # изображения
 shared/cabinet.ts          # настройки и типы личного кабинета (общие для сервера и фронта)
 server/                    # бэкенд кабинета: api/, utils/, tasks/; robots.txt и sitemap.xml
+scripts/server/            # подготовка сервера (setup.sh) и GitHub (github-setup.sh) для деплоя
 ```
 
 Чтобы поменять текст, правьте `app/locales/ru.ts` и `app/locales/en.ts`, ссылку или дату — `app/data/site.ts`.

@@ -2,12 +2,13 @@
 import { startSteps } from '~/data/site'
 
 const t = useContent()
+const steps = startSteps.map(s => ({ ...s, href: s.key === 'register' ? useCabinetHref(s.href) : s.href }))
 </script>
 
 <template>
   <UiSection id="start" :eyebrow="t.start.eyebrow" :title="t.start.title" tone="dark">
     <ol class="start">
-      <li v-for="(step, i) in startSteps" :key="step.key" v-reveal="i * 100" class="start__card panel panel--interactive">
+      <li v-for="(step, i) in steps" :key="step.key" v-reveal="i * 100" class="start__card panel panel--interactive">
         <div class="start__media">
           <img :src="step.image" alt="" width="800" height="800" loading="lazy">
           <span class="start__num">{{ String(i + 1).padStart(2, '0') }}</span>

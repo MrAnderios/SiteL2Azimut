@@ -1,34 +1,47 @@
 # Деплой (CI/CD)
 
-Сейчас сайт деплоится как **статика по FTP** на хостинг. Ниже, в разделе
-[«Деплой с Node-сервером»](#деплой-с-node-сервером-ubuntu), описан вариант с собственным сервером
-Ubuntu. Он понадобится, когда заработает личный кабинет: кабинету нужен бэкенд (`server/api`), а
-статический хостинг его не запускает.
+Деплой запускается при пуше в `main` (`.github/workflows/deploy.yml`). Куда именно, задаёт
+переменная репозитория **`DEPLOY_TARGET`**:
 
-## Как устроено сейчас
+| `DEPLOY_TARGET`        | Что деплоится                                           | Личный кабинет                      |
+|------------------------|---------------------------------------------------------|-------------------------------------|
+| не задана или `server` | Node-приложение (`npm run build`) на свой сервер по SSH | работает                            |
+| `ftp`                  | статика (`npm run generate`) по FTP на хостинг          | выключен, ссылки ведут в старую CMS |
 
-При пуше в `main` GitHub Actions (`.github/workflows/deploy.yml`):
+По умолчанию сайт деплоится на свой сервер. Как его подготовить — раздел
+[«Свой сервер»](#свой-сервер-ubuntu): два скрипта и заполнение `.env`. FTP оставлен запасным
+вариантом: `gh variable set DEPLOY_TARGET --body ftp`, вернуться на сервер — `gh variable delete DEPLOY_TARGET`.
 
-1. ставит зависимости (`npm ci`);
-2. собирает статический сайт (`npm run generate`) в `.output/public/`;
-3. проверяет, что в сборке есть `index.html`;
-4. заливает `.output/public/` на хостинг по FTP
-   ([SamKirkland/FTP-Deploy-Action](https://github.com/SamKirkland/FTP-Deploy-Action)).
+Задать или посмотреть переменную: **Settings → Secrets and variables → Actions → Variables** или
+`gh variable list`.
+
+Если во время деплоя пришёл новый пуш, новый деплой ждёт окончания текущего
+(`cancel-in-progress: false`): прерванная посередине заливка оставила бы смесь старых и новых файлов.
+
+Вручную деплой запускается так: **Actions → Deploy → Run workflow** или `gh workflow run deploy.yml`.
+
+---
+
+## Статика по FTP (запасной вариант)
+
+Работает при `DEPLOY_TARGET=ftp`.
 
 ```
 GitHub Actions ──npm run generate──▶ .output/public/ ──FTP──▶ хостинг: /www/l2azimut.ru/
 ```
 
+1. `npm ci`;
+2. `npm run generate` с `NUXT_PUBLIC_CABINET_ENABLED=false` в `.output/public/`;
+3. проверка, что в сборке есть `index.html`;
+4. заливка по FTP ([SamKirkland/FTP-Deploy-Action](https://github.com/SamKirkland/FTP-Deploy-Action)).
+
 Заливаются только изменённые файлы. Action хранит на хостинге файл `.ftp-deploy-sync-state.json`
 со списком загруженного и по нему же удаляет файлы, которых больше нет в сборке. Этот файл
 удалять не нужно, иначе следующий деплой зальёт всё заново.
 
-Если во время деплоя пришёл новый пуш, текущий деплой отменяется и запускается новый
-(`cancel-in-progress: true`).
+### Секреты
 
-## Настройка GitHub
-
-**Settings → Secrets and variables → Actions → New repository secret**:
+**Settings → Secrets and variables → Actions → Secrets** (секреты репозитория):
 
 | Секрет         | Значение                                                       |
 |----------------|----------------------------------------------------------------|
@@ -37,41 +50,31 @@ GitHub Actions ──npm run generate──▶ .output/public/ ──FTP──�
 | `FTP_PASSWORD` | пароль FTP                                                     |
 | `FTP_PORT`     | порт (можно не задавать, по умолчанию `21`)                     |
 | `FTP_DIR`      | папка сайта на хостинге, со слешем в конце (по умолчанию `/www/l2azimut.ru/`) |
+| `FTP_PROTOCOL` | `ftp` или `ftps` (можно не задавать, по умолчанию `ftp`)        |
 
-Протокол в workflow указан `ftp`, пароль при этом передаётся открытым текстом. Если хостинг
-поддерживает FTPS, лучше поменять в `deploy.yml` значение на `protocol: ftps`.
+По `ftp` пароль и файлы передаются открытым текстом. Если хостинг поддерживает FTPS, задайте
+секрет `FTP_PROTOCOL=ftps`.
 
-## Деплой
+### Проверка и откат
 
-- Автоматически: любой пуш/merge в `main`.
-- Вручную: **Actions → Deploy → Run workflow**.
+Проверить сборку локально: `npm run generate && npx serve .output/public`.
+Откат: `git revert` нужного коммита и пуш в `main`, CI зальёт предыдущую версию.
 
-Проверить сборку локально перед пушем:
-
-```bash
-npm run generate
-npx serve .output/public    # или: npm run preview
-```
-
-## Откат
-
-Сделайте `git revert` нужного коммита и запушьте в `main`, CI зальёт предыдущую версию.
-
-## Ограничения статического деплоя
+### Ограничения статики
 
 - **Нет бэкенда.** Маршруты `server/` (`/api/*`, задачи по расписанию) в статику не попадают.
-  Страницы `/login`, `/register`, `/cabinet`, `/admin` при этом соберутся, но работать не будут.
-  Для кабинета нужен Node-сервер, см. ниже.
-- **`robots.txt` и `sitemap.xml`** генерируются серверными маршрутами (`server/routes/`), и сами по
-  себе в статическую сборку не попадают, потому что на них нет ссылок со страниц. Чтобы они
-  появились в `.output/public/`, их нужно явно добавить в пререндер в `nuxt.config.ts`:
-  `nitro: { prerender: { routes: ['/robots.txt', '/sitemap.xml'] } }`.
+  Поэтому сборка идёт с `NUXT_PUBLIC_CABINET_ENABLED=false`: кнопка «Войти» и шаг «Регистрация»
+  ведут в старую CMS (`links.legacyCabinet` в `app/data/site.ts`), а страницы `/login`, `/register`,
+  `/cabinet`, `/admin` собираются как редирект туда же.
+- **`robots.txt` и `sitemap.xml`** генерируются серверными маршрутами (`server/routes/`). На них нет
+  ссылок со страниц, поэтому они явно добавлены в пререндер (`nitro.prerender.routes` в
+  `nuxt.config.ts`) и попадают в `.output/public/` при сборке.
 - **Переменные окружения** (`NUXT_PUBLIC_I18N_BASE_URL` и т.п.) подставляются один раз при сборке
   на GitHub. Задать их на хостинге нельзя.
 - **Страница 404.** В сборке есть `404.html`. Если хостинг на Apache, укажите её в `.htaccess`:
   `ErrorDocument 404 /404.html`.
 
-## Диагностика
+### Диагностика
 
 | Симптом                                   | Куда смотреть                                                     |
 |-------------------------------------------|-------------------------------------------------------------------|
@@ -84,15 +87,10 @@ npx serve .output/public    # или: npm run preview
 
 ---
 
-## Деплой с Node-сервером (Ubuntu)
+## Свой сервер (Ubuntu)
 
-Этот вариант нужен для личного кабинета (`server/api`, MySQL, сессии, задача проверки
-рефералов). Сайт работает как Node-приложение (`npm run build`), nginx проксирует к нему запросы и
-отдаёт HTTPS.
-
-> В `34a531b` workflow был переключён на FTP. Чтобы вернуться к деплою на свой сервер, восстановите
-> SSH-версию: `git show 25014a6:.github/workflows/deploy.yml > .github/workflows/deploy.yml`.
-> Настройка ниже рассчитана на неё.
+Нужен для личного кабинета (`server/api`, MySQL, сессии, задача проверки рефералов).
+Сайт работает как Node-приложение, nginx проксирует к нему запросы и отдаёт HTTPS.
 
 ```
 GitHub Actions ──ssh──▶ /var/www/azimut/
@@ -105,210 +103,125 @@ GitHub Actions ──ssh──▶ /var/www/azimut/
 Сборка идёт на стороне GitHub, поэтому на сервере не нужны ни исходники, ни `npm install`:
 `.output/` у Nuxt самодостаточна, ей нужен только Node.js.
 
-Проверено на Ubuntu 22.04 / 24.04. Команды ниже выполняются от пользователя с `sudo`.
-Вместо `azimut.example.com` подставьте свой домен.
+### Что нужно заранее
 
-### 1. Подготовка сервера
+- Сервер с Ubuntu 22.04 / 24.04 и доступом `root` по SSH (или пользователь с `sudo`).
+- DNS-запись домена (и `www`, если нужен) указывает на IP сервера — иначе не выдастся сертификат.
+- На вашем компьютере: [GitHub CLI](https://cli.github.com) после `gh auth login`.
+- MySQL логин-сервера, к которому можно открыть доступ с IP сервера.
 
-#### Node.js 22
+### Шаг 1. GitHub: ключ и секреты
 
-```bash
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt-get install -y nodejs nginx
-node -v   # v22.x
-```
-
-#### Пользователь для деплоя
+Из папки репозитория:
 
 ```bash
-sudo adduser --disabled-password --gecos "" deploy
-sudo usermod -aG systemd-journal deploy          # чтобы CI мог читать логи сервиса
-sudo mkdir -p /var/www/azimut/releases
-sudo chown -R deploy:deploy /var/www/azimut
+scripts/server/github-setup.sh <IP сервера> [порт SSH]
 ```
 
-Разрешаем `deploy` перезапускать только наш сервис и ничего больше:
+Скрипт:
+- создаёт окружение `production` и записывает в него секреты `SSH_HOST`, `SSH_PORT`, `SSH_USER`
+  (`deploy`), `SSH_KNOWN_HOSTS` (через `ssh-keyscan`, отпечатки печатаются — сверьте их с сервером),
+  `SSH_PRIVATE_KEY`;
+- генерирует отдельный ключ для GitHub Actions. Закрытая часть уходит только в секреты GitHub, на
+  диске не остаётся;
+- печатает публичный ключ и готовую команду для шага 2.
+
+### Шаг 2. Подготовка сервера
+
+Команду печатает шаг 1, подставьте домен и почту:
 
 ```bash
-echo 'deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart azimut' \
-  | sudo tee /etc/sudoers.d/azimut-deploy
-sudo chmod 440 /etc/sudoers.d/azimut-deploy
-sudo visudo -c   # проверка синтаксиса
+ssh root@<IP> "DOMAIN=l2azimut.ru CERTBOT_EMAIL=you@example.com DEPLOY_PUBKEY='ssh-ed25519 AAAA…' bash -s" \
+  < scripts/server/setup.sh
 ```
 
-#### SSH-ключ для GitHub Actions
+[`scripts/server/setup.sh`](../scripts/server/setup.sh) можно запускать повторно, он ничего не
+ломает. Что он делает:
 
-На своём компьютере (не на сервере) создайте отдельный ключ без пароля:
+| Что                     | Подробности                                                                 |
+|-------------------------|-----------------------------------------------------------------------------|
+| Пакеты                  | nginx, certbot, ufw; Node.js 22 из NodeSource, если версия ниже 22.21        |
+| Пользователь `deploy`   | владелец `/var/www/azimut`, ключ GitHub Actions в `authorized_keys`, доступ к журналу |
+| sudo                    | `deploy` может только `systemctl restart azimut`                             |
+| `/var/www/azimut/.env`  | заготовка с уже сгенерированным `NUXT_SESSION_PASSWORD`; существующий файл не трогает |
+| systemd `azimut`        | `node current/server/index.mjs` на `127.0.0.1:3000`, переменные из `.env`     |
+| nginx                   | прокси на Node, `X-Real-IP`, кеш `/_nuxt/`; конфиг, уже дополненный certbot, не перезаписывает |
+| HTTPS                   | `certbot --nginx --redirect`, если задан `CERTBOT_EMAIL`; автопродление      |
+| Фаервол                 | открыты порт SSH (берётся из конфига sshd) и 80/443                          |
+| `azimut-rollback`       | команда отката на предыдущий релиз (см. ниже)                                |
+
+Параметры: `DOMAIN` (обязательно), `CERTBOT_EMAIL`, `DEPLOY_PUBKEY`, `WWW=0` — без `www.`-домена,
+`SKIP_UFW=1` — не трогать фаервол.
+
+### Шаг 3. Доступ к базе
+
+1. На сервере заполните доступы к БД (ключ сессии уже сгенерирован):
+   ```bash
+   sudo -u deploy nano /var/www/azimut/.env
+   ```
+   Полный список переменных — [`.env.example`](../.env.example). Если игровые БД на другом
+   MySQL, заполните `NUXT_GAME_DB_*`.
+2. В MySQL выдайте права пользователю `cms_register` по
+   [`server/database/install.sql`](../server/database/install.sql), заменив `'%'` на IP сервера
+   (`setup.sh` печатает его в конце). Порт 3306 откройте только для этого IP.
+
+### Шаг 4. Первый деплой
+
+Деплой на сервер включён по умолчанию, поэтому достаточно запустить его заново:
+**Actions → Deploy → Run workflow** или `gh workflow run deploy.yml`. Дальше каждый пуш в `main`
+деплоится сам. Если раньше переменная `DEPLOY_TARGET` была выставлена в `ftp`, удалите её:
+`gh variable delete DEPLOY_TARGET`.
+
+Пока шаги 1–3 не сделаны, деплой на сервер будет падать на шаге `Configure SSH` или `Upload release`.
+
+Затем — переезд со старой CMS: DNS, редиректы старых адресов, смена пароля `cms_register`
+([CABINET.md → «Переход со старой CMS»](CABINET.md#переход-со-старой-cms)).
+
+### Как проходит деплой
+
+`npm ci` → `npm run build` → архив в `releases/<sha>-<дата>/` → `current` переключается на него →
+`systemctl restart azimut`, затем две проверки:
+
+1. **Сайт отвечает** на `127.0.0.1:3000` (до 30 секунд). Если нет — CI выводит лог сервиса,
+   **сам откатывает** `current` на предыдущий релиз, удаляет неудачный и падает.
+2. **Кабинет готов**: `GET /api/health` проверяет, что задан ключ сессии и доступна база
+   логин-сервера. Если нет — джоб падает с подсказкой, но без отката: лендинг при этом работает,
+   чинить нужно `.env` или права MySQL, а не код. `/api/health` отвечает только запросам с самого
+   сервера; через nginx он возвращает 404.
+
+Хранятся последние 5 релизов.
+
+### Откат
+
+Автоматический — при неудачной проверке, см. выше. Вручную, на сервере под `deploy`:
 
 ```bash
-ssh-keygen -t ed25519 -C "github-actions-azimut" -f ./azimut_deploy -N ""
+azimut-rollback              # на предыдущий релиз
+azimut-rollback <папка>      # на конкретный; без аргумента при ошибке выведет список
 ```
 
-Публичную часть положите на сервер:
-
-```bash
-sudo mkdir -p /home/deploy/.ssh
-sudo tee -a /home/deploy/.ssh/authorized_keys < azimut_deploy.pub   # или вставьте содержимое вручную
-sudo chown -R deploy:deploy /home/deploy/.ssh
-sudo chmod 700 /home/deploy/.ssh && sudo chmod 600 /home/deploy/.ssh/authorized_keys
-```
-
-Проверьте вход: `ssh -i azimut_deploy deploy@<IP сервера>`.
-
-#### systemd-сервис
-
-`/etc/systemd/system/azimut.service`:
-
-```ini
-[Unit]
-Description=Azimut landing (Nuxt)
-After=network.target
-
-[Service]
-Type=simple
-User=deploy
-WorkingDirectory=/var/www/azimut/current
-ExecStart=/usr/bin/node /var/www/azimut/current/server/index.mjs
-Environment=NODE_ENV=production
-Environment=HOST=127.0.0.1
-Environment=PORT=3000
-# Доступы к БД и ключ сессии личного кабинета (см. «Переменные окружения» ниже)
-EnvironmentFile=/var/www/azimut/.env
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable azimut   # запустится сам после первого деплоя
-```
-
-Пока первого деплоя не было, папки `current` нет и сервис стартовать не сможет. Это нормально.
-
-#### Переменные окружения (личный кабинет)
-
-Личному кабинету нужны доступы к MySQL логин-сервера и ключ шифрования cookie. Они лежат в файле
-`/var/www/azimut/.env` вне папок релизов, поэтому переживают деплой. В git этот файл не попадает.
-
-```bash
-sudo -u deploy tee /var/www/azimut/.env > /dev/null <<'EOF'
-NUXT_SESSION_PASSWORD=<вывод openssl rand -base64 48>
-NUXT_DB_HOST=<IP MySQL>
-NUXT_DB_PORT=3306
-NUXT_DB_USER=cms_register
-NUXT_DB_PASSWORD=<пароль>
-NUXT_DB_DATABASE=la2
-NUXT_ADMIN_LOGINS=admin
-EOF
-sudo chmod 600 /var/www/azimut/.env
-```
-
-Полный список переменных — в [`.env.example`](../.env.example). После изменения файла:
-`sudo systemctl restart azimut`.
-
-- `NUXT_SESSION_PASSWORD` не меняйте без причины: при смене все игроки будут разлогинены.
-- MySQL должен принимать подключения с IP этого сервера; пользователю `cms_register` достаточно прав
-  из [`server/database/install.sql`](../server/database/install.sql). Порт 3306 лучше открыть только для IP сайта.
-- Cookie сессии ставится с флагом `Secure`, поэтому кабинет работает только по HTTPS (см. certbot ниже).
-- Nginx должен передавать `X-Real-IP` (он уже есть в конфиге ниже): по нему работают ограничение
-  попыток входа и защита реферальной программы от регистраций с одного IP.
-
-#### Nginx
-
-`/etc/nginx/sites-available/azimut`:
-
-```nginx
-server {
-    listen 80;
-    server_name azimut.example.com www.azimut.example.com;
-
-    # Хешированные ассеты Nuxt можно кешировать навсегда
-    location /_nuxt/ {
-        proxy_pass http://127.0.0.1:3000;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    gzip on;
-    gzip_types text/css application/javascript application/json image/svg+xml;
-}
-```
-
-```bash
-sudo ln -s /etc/nginx/sites-available/azimut /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-#### HTTPS и фаервол
-
-DNS-запись домена должна уже указывать на сервер.
-
-```bash
-sudo apt-get install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d azimut.example.com -d www.azimut.example.com
-
-sudo ufw allow OpenSSH
-sudo ufw allow 'Nginx Full'
-sudo ufw enable
-```
-
-Certbot сам допишет HTTPS в конфиг nginx и настроит автопродление.
-
-### 2. Настройка GitHub
-
-В репозитории: **Settings → Environments → New environment**, имя `production`.
-В нём (**Environment secrets**) добавьте:
-
-| Секрет            | Значение                                                              |
-|-------------------|-----------------------------------------------------------------------|
-| `SSH_HOST`        | IP или домен сервера                                                  |
-| `SSH_PORT`        | порт SSH (можно не задавать, по умолчанию `22`)                        |
-| `SSH_USER`        | `deploy`                                                              |
-| `SSH_PRIVATE_KEY` | содержимое файла `azimut_deploy` целиком, включая строки `-----BEGIN…`/`-----END…` |
-| `SSH_KNOWN_HOSTS` | вывод `ssh-keyscan -p <порт> <IP сервера>` (выполнить на своём компьютере) |
-
-После этого файл `azimut_deploy` с компьютера можно удалить.
-
-### 3. Деплой и откат
-
-Шаги пайплайна: `npm ci` → `npm run build` → загрузка архива в `releases/` → переключение
-`current` → `systemctl restart azimut` → проверка, что сайт отвечает на `127.0.0.1:3000`.
-Если проверка не прошла, джоб падает и выводит последние строки лога сервиса.
-
-Откат на сервере, под пользователем `deploy`:
-
-```bash
-ls -1t /var/www/azimut/releases          # список релизов, новые сверху
-ln -sfn /var/www/azimut/releases/<нужный> /var/www/azimut/current
-sudo systemctl restart azimut
-```
+Или `git revert` нужного коммита и пуш в `main`.
 
 ### Диагностика
 
 ```bash
 systemctl status azimut
-journalctl -u azimut -f                  # логи приложения
+journalctl -u azimut -f                      # логи приложения
 sudo tail -f /var/log/nginx/error.log
-curl -I http://127.0.0.1:3000            # отвечает ли Node напрямую
+curl -s http://127.0.0.1:3000/api/health     # {"ok":true,"session":true,"db":true}
 ```
 
 | Симптом                                    | Куда смотреть                                                      |
 |--------------------------------------------|--------------------------------------------------------------------|
-| `Permission denied (publickey)` в Actions  | ключ в `authorized_keys`, права на `~/.ssh`, `SSH_USER`             |
-| `Host key verification failed`             | `SSH_KNOWN_HOSTS` пустой или устарел, пересоздать через `ssh-keyscan` |
-| `sudo: a password is required`             | файл `/etc/sudoers.d/azimut-deploy`, путь `/usr/bin/systemctl`      |
+| Запускается FTP вместо сервера             | `gh variable list`: `DEPLOY_TARGET` должна быть не задана или `server` |
+| `Permission denied (publickey)` в Actions  | ключ в `~deploy/.ssh/authorized_keys`; перезапустите шаги 1–2       |
+| `Host key verification failed`             | ключ сервера сменился: перезапустите `github-setup.sh`              |
+| `sudo: a password is required`             | `/etc/sudoers.d/azimut-deploy`; перезапустите `setup.sh`            |
+| «Сайт не ответил после рестарта»           | лог в выводе джоба или `journalctl -u azimut`; CI уже откатился     |
+| «Личный кабинет не готов», `session: false`| `NUXT_SESSION_PASSWORD` в `.env` пустой или короче 32 символов      |
+| «Личный кабинет не готов», `db: false`     | доступы в `.env`, права `cms_register`, порт 3306 открыт для IP сервера |
 | 502 Bad Gateway                            | сервис упал: `journalctl -u azimut`                                 |
-| Health check не проходит, порт другой      | `PORT` в unit-файле и `127.0.0.1:3000` в `deploy.yml` должны совпадать |
+| Вход в кабинет не сохраняется              | сайт открыт по HTTP: cookie сессии `Secure`, нужен HTTPS            |
+
+`APP_DIR`, `SERVICE` и `PORT` заданы и в `scripts/server/setup.sh`, и в `deploy.yml` — менять их
+можно только в обоих местах сразу.

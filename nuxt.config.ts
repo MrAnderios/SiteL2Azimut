@@ -18,12 +18,19 @@ export default defineNuxtConfig({
     gameDb: { host: '', port: 0, user: '', password: '' },
     // Логины мастер-аккаунтов с доступом к админ-панели, через запятую
     adminLogins: 'admin',
+    public: {
+      // Новый личный кабинет. false — ссылки на кабинет ведут в старую CMS (статическая сборка без бэкенда).
+      // Переопределяется переменной NUXT_PUBLIC_CABINET_ENABLED при сборке.
+      cabinetEnabled: true,
+    },
   },
 
   nitro: {
     experimental: { tasks: true },
     // Проверка реферальных наград раз в 10 минут (раньше — cron_referrals.php)
     scheduledTasks: { '*/10 * * * *': ['referrals:check'] },
+    // robots.txt и sitemap.xml — серверные маршруты; без явного пререндера они не попадут в статическую сборку
+    prerender: { routes: ['/robots.txt', '/sitemap.xml'] },
   },
 
   routeRules: {
