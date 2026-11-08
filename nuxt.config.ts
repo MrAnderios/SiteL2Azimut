@@ -11,7 +11,7 @@ export default defineNuxtConfig({
       title: 'Azimut — Lineage 2 Epilogue',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Azimut — классический сервер Lineage 2 Epilogue с улучшениями и дополнениями. Старт 11.09.2026.' },
+        { name: 'description', content: 'Azimut — классический сервер Lineage 2 Epilogue с улучшениями и дополнениями. ОБТ 20.11.2026, старт 27.11.2026.' },
         { name: 'theme-color', content: '#0a0806' },
       ],
       link: [

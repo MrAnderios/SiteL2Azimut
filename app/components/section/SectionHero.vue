@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { launch, links, site } from '~/data/site'
+import { launch, links, obt, site } from '~/data/site'
 
 // Детерминированные параметры искр — одинаковые на сервере и клиенте (без hydration mismatch)
 const embers = Array.from({ length: 22 }, (_, i) => ({
@@ -34,8 +34,22 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
       </div>
 
       <div class="hero__launch">
-        <span class="hero__launch-label">Старт сервера</span>
-        <time class="hero__launch-date" :datetime="launch.date">{{ launch.label }}</time>
+        <span class="hero__launch-label">До старта сервера</span>
+        <UiCountdown :to="launch.date" class="hero__countdown">
+          <template #finished>
+            <span class="hero__launch-date">Сервер открыт!</span>
+          </template>
+        </UiCountdown>
+        <div class="hero__dates">
+          <span class="hero__date">
+            <span class="hero__date-label">ОБТ</span>
+            <time :datetime="obt.date">{{ obt.label }}</time>
+          </span>
+          <span class="hero__date hero__date--main">
+            <span class="hero__date-label">Старт</span>
+            <time :datetime="launch.date">{{ launch.label }}</time>
+          </span>
+        </div>
       </div>
     </div>
 
@@ -54,6 +68,14 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
   padding-block: calc(var(--header-height) + 48px) 96px;
   overflow: hidden;
   text-align: center;
+}
+
+/* Десктоп: hero ровно на высоту экрана (растёт, только если контент не влезает) */
+@media (min-width: 1025px) {
+  .hero {
+    min-height: 100svh;
+    padding-block: calc(var(--header-height) + 24px) 80px;
+  }
 }
 
 .hero__bg {
@@ -148,9 +170,10 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
 .hero__launch {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
   margin-top: 48px;
-  padding: 14px 32px;
+  padding: 16px clamp(16px, 5vw, 48px);
   border-block: 1px solid var(--color-line-strong);
   background: linear-gradient(90deg, transparent, rgb(10 8 6 / 0.7), transparent);
 }
@@ -169,6 +192,36 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
   font-size: 26px;
   font-weight: 700;
   letter-spacing: 0.04em;
+}
+
+.hero__countdown {
+  margin-top: 12px;
+}
+
+.hero__dates {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 28px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.hero__date-label {
+  margin-right: 8px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hero__date--main time {
+  color: var(--gold-300);
 }
 
 .hero__scroll {
