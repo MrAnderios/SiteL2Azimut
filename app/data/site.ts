@@ -74,9 +74,13 @@ export const startSteps: { key: keyof Messages['start']['steps'], image: string,
 export const banners: { label: string, labelKey?: keyof Messages['community']['banners'], href: string, image: string }[] = [
   { label: 'L2Elo', href: 'https://l2elo.com/', image: '/images/banners/l2elo.png' },
   { label: 'L2-servera', labelKey: 'l2servera', href: 'https://l2-servera.com', image: '/images/banners/l2-servera.gif' },
+  { label: 'L2Hop', href: 'https://l2hop.com/', image: '/images/banners/l2hop.jpg' },
   { label: 'L2Argument', href: 'https://l2argument.ru', image: '/images/banners/l2argument.jpg' },
   { label: 'L2Spot', href: 'https://l2spot.com/', image: '/images/banners/l2spot.png' },
   { label: 'L2Vote', href: 'https://t.me/L2Vote_bot?start=388', image: '/images/banners/l2vote.png' },
+  { label: 'L2Links', href: 'https://l2links.com', image: '/images/banners/l2links.png' },
+  { label: 'L2-TOP', href: 'https://l2-top.com', image: '/images/banners/l2-top.gif' },
+  { label: 'New-Lineage', href: 'https://new-lineage.ru', image: '/images/banners/new-lineage.gif' },
 ]
 
 // Пункты меню: '#якорь' — раздел главной (работает с любой страницы), '/путь' — отдельная страница.
