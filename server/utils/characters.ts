@@ -6,6 +6,15 @@ export async function gameAccountLogins(email: string): Promise<string[]> {
   return list.map(a => a.login)
 }
 
+/**
+ * Сравнение логинов так же, как в MySQL (collation utf8_general_ci): без учёта регистра и пробелов в конце.
+ * Игровой сервер обычно хранит characters.account_name в нижнем регистре, а accounts.login — как ввёл игрок,
+ * поэтому строгое === теряет персонажей (в PHP сравнение было в SQL и этой проблемы не было).
+ */
+export function sameLogin(a: string, b: string): boolean {
+  return a.trimEnd().toLowerCase() === b.trimEnd().toLowerCase()
+}
+
 export interface CharacterRow extends Character {
   account: string
 }

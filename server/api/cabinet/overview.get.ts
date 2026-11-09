@@ -22,7 +22,7 @@ export default defineEventHandler(async (event): Promise<CabinetOverview> => {
       id: p.server.id,
       name: p.server.name,
       characters: p.chars
-        ? p.chars.filter(c => c.account === login).map(({ account: _, ...c }) => c)
+        ? p.chars.filter(c => sameLogin(c.account, login)).map(({ account: _, ...c }) => c)
         : null,
     })),
   }))
