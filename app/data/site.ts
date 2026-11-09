@@ -18,7 +18,8 @@ export const links = {
   patch: 'https://drive.google.com/file/d/1j4D_xYExtOzeKC-ZUh5VHaPcPvj9zH01/view?usp=sharing',
   client: 'https://drive.google.com/file/d/1WdfNdyyZqIsxi5epQJ032w7eKRXU80xn/view?usp=sharing',
   updater: 'https://disk.yandex.ru/d/8O0FbQBAX7OpXA',
-  store: 'https://www.l2azimut.com/page', // TODO: перенести страницу магазина
+  // Реквизиты для оплаты Coin of Luck выдаются в личных сообщениях Telegram
+  payment: 'https://t.me/aleks_xl',
   telegram: 'https://t.me/ShadowEpilogue',
   telegramDescription: 'https://web.telegram.org/k/#@ShadowEpilogue',
   telegramBonuses: 'https://t.me/ShadowEpilogue/2060/5182',

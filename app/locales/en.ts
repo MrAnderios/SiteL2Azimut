@@ -256,6 +256,27 @@ const en: Messages = {
   store: {
     eyebrow: 'Store',
     buy: 'Buy Coin of Luck',
+    modal: {
+      title: 'Coin of Luck',
+      close: 'Close',
+      intro: 'Coin of Luck is the exclusive premium currency of the Azimut server. Use it to get unique bonuses, customize your character and speed up your progress in the world of Lineage 2 Epilogue.',
+      priceHeading: 'Price',
+      price: [
+        '1 Coin of Luck = 1 Russian ruble',
+        'Minimum donation — 300 Coin of Luck',
+        'Payments to an international Visa card are converted at your bank’s exchange rate',
+      ],
+      bonusesHeading: 'Bonuses',
+      bonuses: [
+        'Open beta bonus (before launch) — +30% to the payment amount',
+        'From 2000 RUB — +20%',
+        'From 5000 RUB — +30%',
+      ],
+      paymentHeading: 'Payment details',
+      paymentNote: 'Payment details are provided in Telegram — message us and specify your payment method.',
+      paymentRu: 'Russian bank card',
+      paymentVisa: 'Visa card (international)',
+    },
   },
 
   stats: {

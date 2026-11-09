@@ -2,6 +2,7 @@
 import { links } from '~/data/site'
 
 const t = useContent()
+const modalOpen = ref(false)
 </script>
 
 <template>
@@ -12,9 +13,36 @@ const t = useContent()
       <div v-reveal="120" class="store__content">
         <p class="store__eyebrow">{{ t.store.eyebrow }}</p>
         <h2 class="store__title text-gold">Coin of Luck</h2>
-        <UiButton :href="links.store" size="lg">{{ t.store.buy }}</UiButton>
+        <UiButton size="lg" aria-haspopup="dialog" @click="modalOpen = true">{{ t.store.buy }}</UiButton>
       </div>
     </div>
+
+    <UiModal v-model:open="modalOpen" :title="t.store.modal.title" :close-label="t.store.modal.close">
+      <p class="store__modal-intro">{{ t.store.modal.intro }}</p>
+
+      <section class="store__modal-section">
+        <h3 class="store__modal-heading">{{ t.store.modal.priceHeading }}</h3>
+        <ul class="list-diamond store__modal-list">
+          <li v-for="item in t.store.modal.price" :key="item">{{ item }}</li>
+        </ul>
+      </section>
+
+      <section class="store__modal-section">
+        <h3 class="store__modal-heading">{{ t.store.modal.bonusesHeading }}</h3>
+        <ul class="list-diamond store__modal-list">
+          <li v-for="item in t.store.modal.bonuses" :key="item">{{ item }}</li>
+        </ul>
+      </section>
+
+      <section class="store__modal-section">
+        <h3 class="store__modal-heading">{{ t.store.modal.paymentHeading }}</h3>
+        <p>{{ t.store.modal.paymentNote }}</p>
+        <div class="store__modal-actions">
+          <UiButton :href="links.payment" icon="telegram">{{ t.store.modal.paymentRu }}</UiButton>
+          <UiButton :href="links.payment" icon="telegram" variant="secondary">{{ t.store.modal.paymentVisa }}</UiButton>
+        </div>
+      </section>
+    </UiModal>
   </section>
 </template>
 
@@ -73,5 +101,30 @@ const t = useContent()
 .store__title {
   margin-top: -8px;
   font-size: clamp(40px, 6vw, 64px);
+}
+
+.store__modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-line);
+}
+
+.store__modal-heading {
+  color: var(--gold-300);
+  font-size: 22px;
+}
+
+.store__modal-list {
+  gap: 8px;
+  font-size: 15px;
+}
+
+.store__modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
 }
 </style>
