@@ -2,10 +2,8 @@
 import { links, nav, navTarget } from '~/data/site'
 
 const t = useContent()
-const { locale, locales } = useI18n()
 const localePath = useLocalePath()
 const route = useRoute()
-const switchLocalePath = useSwitchLocalePath()
 // Лендинг рендерится без обращения к сессии; вошедшим кнопка «Войти» меняется на «Кабинет» уже в браузере
 // Если новый кабинет выключен (статика без API), сессию не запрашиваем, кнопка ведёт в старую CMS
 const cabinetEnabled = useCabinetEnabled()
@@ -40,9 +38,7 @@ onBeforeUnmount(() => {
 <template>
   <header class="header" :class="{ 'is-scrolled': scrolled || menuOpen, 'is-open': menuOpen }">
     <div class="container header__inner">
-      <NuxtLink :to="localePath('/')" class="header__logo" :aria-label="t.header.homeAria" @click="closeMenu">
-        <img src="/images/logo.png" alt="Azimut" width="148" height="40">
-      </NuxtLink>
+      <AppLogo @click="closeMenu" />
 
       <nav id="main-nav" class="header__nav" :aria-label="t.header.navAria">
         <NuxtLink
@@ -59,21 +55,7 @@ onBeforeUnmount(() => {
       </nav>
 
       <div class="header__actions">
-        <div class="header__lang" role="group" :aria-label="t.header.langAria">
-          <NuxtLink
-            v-for="l in locales"
-            :key="l.code"
-            :to="switchLocalePath(l.code)"
-            :hreflang="l.language"
-            :lang="l.code"
-            :title="l.name"
-            :aria-current="l.code === locale ? 'true' : undefined"
-            :class="{ 'is-active': l.code === locale }"
-            @click="closeMenu"
-          >
-            {{ l.code }}
-          </NuxtLink>
-        </div>
+        <AppLangSwitch @click="closeMenu" />
         <UiButton :href="cabinetHref" size="sm">{{ user ? t.header.cabinet : t.header.login }}</UiButton>
         <button
           type="button"
@@ -110,11 +92,6 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 40px;
   height: var(--header-height);
-}
-
-.header__logo img {
-  height: 34px;
-  width: auto;
 }
 
 .header__nav {
@@ -160,30 +137,6 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.header__lang {
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.header__lang a {
-  padding: 6px;
-  color: var(--color-text-muted);
-  transition: color 0.2s;
-}
-
-.header__lang a + a {
-  border-left: 1px solid var(--color-line-strong);
-}
-
-.header__lang a:hover,
-.header__lang a.is-active {
-  color: var(--gold-300);
 }
 
 .header__burger {

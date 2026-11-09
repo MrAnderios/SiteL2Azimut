@@ -71,10 +71,6 @@ const year = new Date().getFullYear()
   max-width: 380px;
 }
 
-.footer__logo {
-  height: 30px;
-}
-
 .footer__col {
   display: flex;
   flex-direction: column;

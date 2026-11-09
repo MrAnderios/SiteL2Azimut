@@ -88,6 +88,151 @@ const en: Messages = {
     moreAfter: '.',
     description: 'Description',
     bonuses: 'Bonuses',
+    modalClose: 'Close',
+    modals: {
+      description: {
+        title: 'Server description',
+        sections: [
+          {
+            heading: 'General',
+            text: [],
+            list: [
+              'Auto-loot (herb auto-loot is optional, via .cfg)',
+              'No automatic skill learning',
+              'MW craft chance — 5%',
+              'Double craft chance — 3%',
+              'Detailed mob info with drop/spoil lists via Shift+click',
+              '.clan command — grant clan members permission to take items from the clan warehouse',
+              'Blacksmith functions in towns are unchanged',
+              'Base buff limit — 20, dances/songs — 12',
+              'Convenient Community Buff and teleport with an invader map',
+              'Weight limit increased 5x',
+              'Party XP rates increased by 25%',
+              'Opening SoD requires 10 Tiat kills',
+              'Weapon, armor and jewelry enchant chances are the same as on official servers',
+              'The Southern Merchant sells crystal enchant scrolls with a base chance raised by 15%',
+              'Safe enchant: +3, +4 for full-body armor',
+              'No shop items that affect game balance',
+              'The shop offers accessories, pets and quest items',
+              'Cursed weapons are disabled',
+              'Spoil agathion added',
+              'New "Arena" instance in Oren — a simplified Ant Queen for players in different time zones and solo players',
+            ],
+          },
+          {
+            heading: 'Armor enchant bonuses',
+            text: [],
+            list: [
+              'Heavy armor: +6 — P. Atk. +7%, +8 — stun resistance +5%, +10 — STR +1',
+              'Light armor: +6 — Atk. Spd. +3%, +8 — evasion +3, +10 — DEX +1',
+              'Robes: +6 — Casting Spd. +3%, +8 — magic critical damage +5%, +10 — INT +1',
+            ],
+          },
+          {
+            heading: 'Auto-farm',
+            text: ['Auto-farm is available for 3 hours a day. Start it with the .autofarm command.'],
+            list: [
+              'Attack skills, buffs and self-buffs can be used',
+              'Buffs target only the caster — you cannot buff your party with targeted buffs',
+              'Attack, target search and auto-loot are built in by default',
+              'Up to 4 skills of your choice',
+              'Mages attack with skills only',
+              'Orc mages can combine regular attacks and skills',
+            ],
+          },
+          {
+            heading: 'Skills and buffs',
+            text: [],
+            list: [
+              'Base duration of dances/songs increased 5x (10 minutes)',
+              'Rage, War Cry and Duelist Spirit last 5 minutes',
+              'Cat/horse buffs last 5 minutes',
+              'Scavenger: Sweeper Festival (mass sweep) added at level 43',
+              'Each character can take up to 5 subclasses (certification skills still start from 3)',
+              'Maximum subclass level — 80',
+              'Certification skills work on both the main class and subclasses',
+              'Prophet: mage transformation added at level 52',
+            ],
+          },
+          {
+            heading: 'Blade Dancer',
+            text: [],
+            list: [
+              '"Bloody Massacre" — a dual-sword strike with a chance to cause bleeding and slow running speed for 1 minute. Learned from level 40 until the 3rd class transfer.',
+              'Dance "Boiling Blood" — for 1 minute increases party members\' P./M. Atk. by 20%, Atk./Casting Spd. by 13% and melee vampiric rage by 70%. Cooldown 5 minutes. Learned at level 76.',
+            ],
+          },
+          {
+            heading: 'Swordsinger',
+            text: [],
+            list: [
+              '"Ray of Light" strike — a melee physical attack that has a chance to lower stun resistance and applies mana burn for 1 minute. Learned from level 40 until the 3rd class transfer.',
+              'Song "Call of Ancestors" — for 1 minute increases party members\' P./M. Def. by 25%, Atk./Casting Spd. by 13% and running speed by 20%. Cooldown 5 minutes. Learned at level 76.',
+              'Shield Stun — a classic stun, like the Temple Knight\'s. Learned from level 40 until the 3rd class transfer.',
+            ],
+          },
+          {
+            heading: 'Also on the server',
+            text: [],
+            list: ['Col and Adena professions', 'Services', 'Bounty hunting', 'Col market', 'Events'],
+          },
+          {
+            heading: 'Events',
+            text: [],
+            list: [
+              'Last Hero',
+              'TvT',
+              'Bounty hunting — place any reward on the head of a specific player',
+              'Rewards are paid in "Shilens", which can be spent on special items at the Southern Merchant in Giran',
+              'Daily monster hunting quests',
+              'Updated Kanabion Essence, rewards at the Southern Merchant',
+            ],
+          },
+          {
+            heading: 'Item changes',
+            text: [],
+            list: [
+              'Earring of Orfen — magic critical damage +15%, reflects 5% of melee physical damage, healing power +6%',
+              'Ring of Core — physical critical chance +10%',
+            ],
+          },
+        ],
+      },
+      bonuses: {
+        title: 'Bonuses',
+        sections: [
+          {
+            heading: 'Referral program',
+            text: ['The referrer gets a reward for every invited player:'],
+            list: [
+              '1st class transfer — 50 Col',
+              '2nd class transfer — 100 Col',
+              '3rd class transfer — 250 Col',
+              'Noblesse — 200 Col',
+              '5% of every donation',
+            ],
+          },
+          {
+            heading: 'Bonus for invited players',
+            text: [],
+            list: [
+              '1st class transfer — 15 Col',
+              '2nd class transfer — 30 Col',
+              '3rd class transfer — 70 Col',
+              'Noblesse — 200 Col',
+            ],
+          },
+          {
+            heading: 'Top-up bonus',
+            text: [],
+            list: [
+              '+30% to the payment amount before the server launch',
+              '+20% to donations of 2000 Col or more',
+            ],
+          },
+        ],
+      },
+    },
   },
 
   bonuses: {

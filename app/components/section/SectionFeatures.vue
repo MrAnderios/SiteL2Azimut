@@ -2,6 +2,17 @@
 import { links } from '~/data/site'
 
 const t = useContent()
+
+type ModalKey = 'description' | 'bonuses'
+const activeModal = ref<ModalKey | null>(null)
+const modalOpen = computed({
+  get: () => activeModal.value !== null,
+  set: (value) => { if (!value) activeModal.value = null },
+})
+// Держим последний открытый контент, чтобы он не пропадал во время закрытия
+const lastModal = ref<ModalKey>('description')
+watch(activeModal, (key) => { if (key) lastModal.value = key })
+const modal = computed(() => t.value.features.modals[lastModal.value])
 </script>
 
 <template>
@@ -24,15 +35,25 @@ const t = useContent()
         <ul class="features__list list-diamond">
           <li v-for="item in t.features.list" :key="item">{{ item }}</li>
         </ul>
+        <div class="features__actions">
+          <UiButton variant="secondary" aria-haspopup="dialog" @click="activeModal = 'description'">{{ t.features.description }}</UiButton>
+          <UiButton variant="secondary" aria-haspopup="dialog" @click="activeModal = 'bonuses'">{{ t.features.bonuses }}</UiButton>
+        </div>
         <p class="features__more">
           {{ t.features.moreBefore }} <a :href="links.telegram" target="_blank" rel="noopener">{{ t.features.moreLink }}</a>{{ t.features.moreAfter }}
         </p>
-        <div class="features__actions">
-          <UiButton :href="links.telegramDescription" variant="secondary">{{ t.features.description }}</UiButton>
-          <UiButton :href="links.telegramBonuses" variant="secondary">{{ t.features.bonuses }}</UiButton>
-        </div>
       </div>
     </div>
+
+    <UiModal v-model:open="modalOpen" :title="modal.title" :close-label="t.features.modalClose">
+      <section v-for="(section, i) in modal.sections" :key="i" class="features__modal-section">
+        <h3 v-if="section.heading" class="features__modal-heading">{{ section.heading }}</h3>
+        <p v-for="(text, j) in section.text" :key="j">{{ text }}</p>
+        <ul v-if="section.list.length" class="list-diamond features__modal-list">
+          <li v-for="(item, j) in section.list" :key="j">{{ item }}</li>
+        </ul>
+      </section>
+    </UiModal>
   </UiSection>
 </template>
 
@@ -121,6 +142,27 @@ const t = useContent()
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+}
+
+.features__modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.features__modal-section + .features__modal-section {
+  padding-top: 20px;
+  border-top: 1px solid var(--color-line);
+}
+
+.features__modal-heading {
+  color: var(--gold-300);
+  font-size: 22px;
+}
+
+.features__modal-list {
+  gap: 8px;
+  font-size: 15px;
 }
 
 @media (max-width: 900px) {

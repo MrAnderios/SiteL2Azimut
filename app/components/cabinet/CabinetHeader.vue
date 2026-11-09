@@ -2,9 +2,7 @@
 const { t } = useCabinet()
 const content = useContent()
 const auth = useAuth()
-const { locale, locales } = useI18n()
 const localePath = useLocalePath()
-const switchLocalePath = useSwitchLocalePath()
 
 const menuOpen = ref(false)
 const route = useRoute()
@@ -35,9 +33,7 @@ async function logout() {
 <template>
   <header class="cab-header" :class="{ 'is-open': menuOpen }">
     <div class="container cab-header__inner">
-      <NuxtLink :to="localePath('/')" class="cab-header__logo" :aria-label="content.header.homeAria">
-        <img src="/images/logo.png" alt="Azimut" width="148" height="40">
-      </NuxtLink>
+      <AppLogo class="cab-header__logo" />
 
       <nav v-if="items.length" id="cabinet-nav" class="cab-header__nav" :aria-label="t.nav.aria">
         <NuxtLink
@@ -53,20 +49,7 @@ async function logout() {
       </nav>
 
       <div class="cab-header__actions">
-        <div class="cab-header__lang" role="group" :aria-label="content.header.langAria">
-          <NuxtLink
-            v-for="l in locales"
-            :key="l.code"
-            :to="switchLocalePath(l.code)"
-            :hreflang="l.language"
-            :lang="l.code"
-            :title="l.name"
-            :aria-current="l.code === locale ? 'true' : undefined"
-            :class="{ 'is-active': l.code === locale }"
-          >
-            {{ l.code }}
-          </NuxtLink>
-        </div>
+        <AppLangSwitch />
         <NuxtLink v-if="!items.length" :to="localePath('/')" class="cab-header__site">{{ t.nav.toSite }}</NuxtLink>
         <button
           v-if="items.length"
@@ -103,11 +86,6 @@ async function logout() {
 
 .cab-header__logo {
   margin-right: auto;
-}
-
-.cab-header__logo img {
-  height: 34px;
-  width: auto;
 }
 
 .cab-header__nav {
@@ -150,28 +128,6 @@ async function logout() {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.cab-header__lang {
-  display: flex;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.cab-header__lang a {
-  padding: 6px;
-  color: var(--color-text-muted);
-}
-
-.cab-header__lang a + a {
-  border-left: 1px solid var(--color-line-strong);
-}
-
-.cab-header__lang a:hover,
-.cab-header__lang a.is-active {
-  color: var(--gold-300);
 }
 
 .cab-header__site {

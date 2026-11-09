@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
 const notices = useNotices()
-const content = useContent()
 
 // Ошибки прошлой страницы при переходе не нужны; успешные уведомления исчезают сами
 watch(() => route.path, () => {
@@ -15,9 +14,7 @@ watch(() => route.path, () => {
     <main class="cab-layout__main container">
       <slot />
     </main>
-    <footer class="cab-layout__footer container">
-      © Azimut · {{ content.footer.copyright }}
-    </footer>
+    <AppFooter />
     <CabinetToasts />
   </div>
 </template>
@@ -36,13 +33,5 @@ watch(() => route.path, () => {
   flex: 1;
   padding-top: calc(var(--header-height) + clamp(24px, 4vw, 48px));
   padding-bottom: 64px;
-}
-
-.cab-layout__footer {
-  padding-block: 24px;
-  border-top: 1px solid var(--color-line);
-  color: var(--color-text-muted);
-  font-size: 12px;
-  text-align: center;
 }
 </style>
