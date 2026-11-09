@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { links, nav } from '~/data/site'
+import { links, nav, navTarget } from '~/data/site'
 
 const t = useContent()
 const { locale, locales } = useI18n()
 const localePath = useLocalePath()
+const route = useRoute()
 const switchLocalePath = useSwitchLocalePath()
 // Лендинг рендерится без обращения к сессии; вошедшим кнопка «Войти» меняется на «Кабинет» уже в браузере
 // Если новый кабинет выключен (статика без API), сессию не запрашиваем, кнопка ведёт в старую CMS
@@ -44,7 +45,17 @@ onBeforeUnmount(() => {
       </NuxtLink>
 
       <nav id="main-nav" class="header__nav" :aria-label="t.header.navAria">
-        <a v-for="item in nav" :key="item.href" :href="item.href" @click="closeMenu">{{ t.nav[item.key] }}</a>
+        <NuxtLink
+          v-for="item in nav"
+          :key="item.href"
+          :to="navTarget(item.href, localePath)"
+          active-class=""
+          exact-active-class=""
+          :class="{ 'is-active': !item.href.startsWith('#') && route.path === localePath(item.href) }"
+          @click="closeMenu"
+        >
+          {{ t.nav[item.key] }}
+        </NuxtLink>
       </nav>
 
       <div class="header__actions">
@@ -134,11 +145,13 @@ onBeforeUnmount(() => {
   transition: left 0.3s var(--ease-out), right 0.3s var(--ease-out);
 }
 
-.header__nav a:hover {
+.header__nav a:hover,
+.header__nav a.is-active {
   color: var(--gold-300);
 }
 
-.header__nav a:hover::after {
+.header__nav a:hover::after,
+.header__nav a.is-active::after {
   left: 0;
   right: 0;
 }

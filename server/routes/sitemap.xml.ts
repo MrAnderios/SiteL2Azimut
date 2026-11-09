@@ -4,7 +4,7 @@ const locales = [
   { code: 'ru', hreflang: 'ru-RU', prefix: '' },
   { code: 'en', hreflang: 'en-US', prefix: '/en' },
 ]
-const pages = ['/']
+const pages = ['/', '/stats']
 
 export default defineEventHandler((event) => {
   const baseUrl = useRuntimeConfig(event).public.i18n.baseUrl as string

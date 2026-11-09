@@ -16,7 +16,7 @@ const ru = {
   nav: {
     rates: 'Рейты',
     features: 'Особенности',
-    store: 'Магазин',
+    stats: 'Статистика',
     start: 'Начать игру',
     community: 'Сообщество',
   },
@@ -110,6 +110,38 @@ const ru = {
   store: {
     eyebrow: 'Магазин',
     buy: 'Купить Coin of Luck',
+  },
+
+  stats: {
+    pageTitle: 'Статистика сервера Azimut — онлайн и топ игроков',
+    description: 'Статус сервера Azimut (Lineage 2 Epilogue x2), количество игроков в игре и топ персонажей по уровню, PvP и PK.',
+    eyebrow: 'Azimut',
+    title: 'Статистика сервера',
+    server: 'Сервер',
+    status: 'Статус',
+    online: 'Онлайн',
+    offline: 'Офлайн',
+    playersOnline: 'Игроков в игре',
+    updated: 'Обновлено в {time}',
+    topTitle: 'Топ игроков',
+    tabsAria: 'Тип рейтинга',
+    tabs: {
+      level: 'По уровню',
+      pvp: 'PvP',
+      pk: 'PK',
+    },
+    rank: '#',
+    name: 'Персонаж',
+    class: 'Класс',
+    level: 'Уровень',
+    pvp: 'PvP',
+    pk: 'PK',
+    inGame: 'В игре',
+    loading: 'Загрузка…',
+    error: 'Не удалось загрузить статистику. Попробуйте позже.',
+    retry: 'Повторить',
+    empty: 'Пока в рейтинге никого нет.',
+    unknown: '—',
   },
 
   start: {

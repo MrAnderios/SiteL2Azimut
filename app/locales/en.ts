@@ -17,7 +17,7 @@ const en: Messages = {
   nav: {
     rates: 'Rates',
     features: 'Features',
-    store: 'Store',
+    stats: 'Statistics',
     start: 'Start playing',
     community: 'Community',
   },
@@ -111,6 +111,38 @@ const en: Messages = {
   store: {
     eyebrow: 'Store',
     buy: 'Buy Coin of Luck',
+  },
+
+  stats: {
+    pageTitle: 'Azimut server statistics — online and top players',
+    description: 'Azimut (Lineage 2 Epilogue x2) server status, players online and top characters by level, PvP and PK.',
+    eyebrow: 'Azimut',
+    title: 'Server statistics',
+    server: 'Server',
+    status: 'Status',
+    online: 'Online',
+    offline: 'Offline',
+    playersOnline: 'Players online',
+    updated: 'Updated at {time}',
+    topTitle: 'Top players',
+    tabsAria: 'Ranking type',
+    tabs: {
+      level: 'By level',
+      pvp: 'PvP',
+      pk: 'PK',
+    },
+    rank: '#',
+    name: 'Character',
+    class: 'Class',
+    level: 'Level',
+    pvp: 'PvP',
+    pk: 'PK',
+    inGame: 'In game',
+    loading: 'Loading…',
+    error: 'Could not load statistics. Please try again later.',
+    retry: 'Retry',
+    empty: 'No one in the ranking yet.',
+    unknown: '—',
   },
 
   start: {

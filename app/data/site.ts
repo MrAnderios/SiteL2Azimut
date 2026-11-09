@@ -79,10 +79,17 @@ export const banners: { label: string, labelKey?: keyof Messages['community']['b
   { label: 'L2Vote', href: 'https://t.me/L2Vote_bot?start=388', image: '/images/banners/l2vote.png' },
 ]
 
+// Пункты меню: '#якорь' — раздел главной (работает с любой страницы), '/путь' — отдельная страница.
+// Языковой префикс добавляется в AppHeader / AppFooter.
 export const nav: { key: keyof Messages['nav'], href: string }[] = [
   { key: 'rates', href: '#rates' },
   { key: 'features', href: '#features' },
-  { key: 'store', href: '#store' },
   { key: 'start', href: '#start' },
   { key: 'community', href: '#community' },
+  { key: 'stats', href: '/stats' },
 ]
+
+/** Адрес пункта меню с учётом языка: якоря ведут на главную, пути — на страницу. */
+export function navTarget(href: string, localePath: (path: string) => string): string {
+  return href.startsWith('#') ? `${localePath('/')}${href}` : localePath(href)
+}

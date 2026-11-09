@@ -22,6 +22,9 @@ export default defineNuxtConfig({
       // Новый личный кабинет. false — ссылки на кабинет ведут в старую CMS (статическая сборка без бэкенда).
       // Переопределяется переменной NUXT_PUBLIC_CABINET_ENABLED при сборке.
       cabinetEnabled: true,
+      // Адрес API статистики (/api/status, /api/top — см. docs/API.md), без слеша в конце.
+      // Запросы идут из браузера, CORS открыт. Переопределяется NUXT_PUBLIC_STATS_API_BASE.
+      statsApiBase: 'https://l2azimut.ru',
     },
   },
 

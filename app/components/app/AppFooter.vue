@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { nav, site, socials } from '~/data/site'
+import { nav, navTarget, site, socials } from '~/data/site'
 
 const t = useContent()
+const localePath = useLocalePath()
 const year = new Date().getFullYear()
 </script>
 
@@ -16,7 +17,15 @@ const year = new Date().getFullYear()
 
       <nav class="footer__col" :aria-label="t.footer.navAria">
         <h4 class="footer__heading">{{ t.footer.nav }}</h4>
-        <a v-for="item in nav" :key="item.href" :href="item.href">{{ t.nav[item.key] }}</a>
+        <NuxtLink
+          v-for="item in nav"
+          :key="item.href"
+          :to="navTarget(item.href, localePath)"
+          active-class=""
+          exact-active-class=""
+        >
+          {{ t.nav[item.key] }}
+        </NuxtLink>
       </nav>
 
       <div class="footer__col">
