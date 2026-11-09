@@ -145,6 +145,19 @@ const en: Messages = {
     unknown: '—',
   },
 
+  error: {
+    eyebrow: 'Lost your way',
+    home: 'Back to home',
+    notFound: {
+      title: 'Page not found',
+      text: 'Looks like you took a wrong turn: this page does not exist or has been moved. Head back home and continue your journey.',
+    },
+    generic: {
+      title: 'Something went wrong',
+      text: 'A server error occurred. Please try refreshing the page a little later.',
+    },
+  },
+
   start: {
     eyebrow: 'Four steps',
     title: 'Start playing',
