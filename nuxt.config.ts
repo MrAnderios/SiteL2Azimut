@@ -16,6 +16,9 @@ export default defineNuxtConfig({
     db: { host: '', port: 3306, user: '', password: '', database: 'la2' },
     // Доступ к игровым БД; если host/user пустые — используется db
     gameDb: { host: '', port: 0, user: '', password: '' },
+    // Проверка онлайна игрового сервера для /api/status: TCP-порт входа в игру.
+    // host по умолчанию берётся из gameDb/db (NUXT_GAME_SERVER_HOST, NUXT_GAME_SERVER_PORT).
+    gameServer: { host: '', port: 7777 },
     // Логины мастер-аккаунтов с доступом к админ-панели, через запятую
     adminLogins: 'admin',
     public: {
