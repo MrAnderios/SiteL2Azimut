@@ -29,8 +29,11 @@ async function submit() {
 </script>
 
 <template>
-  <form class="cab-form cab-ga-password" autocomplete="off" @submit.prevent="submit">
+  <form class="cab-form cab-ga-password" @submit.prevent="submit">
     <h3 class="cab-ga-password__title">{{ fmt(t.gameAccount.passwordTitle, { login }) }}</h3>
+
+    <!-- Логин для менеджеров паролей: без него новый пароль сохранится не к тому аккаунту -->
+    <input type="text" name="username" autocomplete="username" :value="login" readonly hidden>
 
     <label class="cab-field">
       <span>{{ t.gameAccount.currentPassword }}</span>

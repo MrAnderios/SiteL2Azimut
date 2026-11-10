@@ -10,7 +10,11 @@ export default defineEventHandler(async (event) => {
   const currentPassword = str(body.currentPassword)
   const password = str(body.password)
 
-  validateLogin(login)
+  // Формат логина не проверяем: старые аккаунты могли создаваться с другими символами,
+  // а принадлежность всё равно проверяется поиском в базе по логину и e-mail.
+  if (!login || login.length > limits.loginMax) {
+    fail(404, 'game_account_not_found')
+  }
   validateNewPassword(password, str(body.passwordConfirm))
   if (!currentPassword || currentPassword.length > limits.passwordMax) {
     fail(400, 'invalid_game_password')
