@@ -17,6 +17,9 @@ export const links = {
   legacyCabinet: 'https://a-bilding.ru/Register/login.php',
   patch: 'https://drive.google.com/file/d/1j4D_xYExtOzeKC-ZUh5VHaPcPvj9zH01/view?usp=sharing',
   client: 'https://drive.google.com/file/d/1WdfNdyyZqIsxi5epQJ032w7eKRXU80xn/view?usp=sharing',
+  // Английский языковой пакет для клиента (ссылка под шагами #start; пустая строка — скрыть)
+  // TODO: временная ссылка, заменить на файл пакета
+  clientEn: 'https://l2azimut.ru/',
   updater: 'https://disk.yandex.ru/d/8O0FbQBAX7OpXA',
   // Реквизиты для оплаты Coin of Luck выдаются в личных сообщениях Telegram
   payment: 'https://t.me/aleks_xl',
@@ -66,8 +69,8 @@ export const stability: { key: keyof Messages['stability']['items'], icon: IconN
 
 export const startSteps: { key: keyof Messages['start']['steps'], image: string, href: string }[] = [
   { key: 'register', image: '/images/start/register.jpg', href: links.register },
-  { key: 'patch', image: '/images/start/patch.jpg', href: links.patch },
   { key: 'client', image: '/images/start/client.jpg', href: links.client },
+  { key: 'patch', image: '/images/start/patch.jpg', href: links.patch },
   { key: 'updater', image: '/images/start/updater.jpg', href: links.updater },
 ]
 

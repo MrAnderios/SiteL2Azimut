@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { startSteps } from '~/data/site'
+import { links, startSteps } from '~/data/site'
 
 const t = useContent()
 const steps = startSteps.map(s => ({ ...s, href: s.key === 'register' ? useCabinetHref(s.href) : s.href }))
@@ -22,6 +22,10 @@ const steps = startSteps.map(s => ({ ...s, href: s.key === 'register' ? useCabin
         </div>
       </li>
     </ol>
+    <p v-if="links.clientEn" class="start__extra">
+      {{ t.start.clientEn.text }}
+      <a :href="links.clientEn" target="_blank" rel="noopener noreferrer">{{ t.start.clientEn.action }}</a>
+    </p>
   </UiSection>
 </template>
 
@@ -98,6 +102,23 @@ const steps = startSteps.map(s => ({ ...s, href: s.key === 'register' ? useCabin
   margin-bottom: 8px;
   color: var(--color-text-muted);
   font-size: 14px;
+}
+
+.start__extra {
+  margin: 24px 0 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.start__extra a {
+  color: var(--gold-300);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.start__extra a:hover {
+  color: var(--gold-100);
 }
 
 @media (max-width: 1024px) {
