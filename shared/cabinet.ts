@@ -16,8 +16,6 @@ export const payment = {
   maxRub: 100_000,
   /** Через сколько секунд неоплаченный счёт истекает */
   ttlSec: 86_400,
-  /** Ссылка на картинку личного QR СБП. Если пусто — QR генерируется из кода платежа. */
-  sbpPersonalQrUrl: '',
 } as const
 
 export const limits = {
@@ -159,8 +157,10 @@ export interface Payment {
 }
 
 export interface PaymentDetails extends Payment {
-  /** Картинка QR (data: URL или ссылка на личный QR СБП); только для ожидающих оплаты */
+  /** Картинка QR (data: URL); только для ожидающих оплаты */
   qr: string | null
+  /** Ссылка СБП на оплату (её же кодирует QR) — для кнопки «Открыть в банке» на телефоне */
+  payUrl: string | null
 }
 
 export interface PaymentsResponse {

@@ -478,6 +478,7 @@ const en: Messages = {
       limits: 'Minimum: {min} ₽, maximum: {max} ₽.',
       payTitle: 'Pay via SBP transfer',
       qrAlt: 'Payment QR code',
+      openBank: 'Pay in your banking app',
       sum: 'Amount',
       codeHint: 'Put this code in the transfer comment. Coins are credited automatically once the payment is confirmed.',
       waiting: 'Waiting for payment…',

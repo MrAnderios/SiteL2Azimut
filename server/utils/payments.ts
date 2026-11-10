@@ -40,12 +40,13 @@ export function toPayment(p: PaymentRow): Payment {
 }
 
 export async function toPaymentDetails(p: PaymentRow): Promise<PaymentDetails> {
-  let qr: string | null = null
-  if (p.status === 'pending') {
-    qr = paymentConfig.sbpPersonalQrUrl
-      || await QRCode.toDataURL(p.qr_data || `Пополнение ${donateItem.name}: ${p.amount_rub} руб. Код: ${p.payment_code}`, { width: 260, margin: 1 })
-  }
-  return { ...toPayment(p), qr }
+  if (p.status !== 'pending') return { ...toPayment(p), qr: null, payUrl: null }
+
+  // QR ведёт на ссылку СБП (NUXT_SBP_PAYMENT_URL). Без неё — старый вариант: текст с суммой и кодом.
+  const payUrl = String(useRuntimeConfig().sbpPaymentUrl || '').trim() || null
+  const qrText = payUrl || p.qr_data || `Пополнение ${donateItem.name}: ${p.amount_rub} руб. Код: ${p.payment_code}`
+  const qr = await QRCode.toDataURL(qrText, { width: 260, margin: 1 })
+  return { ...toPayment(p), qr, payUrl }
 }
 
 /** Помечает просроченными неоплаченные счета (всех или одного мастера). */

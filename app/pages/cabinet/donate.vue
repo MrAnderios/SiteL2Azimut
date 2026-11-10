@@ -113,6 +113,7 @@ const statusText = computed(() => {
       <section v-if="data?.active" class="panel cab-panel cab-pay">
         <h2 class="cab-panel__title">{{ t.donate.payTitle }}</h2>
         <img v-if="data.active.qr" :src="data.active.qr" :alt="t.donate.qrAlt" class="cab-pay__qr" width="260" height="260">
+        <UiButton v-if="data.active.payUrl" :href="data.active.payUrl" size="sm" class="cab-pay__bank">{{ t.donate.openBank }}</UiButton>
         <p>{{ t.donate.sum }}: <strong>{{ num(data.active.amountRub) }} ₽</strong></p>
         <p>{{ t.donate.youGet }}: <strong>{{ num(data.active.amountCoins) }}</strong> {{ item }}</p>
         <p class="cab-pay__code">{{ data.active.code }}</p>
@@ -186,6 +187,10 @@ const statusText = computed(() => {
   padding: 10px;
   border-radius: var(--radius);
   background: #fff;
+}
+
+.cab-pay__bank {
+  margin-bottom: 8px;
 }
 
 .cab-pay strong {
