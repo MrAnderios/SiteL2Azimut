@@ -1,6 +1,6 @@
 // Подключения к MySQL.
 // cmsDb()  — база логин-сервера (la2): accounts, master_accounts, платежи, рефералы.
-// gameDb() — база игрового сервера (la2x): персонажи, items_delayed и т.д.
+// gameDb() — база игрового сервера (la2x3): персонажи, items_delayed и т.д.
 import mysql from 'mysql2/promise'
 import type { Pool, PoolConnection, ResultSetHeader } from 'mysql2/promise'
 import type { GameServerId } from '#shared/cabinet'

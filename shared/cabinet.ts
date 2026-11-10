@@ -34,10 +34,11 @@ export const loginPattern = /^[a-zA-Z0-9_.-]+$/
 
 /**
  * Игровые серверы. id — имя игровой БД (на том же MySQL, что и логин-сервер,
- * если не задано NUXT_GAME_DB_HOST).
+ * если не задано NUXT_GAME_DB_HOST). Сейчас игровой сервер работает на la2x3:
+ * сменили с la2x, чтобы статистика и кабинет читали актуальную базу.
  */
 export const gameServers = [
-  { id: 'la2x', name: 'Azimut' },
+  { id: 'la2x3', name: 'Azimut' },
 ] as const
 
 export type GameServerId = typeof gameServers[number]['id']
@@ -74,6 +75,12 @@ export const l2Classes: Record<number, string> = {
   110: 'Storm Screamer', 111: 'Spectral Master', 112: 'Shillien Saint', 113: 'Titan',
   114: 'Grand Khavatari', 115: 'Dominator', 116: 'Doom Cryer', 117: 'Fortune Seeker',
   118: 'Maestro',
+  // Kamael (High Five)
+  123: 'Male Soldier', 124: 'Female Soldier', 125: 'Trooper', 126: 'Warder',
+  127: 'Berserker', 128: 'Male Soul Breaker', 129: 'Female Soul Breaker',
+  130: 'Arbalester', 131: 'Doombringer',
+  132: 'Male Soul Hound', 133: 'Female Soul Hound',
+  134: 'Trickster', 135: 'Inspector', 136: 'Judicator',
 }
 
 // ---------------------------------------------------------------------------

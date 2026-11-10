@@ -1,6 +1,9 @@
 // Публичный топ игроков для страницы /stats (контракт — docs/API.md).
 // CORS открыт, ответ кешируется на 60 секунд отдельно для каждого среза.
-import { l2Classes } from '#shared/cabinet'
+import { gameServers, l2Classes } from '#shared/cabinet'
+
+/** Игровая база, из которой берётся статистика (id сервера из shared/cabinet.ts). */
+const serverId = gameServers[0].id
 
 interface TopPlayer {
   rank: number
@@ -47,7 +50,7 @@ export default defineEventHandler(async (event) => {
   if (!players) {
     try {
       const list = await rows<PlayerRow>(
-        gameDb('la2x'),
+        gameDb(serverId),
         `SELECT c.char_name AS name,
                 sc.level AS level,
                 sc.exp AS exp,

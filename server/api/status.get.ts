@@ -1,6 +1,9 @@
 // Публичный статус игрового сервера для страницы /stats (контракт — docs/API.md).
 // CORS открыт, ответ кешируется на 15 секунд.
-import { gameServerName } from '#shared/cabinet'
+import { gameServers, gameServerName } from '#shared/cabinet'
+
+/** Игровая база, из которой берётся статистика (id сервера из shared/cabinet.ts). */
+const serverId = gameServers[0].id
 
 interface StatusPayload {
   server: string
@@ -27,7 +30,7 @@ export default defineEventHandler(async (event) => {
   let playersOnline: number | null = null
   try {
     const stats = await row<{ n: number | string }>(
-      gameDb('la2x'),
+      gameDb(serverId),
       'SELECT COUNT(*) AS n FROM characters WHERE online = 1',
     )
     playersOnline = Number(stats?.n ?? 0)
@@ -44,7 +47,7 @@ export default defineEventHandler(async (event) => {
   const online = reachable || (playersOnline ?? 0) > 0
 
   const payload: StatusPayload = {
-    server: gameServerName('la2x'),
+    server: gameServerName(serverId),
     online,
     status: online ? 'online' : 'offline',
     playersOnline,
