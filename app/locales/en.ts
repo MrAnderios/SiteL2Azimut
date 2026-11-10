@@ -60,12 +60,12 @@ const en: Messages = {
   rates: {
     eyebrow: 'Low Rate',
     title: 'Server rates',
-    intro: 'Autumn launch of a Low Rate server focused on spoil and craft.',
+    intro: 'An autumn Low Rate launch with a focus on spoil and craft.',
   },
 
   streams: {
     title: 'AzimutLive streams',
-    text: 'Watch live streams from our players and staff. This is where life on Azimut happens in real time.',
+    text: 'Live streams from our players and staff — Azimut as it happens.',
   },
 
   features: {
@@ -73,14 +73,14 @@ const en: Messages = {
     title: 'A server for players worldwide',
     badge: 'Events scheduled for different time zones',
     intro:
-      'Azimut brings together players from different cities and countries, so we don’t tie the server’s life to a single time zone. Whenever possible, server events will be scheduled so that players with any routine can take part.',
+      'Azimut brings together players from different cities and countries, so the server isn’t tied to a single time zone. We try to schedule events so that players with any routine can take part.',
     list: [
-      'Community Board with minimal pay-to-win donations',
+      'Minimal pay-to-win in the Community Board',
       'No gear or consumables in the Community Board',
       'Community Buff without 3rd class buffs',
       'Events',
       'New instance zones for comfortable play from any time zone',
-      'Reworked relevance of epic bosses and some classes',
+      'Rebalanced epic jewelry and some classes',
       'Rate boost and leveling services',
     ],
     moreBefore: 'Learn more in our',
@@ -101,7 +101,7 @@ const en: Messages = {
               'No automatic skill learning',
               'MW craft chance — 5%',
               'Double craft chance — 3%',
-              'Detailed mob info with drop/spoil lists via Shift+click',
+              'Detailed mob info with drop and spoil lists via Shift+click',
               '.clan command — grant clan members permission to take items from the clan warehouse',
               'Blacksmith functions in towns are unchanged',
               'Base buff limit — 20, dances/songs — 12',
@@ -116,7 +116,7 @@ const en: Messages = {
               'The shop offers accessories, pets and quest items',
               'Cursed weapons are disabled',
               'Spoil agathion added',
-              'New "Arena" instance in Oren — a simplified Ant Queen for players in different time zones and solo players',
+              '"Arena" instance in Oren — a simplified Ant Queen for solo players and off-peak hours',
             ],
           },
           {
@@ -134,8 +134,8 @@ const en: Messages = {
             list: [
               'Attack skills, buffs and self-buffs can be used',
               'Buffs target only the caster — you cannot buff your party with targeted buffs',
-              'Attack, target search and auto-loot are built in by default',
-              'Up to 4 skills of your choice',
+              'Attack, targeting and auto-loot work out of the box',
+              'Pick up to 4 skills',
               'Mages attack with skills only',
               'Orc mages can combine regular attacks and skills',
             ],
@@ -159,7 +159,7 @@ const en: Messages = {
             text: [],
             list: [
               '"Bloody Massacre" — a dual-sword strike with a chance to cause bleeding and slow running speed for 1 minute. Learned from level 40 until the 3rd class transfer.',
-              'Dance "Boiling Blood" — for 1 minute increases party members\' P./M. Atk. by 20%, Atk./Casting Spd. by 13% and melee vampiric rage by 70%. Cooldown 5 minutes. Learned at level 76.',
+              'Dance "Boiling Blood" — for 1 minute increases party members\' P./M. Atk. by 20%, Atk./Casting Spd. by 13% and HP drain from melee physical attacks by 70%. Cooldown 5 minutes. Learned at level 76.',
             ],
           },
           {
@@ -227,7 +227,7 @@ const en: Messages = {
             text: [],
             list: [
               '+30% to the payment amount before the server launch',
-              '+20% to donations of 2000 Col or more',
+              '+20% to top-ups of 2000 Col or more',
             ],
           },
         ],
@@ -259,21 +259,21 @@ const en: Messages = {
     modal: {
       title: 'Coin of Luck',
       close: 'Close',
-      intro: 'Coin of Luck is the exclusive premium currency of the Azimut server. Use it to get unique bonuses, customize your character and speed up your progress in the world of Lineage 2 Epilogue.',
+      intro: 'Coin of Luck is Azimut’s premium currency. Spend it on services, accessories, pets and other perks that don’t break game balance.',
       priceHeading: 'Price',
       price: [
         '1 Coin of Luck = 1 Russian ruble',
-        'Minimum donation — 300 Coin of Luck',
+        'Minimum top-up — 300 Coin of Luck',
         'Payments to an international Visa card are converted at your bank’s exchange rate',
       ],
       bonusesHeading: 'Bonuses',
       bonuses: [
-        'Open beta bonus (before launch) — +30% to the payment amount',
-        'From 2000 RUB — +20%',
-        'From 5000 RUB — +30%',
+        'Open beta bonus (before launch) — +30%',
+        'From 2000 ₽ — +20%',
+        'From 5000 ₽ — +30%',
       ],
       paymentHeading: 'Payment details',
-      paymentNote: 'Payment details are provided in Telegram — message us and specify your payment method.',
+      paymentNote: 'We’ll send payment details in Telegram — message us and tell us how you’d like to pay.',
       paymentRu: 'Russian bank card',
       paymentVisa: 'Visa card (international)',
     },
@@ -320,7 +320,7 @@ const en: Messages = {
 
     heroesTitle: 'Heroes',
     heroesEmpty: 'No heroes right now.',
-    heroTimes: 'Hero status: {count} times in a row',
+    heroTimes: 'Hero streak: {count}',
     clan: 'Clan',
     noClan: 'No clan',
   },
@@ -334,7 +334,7 @@ const en: Messages = {
     },
     generic: {
       title: 'Something went wrong',
-      text: 'A server error occurred. Please try refreshing the page a little later.',
+      text: 'A server error occurred. Please refresh the page a bit later.',
     },
   },
 
@@ -344,23 +344,23 @@ const en: Messages = {
     steps: {
       register: {
         title: 'Create an account',
-        text: 'Register a master account to create your game accounts.',
+        text: 'Create a master account to manage your game accounts and balance.',
         action: 'Sign up',
       },
       patch: {
         title: 'Azimut patch',
-        text: 'Required for items and skills to display correctly.',
+        text: 'Required for the server’s items and skills to display correctly.',
         action: 'Download patch',
       },
       client: {
         title: 'Game client',
-        text: 'A clean Lineage 2 Epilogue client. Don’t forget to install the server patch.',
+        text: 'A clean Lineage 2 Epilogue client. Install the server patch on top of it.',
         action: 'Download client',
       },
       updater: {
         title: 'Azimut Updater',
         text: 'Automatically keeps your game files up to date.',
-        action: 'Download launcher',
+        action: 'Download Updater',
       },
     },
   },
@@ -368,7 +368,7 @@ const en: Messages = {
   community: {
     eyebrow: 'Community',
     title: 'Join the Azimut community',
-    text: 'Join the Azimut player community. We’ve built a unique place to connect, where you’ll find answers to all your questions and support from the Azimut team.',
+    text: 'News, event announcements, clan recruitment and answers to your questions — all in our Telegram. The Azimut team is always around.',
     telegram: 'Open Telegram',
     bannersAria: 'Azimut in server rankings',
     banners: {
@@ -465,7 +465,7 @@ const en: Messages = {
       repeatPassword: 'Repeat new password',
       savePassword: 'Save new password',
       passwordChanged: 'Password for game account “{login}” changed.',
-      passwordHint: 'Use the new password to sign in to the game. Your current password confirms the account belongs to you.',
+      passwordHint: 'Your current password confirms the account is yours. After the change, use the new password to log in to the game.',
     },
     donate: {
       title: 'Top up balance',
@@ -525,7 +525,7 @@ const en: Messages = {
         player: 'They also get items for the 1st, 2nd and 3rd class change and for nobility.',
         commission: 'You get {pct}% in coins of every balance top-up made by an invited player.',
         referrer: 'For each invited player you get {item}: 1st class: {prof1}, 2nd: {prof2}, 3rd: {prof3}, nobility: {noble}.',
-        check: 'Rewards are checked when you open your account and every 10 minutes. Rewards don’t stack across characters of one account.',
+        check: 'Rewards are checked when you open your account and every 10 minutes. Each reward is given once per account, not per character.',
       },
       types: {
         starter: 'Starter pack',
@@ -634,7 +634,7 @@ const en: Messages = {
     errors: {
       unauthorized: 'Please sign in to your master account.',
       forbidden: 'Access denied.',
-      too_many_requests: 'Too many attempts. Please wait a bit and try again.',
+      too_many_requests: 'Too many attempts. Please wait a moment and try again.',
       bad_origin: 'Request rejected. Refresh the page and try again.',
       invalid_login: 'Login: {min} to {max} characters, Latin letters, digits, _ . - only',
       invalid_email: 'Invalid e-mail (max {max} characters).',
@@ -649,13 +649,13 @@ const en: Messages = {
       not_enough_coins: 'Not enough coins on your balance.',
       unknown_server: 'Unknown game server.',
       character_not_found: 'Character not found.',
-      delivery_failed: 'Failed to deliver coins to the game server. The coins were returned to your balance, please try later.',
+      delivery_failed: 'Failed to deliver coins to the game server. They were returned to your balance — please try again later.',
       payment_not_found: 'Payment not found.',
       payment_processed: 'The payment has already been processed.',
       master_not_found: 'Master account not found.',
       invalid_item: 'Enter a valid item ID and count.',
       invalid_reward_key: 'Unknown reward type.',
-      server_error: 'Server error, please try later.',
+      server_error: 'Server error. Please try again later.',
     },
   },
 }
