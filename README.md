@@ -35,6 +35,7 @@ app/
 ├─ data/site.ts            # данные без языка: ссылки, даты, рейты, картинки
 ├─ locales/ru.ts, en.ts    # тексты на русском и английском
 ├─ composables/useContent  # тексты на текущем языке
+├─ utils/streams.ts        # разбор ссылок на стримы (docs/STREAMS.md)
 ├─ assets/css/main.css     # токены (цвета, шрифты), базовые стили, .panel, .text-gold
 ├─ plugins/reveal.ts       # директива v-reveal — появление при прокрутке
 ├─ layouts/default.vue     # шапка → контент → подвал
@@ -48,6 +49,9 @@ shared/cabinet.ts          # настройки и типы личного ка�
 server/                    # бэкенд кабинета: api/, utils/, tasks/; robots.txt и sitemap.xml
 scripts/server/            # подготовка сервера (setup.sh) и GitHub (github-setup.sh) для деплоя
 ```
+
+Стримы в разделе «Стримы AzimutLive» — массив `streams` в `app/data/site.ts`: ссылка на канал или видео
+либо код `<iframe>` с Kick, Twitch, YouTube, VK Видео или Rutube. Правила — [docs/STREAMS.md](docs/STREAMS.md).
 
 Чтобы поменять текст, правьте `app/locales/ru.ts` и `app/locales/en.ts`, ссылку или дату — `app/data/site.ts`.
 Разметку трогать не нужно. Структура `en.ts` проверяется по `ru.ts` на уровне типов: если добавить ключ

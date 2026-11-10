@@ -42,6 +42,11 @@ export const launch = { date: '2026-11-27T19:00:00+03:00' }
 // Открытый бета-тест
 export const obt = { date: '2026-11-20T19:00:00+03:00' }
 
+// Стримы в секции #streams — по одному на строку, в порядке показа. Пустой массив — плееры скрыты.
+// Можно вставлять как есть: ссылку на канал или видео, адрес плеера или весь код <iframe> с площадки.
+// Kick, Twitch, YouTube, VK Видео, Rutube. Правила и примеры — docs/STREAMS.md.
+export const streams: string[] = []
+
 export interface Rate {
   label: string
   value: string

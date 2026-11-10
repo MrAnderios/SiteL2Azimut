@@ -1,20 +1,61 @@
 <script setup lang="ts">
+import { streams } from '~/data/site'
+import { parseStream, streamPlatformNames } from '~/utils/streams'
+
 const t = useContent()
+
+// Twitch пускает плеер только с доменов из parent — берём текущий хост, поэтому плееры только на клиенте
+const host = ref('')
+onMounted(() => {
+  host.value = location.hostname
+})
+
+const players = computed(() => {
+  if (!host.value)
+    return []
+  const seen = new Set<string>()
+  return streams.flatMap((input) => {
+    const embed = parseStream(input, host.value)
+    if (!embed) {
+      if (import.meta.dev)
+        console.warn(`[streams] не удалось распознать стрим, см. docs/STREAMS.md: ${input}`)
+      return []
+    }
+    if (seen.has(embed.src))
+      return []
+    seen.add(embed.src)
+    return [{ ...embed, title: `${streamPlatformNames[embed.platform]} — ${embed.name}` }]
+  })
+})
 </script>
 
 <template>
   <section id="streams" class="streams">
     <div class="container">
       <div v-reveal class="streams__card panel">
-        <div class="streams__icon">
-          <UiIcon name="play" :size="32" />
-          <span class="streams__live">Live</span>
+        <div class="streams__head">
+          <div class="streams__icon">
+            <UiIcon name="play" :size="32" />
+            <span class="streams__live">Live</span>
+          </div>
+          <div>
+            <h2 class="streams__title text-gold">{{ t.streams.title }}</h2>
+            <p class="streams__text">{{ t.streams.text }}</p>
+          </div>
         </div>
-        <div>
-          <h2 class="streams__title text-gold">{{ t.streams.title }}</h2>
-          <p class="streams__text">{{ t.streams.text }}</p>
+        <div v-if="players.length" class="streams__grid">
+          <div v-for="player in players" :key="player.src" class="streams__player">
+            <iframe
+              :src="player.src"
+              :title="player.title"
+              loading="lazy"
+              allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write"
+              allowfullscreen
+              scrolling="no"
+              frameborder="0"
+            />
+          </div>
         </div>
-        <!-- TODO: список/встраивание стримов -->
       </div>
     </div>
   </section>
@@ -27,12 +68,38 @@ const t = useContent()
 
 .streams__card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 32px;
   padding: 32px 40px;
   background:
     radial-gradient(ellipse at 0% 50%, rgb(226 171 63 / 0.12), transparent 60%),
     var(--color-surface);
+}
+
+.streams__head {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.streams__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 24px;
+}
+
+.streams__player {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 4px;
+  background: #000;
+}
+
+.streams__player iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .streams__icon {
@@ -79,8 +146,11 @@ const t = useContent()
 
 @media (max-width: 640px) {
   .streams__card {
-    flex-direction: column;
     padding: 32px 24px;
+  }
+
+  .streams__head {
+    flex-direction: column;
     text-align: center;
   }
 }
