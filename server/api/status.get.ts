@@ -41,9 +41,12 @@ export default defineEventHandler(async (event) => {
 
   // Онлайн = игровой порт принимает подключения. Порт может быть закрыт файрволом
   // со стороны сайта, поэтому наличие игроков в базе тоже считаем признаком живого сервера.
+  // На текущем сервере игра слушает 7778, но проверяем и классический 7777.
   const host = gameServer.host || game.host || db.host
-  const port = Number(gameServer.port) || 7777
-  const reachable = host ? await portOpen(host, port, 1500) : false
+  const ports = [...new Set([Number(gameServer.port) || 7778, 7777])]
+  const reachable = host
+    ? (await Promise.all(ports.map(port => portOpen(host, port, 1500)))).some(Boolean)
+    : false
   const online = reachable || (playersOnline ?? 0) > 0
 
   const payload: StatusPayload = {

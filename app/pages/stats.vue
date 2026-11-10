@@ -79,7 +79,8 @@ const updatedLabel = computed(() => status.value
 const playersLabel = computed(() => {
   const s = status.value
   if (!s) return '…'
-  if (!s.online || s.playersOnline === null) return t.value.stats.unknown
+  // null — база недоступна, поэтому число неизвестно; 0 при офлайн-сервере показываем как есть
+  if (s.playersOnline === null) return t.value.stats.unknown
   return number.value.format(s.playersOnline)
 })
 
