@@ -3,6 +3,10 @@ import { launch, links, obt } from '~/data/site'
 
 const t = useContent()
 
+// Сервер стартовал: вместо таймера показываем статус и онлайн.
+// Выставляется событием finish у таймера. Для дебага — поменять на ref(true).
+const launched = ref(true)
+
 // Детерминированные параметры искр — одинаковые на сервере и клиенте (без hydration mismatch)
 const embers = Array.from({ length: 22 }, (_, i) => ({
   left: `${(i * 47 + 11) % 100}%`,
@@ -36,12 +40,14 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
       </div>
 
       <div class="hero__launch">
-        <span class="hero__launch-label">{{ t.hero.countdownLabel }}</span>
-        <UiCountdown :to="launch.date" :labels="t.countdown" class="hero__countdown">
-          <template #finished>
-            <span class="hero__launch-date">{{ t.hero.opened }}</span>
-          </template>
-        </UiCountdown>
+        <template v-if="launched">
+          <span class="hero__launch-date">{{ t.hero.opened }}</span>
+          <AppServerStatus class="hero__countdown" />
+        </template>
+        <template v-else>
+          <span class="hero__launch-label">{{ t.hero.countdownLabel }}</span>
+          <UiCountdown :to="launch.date" :labels="t.countdown" class="hero__countdown" @finish="launched = true" />
+        </template>
         <div class="hero__dates">
           <span class="hero__date">
             <span class="hero__date-label">{{ t.hero.obt }}</span>

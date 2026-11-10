@@ -6,6 +6,11 @@ const props = defineProps<{
   labels: { days: string, hours: string, minutes: string, seconds: string }
 }>()
 
+const emit = defineEmits<{
+  /** Отсчёт дошёл до нуля (или дата уже прошла на момент mount) */
+  finish: []
+}>()
+
 const target = new Date(props.to).getTime()
 
 // На сервере и при гидрации значение null — цифры показываем только после mount,
@@ -24,6 +29,10 @@ onMounted(() => {
 onBeforeUnmount(() => clearInterval(timer))
 
 const finished = computed(() => now.value !== null && now.value >= target)
+
+watch(finished, (v) => {
+  if (v) emit('finish')
+})
 
 const units = computed(() => {
   const diff = now.value === null ? null : Math.max(0, target - now.value)
