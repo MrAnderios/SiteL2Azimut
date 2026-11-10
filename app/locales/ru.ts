@@ -281,8 +281,8 @@ const ru = {
   },
 
   stats: {
-    pageTitle: 'Статистика сервера Azimut — онлайн и топ игроков',
-    description: 'Статус сервера Azimut (Lineage 2 Epilogue x2), количество игроков в игре и топ персонажей по уровню, PvP и PK.',
+    pageTitle: 'Статистика сервера Azimut — онлайн, топ игроков, замки и герои',
+    description: 'Статус сервера Azimut (Lineage 2 Epilogue x2), игроки онлайн, топ персонажей по уровню, PvP и PK, владельцы замков и герои сервера.',
     eyebrow: 'Azimut',
     title: 'Статистика сервера',
     server: 'Сервер',
@@ -310,6 +310,20 @@ const ru = {
     retry: 'Повторить',
     empty: 'Пока в рейтинге никого нет.',
     unknown: '—',
+
+    castlesTitle: 'Замки',
+    castleFree: 'Свободен',
+    castleTax: 'Налог',
+    castleLeader: 'Лидер',
+    castleSiege: 'Осада',
+    castleNoSiege: 'не назначена',
+    noAlly: 'Без альянса',
+
+    heroesTitle: 'Герои',
+    heroesEmpty: 'Сейчас героев нет.',
+    heroTimes: 'Статус героя: {count} раз подряд',
+    clan: 'Клан',
+    noClan: 'Без клана',
   },
 
   // Страница ошибок (app/error.vue)

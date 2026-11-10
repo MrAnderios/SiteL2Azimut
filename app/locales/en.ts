@@ -280,8 +280,8 @@ const en: Messages = {
   },
 
   stats: {
-    pageTitle: 'Azimut server statistics — online and top players',
-    description: 'Azimut (Lineage 2 Epilogue x2) server status, players online and top characters by level, PvP and PK.',
+    pageTitle: 'Azimut server statistics — online, top players, castles and heroes',
+    description: 'Azimut (Lineage 2 Epilogue x2) server status, players online, top characters by level, PvP and PK, castle owners and heroes.',
     eyebrow: 'Azimut',
     title: 'Server statistics',
     server: 'Server',
@@ -309,6 +309,20 @@ const en: Messages = {
     retry: 'Retry',
     empty: 'No one in the ranking yet.',
     unknown: '—',
+
+    castlesTitle: 'Castles',
+    castleFree: 'Free',
+    castleTax: 'Tax',
+    castleLeader: 'Leader',
+    castleSiege: 'Siege',
+    castleNoSiege: 'not scheduled',
+    noAlly: 'No alliance',
+
+    heroesTitle: 'Heroes',
+    heroesEmpty: 'No heroes right now.',
+    heroTimes: 'Hero status: {count} times in a row',
+    clan: 'Clan',
+    noClan: 'No clan',
   },
 
   error: {

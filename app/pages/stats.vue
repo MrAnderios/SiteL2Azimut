@@ -31,6 +31,37 @@ interface TopResponse {
   players: TopPlayer[]
 }
 
+interface Castle {
+  id: number
+  name: string
+  owner: string | null
+  ally: string | null
+  leader: string | null
+  tax: number
+  siegeAt: string | null
+}
+
+interface CastlesResponse {
+  updatedAt: string
+  castles: Castle[]
+}
+
+interface Hero {
+  name: string
+  level: number
+  classId: number
+  className: string
+  clan: string | null
+  ally: string | null
+  online: boolean
+  count: number
+}
+
+interface HeroesResponse {
+  updatedAt: string
+  heroes: Hero[]
+}
+
 const TOP_LIMIT = 20
 const STATUS_POLL_MS = 60_000
 const topTypes: TopType[] = ['level', 'pvp', 'pk']
@@ -61,6 +92,18 @@ const { data: top, error: topError, pending: topPending, refresh: refreshTop } =
   lazy: true,
 })
 
+const { data: castles, error: castlesError, pending: castlesPending, refresh: refreshCastles } = useFetch<CastlesResponse>('/api/castles', {
+  baseURL: apiBase,
+  server: false,
+  lazy: true,
+})
+
+const { data: heroes, error: heroesError, pending: heroesPending, refresh: refreshHeroes } = useFetch<HeroesResponse>('/api/heroes', {
+  baseURL: apiBase,
+  server: false,
+  lazy: true,
+})
+
 let timer: ReturnType<typeof setInterval> | undefined
 onMounted(() => {
   timer = setInterval(() => {
@@ -71,6 +114,17 @@ onBeforeUnmount(() => clearInterval(timer))
 
 const number = computed(() => new Intl.NumberFormat(locale.value))
 const time = computed(() => new Intl.DateTimeFormat(locale.value, { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+const dateTime = computed(() => new Intl.DateTimeFormat(locale.value, {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+}))
+
+function siegeLabel(c: Castle) {
+  return c.siegeAt ? dateTime.value.format(new Date(c.siegeAt)) : t.value.stats.castleNoSiege
+}
 
 const updatedLabel = computed(() => status.value
   ? t.value.stats.updated.replace('{time}', time.value.format(new Date(status.value.updatedAt)))
@@ -176,6 +230,91 @@ function isSorted(col: TopType) {
                 <td class="stats__num" :class="{ 'is-sorted': isSorted('level') }">{{ p.level }}</td>
                 <td class="stats__num" :class="{ 'is-sorted': isSorted('pvp') }">{{ number.format(p.pvp) }}</td>
                 <td class="stats__num" :class="{ 'is-sorted': isSorted('pk') }">{{ number.format(p.pk) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Замки -->
+      <div v-reveal="180" class="stats__block panel">
+        <h2 class="stats__top-title text-gold">{{ t.stats.castlesTitle }}</h2>
+
+        <div v-if="castlesError" class="stats__placeholder">
+          {{ t.stats.error }}
+          <button type="button" class="stats__retry" @click="() => refreshCastles()">{{ t.stats.retry }}</button>
+        </div>
+        <div v-else-if="!castles && castlesPending" class="stats__placeholder">{{ t.stats.loading }}</div>
+        <div v-else-if="castles && !castles.castles.length" class="stats__placeholder">{{ t.stats.empty }}</div>
+
+        <ul v-else-if="castles" class="stats__castles">
+          <li v-for="c in castles.castles" :key="c.id" class="stats__castle">
+            <span class="stats__castle-name">{{ c.name }}</span>
+            <span class="stats__castle-owner" :class="{ 'is-free': !c.owner }">
+              {{ c.owner ?? t.stats.castleFree }}
+            </span>
+            <span v-if="c.owner" class="stats__castle-ally">{{ c.ally ?? t.stats.noAlly }}</span>
+
+            <dl class="stats__castle-meta">
+              <div class="stats__castle-row">
+                <dt>{{ t.stats.castleTax }}</dt>
+                <dd>{{ c.tax }}%</dd>
+              </div>
+              <div v-if="c.leader" class="stats__castle-row">
+                <dt>{{ t.stats.castleLeader }}</dt>
+                <dd>{{ c.leader }}</dd>
+              </div>
+              <div class="stats__castle-row">
+                <dt>{{ t.stats.castleSiege }}</dt>
+                <dd>{{ siegeLabel(c) }}</dd>
+              </div>
+            </dl>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Герои -->
+      <div v-reveal="240" class="stats__block panel">
+        <h2 class="stats__top-title text-gold">{{ t.stats.heroesTitle }}</h2>
+
+        <div v-if="heroesError" class="stats__placeholder">
+          {{ t.stats.error }}
+          <button type="button" class="stats__retry" @click="() => refreshHeroes()">{{ t.stats.retry }}</button>
+        </div>
+        <div v-else-if="!heroes && heroesPending" class="stats__placeholder">{{ t.stats.loading }}</div>
+        <div v-else-if="heroes && !heroes.heroes.length" class="stats__placeholder">{{ t.stats.heroesEmpty }}</div>
+
+        <div v-else-if="heroes" class="stats__table-wrap" :class="{ 'is-pending': heroesPending }">
+          <table class="stats__table">
+            <thead>
+              <tr>
+                <th class="stats__rank" scope="col">{{ t.stats.rank }}</th>
+                <th scope="col">{{ t.stats.name }}</th>
+                <th class="stats__hide-sm" scope="col">{{ t.stats.class }}</th>
+                <th class="stats__num" scope="col">{{ t.stats.level }}</th>
+                <th class="stats__hide-sm" scope="col">{{ t.stats.clan }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(h, i) in heroes.heroes" :key="h.name" :class="{ 'is-podium': i < 3 }">
+                <td class="stats__rank">
+                  <span class="stats__place" :class="`stats__place--${i + 1}`">{{ i + 1 }}</span>
+                </td>
+                <td>
+                  <span class="stats__name">
+                    {{ h.name }}
+                    <span v-if="h.online" class="stats__dot stats__dot--sm" :title="t.stats.inGame">
+                      <span class="visually-hidden">{{ t.stats.inGame }}</span>
+                    </span>
+                    <span class="stats__hero-count" :title="t.stats.heroTimes.replace('{count}', String(h.count))">
+                      ×{{ h.count }}
+                    </span>
+                  </span>
+                  <span class="stats__class-sm">{{ h.className }}</span>
+                </td>
+                <td class="stats__hide-sm stats__class">{{ h.className }}</td>
+                <td class="stats__num">{{ h.level }}</td>
+                <td class="stats__hide-sm stats__class">{{ h.clan ?? t.stats.noClan }}</td>
               </tr>
             </tbody>
           </table>
@@ -292,6 +431,90 @@ function isSorted(col: TopType) {
 .stats__top {
   margin-top: 48px;
   padding: 28px clamp(16px, 3vw, 32px) 20px;
+}
+
+.stats__block {
+  margin-top: 48px;
+  padding: 28px clamp(16px, 3vw, 32px) 24px;
+}
+
+.stats__castles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats__castle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius);
+  background: rgb(255 255 255 / 0.02);
+}
+
+.stats__castle-name {
+  color: var(--gold-300);
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stats__castle-owner {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stats__castle-owner.is-free,
+.stats__castle-ally {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.stats__castle-ally {
+  font-size: 13px;
+}
+
+.stats__castle-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+.stats__castle-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stats__castle-row dt {
+  flex: none;
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.stats__castle-row dd {
+  margin: 0;
+  text-align: right;
+}
+
+.stats__hero-count {
+  padding: 1px 7px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  color: var(--gold-300);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .stats__top-head {
@@ -451,6 +674,12 @@ function isSorted(col: TopType) {
   font-size: 13px;
 }
 
+@media (max-width: 1024px) {
+  .stats__castles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .stats__status {
     grid-template-columns: 1fr 1fr;
@@ -458,6 +687,10 @@ function isSorted(col: TopType) {
 
   .stats__status .stats__card:first-child {
     grid-column: 1 / -1;
+  }
+
+  .stats__castles {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .stats__hide-sm {
