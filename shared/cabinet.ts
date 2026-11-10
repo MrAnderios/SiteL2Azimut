@@ -100,6 +100,8 @@ export type ApiErrorCode =
   | 'invalid_credentials'
   | 'login_taken'
   | 'game_login_taken'
+  | 'game_account_not_found'
+  | 'invalid_game_password'
   | 'invalid_amount'
   | 'not_enough_coins'
   | 'unknown_server'

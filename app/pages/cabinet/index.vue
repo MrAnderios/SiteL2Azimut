@@ -10,6 +10,7 @@ usePrivatePage(() => t.value.titles.cabinet)
 
 const { data, error, refresh } = await useCabinetFetch<CabinetOverview>('/api/cabinet/overview')
 const showAccountForm = ref(false)
+const passwordLogin = ref<string | null>(null)
 
 function onTransferred(coins: number) {
   if (data.value) data.value.coins = coins
@@ -65,7 +66,24 @@ onMounted(async () => {
       </div>
 
       <section v-for="acc in data.accounts" :key="acc.login" class="panel cab-panel">
-        <h2 class="cab-panel__title">{{ t.dashboard.account }} <span class="cab-accent">{{ acc.login }}</span></h2>
+        <div class="cab-account-head">
+          <h2 class="cab-panel__title">{{ t.dashboard.account }} <span class="cab-accent">{{ acc.login }}</span></h2>
+          <UiButton
+            v-if="passwordLogin !== acc.login"
+            variant="secondary"
+            size="sm"
+            @click="passwordLogin = acc.login"
+          >
+            {{ t.gameAccount.changePassword }}
+          </UiButton>
+        </div>
+
+        <CabinetGameAccountPasswordForm
+          v-if="passwordLogin === acc.login"
+          :login="acc.login"
+          @changed="passwordLogin = null"
+          @cancel="passwordLogin = null"
+        />
 
         <div v-for="server in acc.servers" :key="server.id" class="cab-server">
           <h3 v-if="acc.servers.length > 1" class="cab-server__title">{{ server.name }}</h3>
@@ -117,6 +135,19 @@ onMounted(async () => {
   background: none;
   font: inherit;
   cursor: pointer;
+}
+
+.cab-account-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cab-account-head .cab-panel__title {
+  margin-bottom: 0;
 }
 
 .cab-server + .cab-server {
