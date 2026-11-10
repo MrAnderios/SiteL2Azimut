@@ -34,7 +34,6 @@ const rules = computed(() => {
   const s = data.value?.settings
   if (!s) return []
   return [
-    r.starter,
     r.player,
     s.commissionPct > 0 ? fmt(r.commission, { pct: s.commissionPct }) : null,
     fmt(r.referrer, { item, prof1: num(s.prof1Coins), prof2: num(s.prof2Coins), prof3: num(s.prof3Coins), noble: num(s.nobleCoins) }),

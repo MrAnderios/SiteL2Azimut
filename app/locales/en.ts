@@ -174,7 +174,7 @@ const en: Messages = {
           {
             heading: 'Also on the server',
             text: [],
-            list: ['Col and Adena professions', 'Services', 'Bounty hunting', 'Col market', 'Events'],
+            list: ['Class changes for Col (donation currency) and Adena (in-game currency)', 'Services', 'Bounty hunting', 'Col market', 'Events'],
           },
           {
             heading: 'Events',
@@ -270,7 +270,6 @@ const en: Messages = {
       bonuses: [
         'Open beta bonus (before launch) — +30%',
         'From 2000 ₽ — +20%',
-        'From 5000 ₽ — +30%',
       ],
       paymentHeading: 'Payment details',
       paymentNote: 'We’ll send payment details in Telegram — message us and tell us how you’d like to pay.',
@@ -425,7 +424,7 @@ const en: Messages = {
     register: {
       title: 'Create a master account',
       intro: 'A master account holds all your game accounts and your {item} balance.',
-      invitedBy: 'You were invited by {login}. After signing up you’ll get a starter pack plus rewards for class changes and nobility.',
+      invitedBy: 'You were invited by {login}. After signing up you’ll get rewards for class changes and nobility.',
       submit: 'Sign up',
       hasAccount: 'Already have a master account?',
       login: 'Sign in',
@@ -502,7 +501,7 @@ const en: Messages = {
     referrals: {
       title: 'Referral program',
       earned: 'Earned from referrals',
-      invitedBy: 'You were invited by {login}. You get a starter pack for creating a character, plus rewards for the 1st, 2nd and 3rd class change and nobility.',
+      invitedBy: 'You were invited by {login}. You get rewards for the 1st, 2nd and 3rd class change and nobility.',
       disabled: 'Referral rewards are temporarily paused.',
       linkTitle: 'Your referral link',
       copy: 'Copy',
@@ -521,8 +520,7 @@ const en: Messages = {
       items: '{count} pcs (ID {id})',
       howTitle: 'How it works',
       rules: {
-        starter: 'A player who signs up with your link gets a starter pack for creating a character (once per account).',
-        player: 'They also get items for the 1st, 2nd and 3rd class change and for nobility.',
+        player: 'A player who signs up with your link gets rewards for the 1st, 2nd and 3rd class change and nobility.',
         commission: 'You get {pct}% in coins of every balance top-up made by an invited player.',
         referrer: 'For each invited player you get {item}: 1st class: {prof1}, 2nd: {prof2}, 3rd: {prof3}, nobility: {noble}.',
         check: 'Rewards are checked when you open your account and every 10 minutes. Each reward is given once per account, not per character.',
