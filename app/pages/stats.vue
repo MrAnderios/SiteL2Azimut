@@ -122,6 +122,13 @@ const dateTime = computed(() => new Intl.DateTimeFormat(locale.value, {
   minute: '2-digit',
 }))
 
+// Картинки замков лежат в public/images/castles/<id>.jpg (id как в API: 1 — Gludio … 9 — Schuttgart)
+const CASTLE_IMAGE_IDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+function castleImage(id: number) {
+  return CASTLE_IMAGE_IDS.has(id) ? `/images/castles/${id}.jpg` : undefined
+}
+
 function siegeLabel(c: Castle) {
   return c.siegeAt ? dateTime.value.format(new Date(c.siegeAt)) : t.value.stats.castleNoSiege
 }
@@ -249,6 +256,9 @@ function isSorted(col: TopType) {
 
         <ul v-else-if="castles" class="stats__castles">
           <li v-for="c in castles.castles" :key="c.id" class="stats__castle">
+            <div v-if="castleImage(c.id)" class="stats__castle-image" aria-hidden="true">
+              <img :src="castleImage(c.id)" alt="" width="246" height="171" loading="lazy">
+            </div>
             <span class="stats__castle-name">{{ c.name }}</span>
             <span class="stats__castle-owner" :class="{ 'is-free': !c.owner }">
               {{ c.owner ?? t.stats.castleFree }}
@@ -452,9 +462,43 @@ function isSorted(col: TopType) {
   flex-direction: column;
   gap: 4px;
   padding: 18px 20px;
+  overflow: hidden;
   border: 1px solid var(--color-line-strong);
   border-radius: var(--radius);
   background: rgb(255 255 255 / 0.02);
+  transition: border-color 0.3s;
+}
+
+.stats__castle:hover {
+  border-color: var(--gold-500);
+}
+
+/* Шапка карточки: картинка во всю ширину, снизу уходит в фон карточки */
+.stats__castle-image {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin: -18px -20px 10px;
+  overflow: hidden;
+}
+
+.stats__castle-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Чуть увеличиваем, чтобы срезать рамку исходной картинки */
+  transform: scale(1.06);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.stats__castle:hover .stats__castle-image img {
+  transform: scale(1.12);
+}
+
+.stats__castle-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, var(--color-surface) 100%);
 }
 
 .stats__castle-name {
