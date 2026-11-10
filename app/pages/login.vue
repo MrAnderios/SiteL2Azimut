@@ -39,7 +39,7 @@ async function submit() {
       </label>
       <label class="cab-field">
         <span>{{ t.fields.password }}</span>
-        <input v-model="form.password" class="cab-input" type="password" name="password" autocomplete="current-password" required :maxlength="limits.passwordMax">
+        <CabinetPasswordInput v-model="form.password" name="password" autocomplete="current-password" required :maxlength="limits.passwordMax" />
       </label>
       <UiButton type="submit" :loading="pending">{{ t.login.submit }}</UiButton>
     </form>

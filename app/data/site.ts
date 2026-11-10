@@ -49,7 +49,7 @@ export const rates: Rate[] = [
   { label: 'XP / SP', value: 'x2', image: '/images/rates/xp-sp.jpg' },
   { label: 'Adena', value: 'x2', image: '/images/rates/adena.jpg' },
   { label: 'Drop', value: 'x2', image: '/images/rates/drop.jpg' },
-  { label: 'Spoil', value: 'x7', image: '/images/rates/spoil.jpg' },
+  { label: 'Spoil', value: 'x3', image: '/images/rates/spoil.jpg' },
   { label: 'Raid Boss', value: 'x5', image: '/images/rates/raid-boss.jpg' },
 ]
 

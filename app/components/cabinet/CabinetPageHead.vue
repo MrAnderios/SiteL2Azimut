@@ -72,5 +72,6 @@ defineProps<{
 .cab-head__stat-value img {
   width: 28px;
   height: 28px;
+  object-fit: cover;
 }
 </style>

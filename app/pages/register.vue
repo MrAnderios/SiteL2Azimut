@@ -70,21 +70,19 @@ async function submit() {
       </label>
       <label class="cab-field">
         <span>{{ t.fields.password }}</span>
-        <input
+        <CabinetPasswordInput
           v-model="form.password"
-          class="cab-input"
-          type="password"
           name="password"
           autocomplete="new-password"
           required
           :minlength="limits.passwordMin"
           :maxlength="limits.passwordMax"
           :placeholder="fmt(t.fields.passwordPlaceholder, { min: limits.passwordMin })"
-        >
+        />
       </label>
       <label class="cab-field">
         <span>{{ t.fields.passwordConfirm }}</span>
-        <input v-model="form.passwordConfirm" class="cab-input" type="password" name="password_confirm" autocomplete="new-password" required :maxlength="limits.passwordMax">
+        <CabinetPasswordInput v-model="form.passwordConfirm" name="password_confirm" autocomplete="new-password" required :maxlength="limits.passwordMax" />
       </label>
       <UiButton type="submit" :loading="pending">{{ t.register.submit }}</UiButton>
     </form>

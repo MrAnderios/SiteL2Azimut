@@ -5,13 +5,13 @@ const en: Messages = {
   meta: {
     title: 'Azimut — Lineage 2 Epilogue',
     pageTitle: 'Azimut — Lineage 2 Epilogue x2 server | Launch Nov 27, 2026',
-    description: 'Azimut is a classic Lineage 2 Epilogue x2 server with improvements for players from Siberia, the Russian Far East and Asia. Open beta on Nov 20, launch on Nov 27, 2026.',
+    description: 'Azimut is a classic Lineage 2 Epilogue x2 server with thoughtful improvements, stable performance and a fair economy. Open beta on Nov 20, launch on Nov 27, 2026.',
     ogImageAlt: 'Azimut logo over a knight in golden armor',
   },
 
   site: {
     tagline: 'A classic Lineage 2 Epilogue server with improvements and additions.',
-    footerText: 'A high-performance Lineage 2 Epilogue server for players from Siberia, the Russian Far East and Asia.',
+    footerText: 'A high-performance Lineage 2 Epilogue server that respects the classics.',
   },
 
   nav: {
@@ -46,8 +46,8 @@ const en: Messages = {
     obt: 'Open beta',
     launch: 'Launch',
     scrollAria: 'Scroll to rates',
-    obtLabel: 'Nov 20, 2026, 19:00 (MSK, UTC+3)',
-    launchLabel: 'Nov 27, 2026, 19:00 (MSK, UTC+3)',
+    obtLabel: 'Nov 20, 2026, 19:00',
+    launchLabel: 'Nov 27, 2026, 19:00',
   },
 
   countdown: {
@@ -73,7 +73,7 @@ const en: Messages = {
     title: 'A server for players worldwide',
     badge: 'Events scheduled for different time zones',
     intro:
-      'We know that players from Siberia, the Russian Far East and Asia find it inconvenient to play on European servers running on Moscow time. That is why server events will be balanced across time zones whenever possible.',
+      'Azimut brings together players from different cities and countries, so we don’t tie the server’s life to a single time zone. Whenever possible, server events will be scheduled so that players with any routine can take part.',
     list: [
       'Community Board with minimal pay-to-win donations',
       'No gear or consumables in the Community Board',
@@ -354,7 +354,7 @@ const en: Messages = {
   community: {
     eyebrow: 'Community',
     title: 'Join the Azimut community',
-    text: 'Join our community of players from Siberia, the Russian Far East and Asia. We’ve built a unique place to connect, where you’ll find answers to all your questions and support from the Azimut team.',
+    text: 'Join the Azimut player community. We’ve built a unique place to connect, where you’ll find answers to all your questions and support from the Azimut team.',
     telegram: 'Open Telegram',
     bannersAria: 'Azimut in server rankings',
     banners: {
@@ -399,6 +399,8 @@ const en: Messages = {
       passwordConfirm: 'Repeat password',
       loginPlaceholder: 'Latin letters, digits, _ . -',
       passwordPlaceholder: 'At least {min} characters',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password',
     },
     login: {
       title: 'Sign in to your master account',
