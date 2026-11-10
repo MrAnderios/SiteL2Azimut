@@ -5,7 +5,7 @@ const t = useContent()
 
 // Сервер стартовал: вместо таймера показываем статус и онлайн.
 // Выставляется событием finish у таймера. Для дебага — поменять на ref(true).
-const launched = ref(true)
+const launched = ref(false)
 
 // Детерминированные параметры искр — одинаковые на сервере и клиенте (без hydration mismatch)
 const embers = Array.from({ length: 22 }, (_, i) => ({
@@ -40,21 +40,18 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
       </div>
 
       <div class="hero__launch">
-        <template v-if="launched">
-          <span class="hero__launch-date">{{ t.hero.opened }}</span>
-          <AppServerStatus class="hero__countdown" />
-        </template>
+        <AppServerStatus v-if="launched" />
         <template v-else>
           <span class="hero__launch-label">{{ t.hero.countdownLabel }}</span>
           <UiCountdown :to="launch.date" :labels="t.countdown" class="hero__countdown" @finish="launched = true" />
         </template>
         <div class="hero__dates">
-          <span class="hero__date">
+          <span v-if="!launched" class="hero__date">
             <span class="hero__date-label">{{ t.hero.obt }}</span>
             <time :datetime="obt.date">{{ t.hero.obtLabel }}</time>
           </span>
           <span class="hero__date hero__date--main">
-            <span class="hero__date-label">{{ t.hero.launch }}</span>
+            <span class="hero__date-label">{{ launched ? t.hero.launched : t.hero.launch }}</span>
             <time :datetime="launch.date">{{ t.hero.launchLabel }}</time>
           </span>
         </div>
@@ -192,14 +189,6 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
   font-weight: 600;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-}
-
-.hero__launch-date {
-  color: var(--gold-300);
-  font-family: var(--font-heading);
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
 }
 
 .hero__countdown {

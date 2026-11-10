@@ -41,7 +41,7 @@ const ru = {
   hero: {
     play: 'Войти на сервер',
     countdownLabel: 'До старта сервера',
-    opened: 'Сервер открыт!',
+    launched: 'Был запущен',
     obt: 'ОБТ',
     launch: 'Старт',
     scrollAria: 'Прокрутить к рейтам',

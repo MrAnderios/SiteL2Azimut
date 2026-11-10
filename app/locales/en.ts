@@ -42,7 +42,7 @@ const en: Messages = {
   hero: {
     play: 'Join the server',
     countdownLabel: 'Server launch in',
-    opened: 'The server is live!',
+    launched: 'Launched',
     obt: 'Open beta',
     launch: 'Launch',
     scrollAria: 'Scroll to rates',
