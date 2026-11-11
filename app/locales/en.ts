@@ -98,12 +98,12 @@ const en: Messages = {
             text: [],
             list: [
               'Auto-loot (herb auto-loot is optional, via .cfg)',
-              'No automatic skill learning',
+              'Automatic skill for 52 LvL',
               'MW craft chance — 5%',
               'Double craft chance — 3%',
               'Detailed mob info with drop and spoil lists via Shift+click',
               '.clan command — grant clan members permission to take items from the clan warehouse',
-              'Blacksmith functions in towns are unchanged',
+              'Blacksmith functions in Community Board',
               'Base buff limit — 20, dances/songs — 12',
               'Convenient Community Buff and map teleport to towns and catacombs',
               'Weight limit increased 5x',
@@ -117,6 +117,7 @@ const en: Messages = {
               'Cursed weapons are disabled',
               'Spoil agathion added',
               '"Arena" instance in Oren — a simplified Ant Queen for solo players and off-peak hours',
+              'Updated Hell Bound - Possibility of production S, S80, Vesper',
             ],
           },
           {
