@@ -67,8 +67,9 @@ GitHub Actions ──npm run generate──▶ .output/public/ ──FTP──�
   ведут в старую CMS (`links.legacyCabinet` в `app/data/site.ts`), а страницы `/login`, `/register`,
   `/cabinet`, `/admin` собираются как редирект туда же.
 - **`robots.txt` и `sitemap.xml`** генерируются серверными маршрутами (`server/routes/`). На них нет
-  ссылок со страниц, поэтому они явно добавлены в пререндер (`nitro.prerender.routes` в
-  `nuxt.config.ts`) и попадают в `.output/public/` при сборке.
+  ссылок со страниц, поэтому для статики они явно добавляются в пререндер (хук `nitro:config` в
+  `nuxt.config.ts`) и попадают в `.output/public/`. В SSR-сборке они отдаются на лету, и адрес сайта
+  в них берётся из `NUXT_PUBLIC_I18N_BASE_URL` на сервере.
 - **Переменные окружения** (`NUXT_PUBLIC_I18N_BASE_URL` и т.п.) подставляются один раз при сборке
   на GitHub. Задать их на хостинге нельзя.
 - **Страница 404.** В сборке есть `404.html`. Если хостинг на Apache, укажите её в `.htaccess`:

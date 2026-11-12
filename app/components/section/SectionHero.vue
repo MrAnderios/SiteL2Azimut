@@ -3,6 +3,9 @@ import { launch, links, obt } from '~/data/site'
 
 const t = useContent()
 
+// Фон hero — самая тяжёлая картинка первого экрана, грузим её заранее (только на главной)
+useHead({ link: [{ rel: 'preload', as: 'image', href: '/images/hero-bg.jpg' }] })
+
 // Сервер стартовал: вместо таймера показываем статус и онлайн.
 // Выставляется событием finish у таймера. Для дебага — поменять на ref(true).
 const launched = ref(false)
@@ -106,6 +109,9 @@ const embers = Array.from({ length: 22 }, (_, i) => ({
 }
 
 .hero__embers span {
+  /* Горизонтальный снос искры; реальное значение задаётся в :style каждой искры */
+  --drift: 0px;
+
   position: absolute;
   bottom: -10px;
   border-radius: 50%;

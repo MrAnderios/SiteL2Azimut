@@ -75,7 +75,7 @@ const en: Messages = {
     intro:
       'Azimut brings together players from different cities and countries, so the server isn’t tied to a single time zone. We try to schedule events so that players with any routine can take part.',
     list: [
-      'Minimal pay-to-win in the Community Board',
+      'Community Board with almost no donations that affect gameplay',
       'No gear or consumables in the Community Board',
       'Community Buff without 3rd class buffs',
       'Events',
@@ -98,12 +98,12 @@ const en: Messages = {
             text: [],
             list: [
               'Auto-loot (herb auto-loot is optional, via .cfg)',
-              'Automatic skill for 52 LvL',
+              'Skills are learned automatically up to level 52',
               'MW craft chance — 5%',
               'Double craft chance — 3%',
               'Detailed mob info with drop and spoil lists via Shift+click',
               '.clan command — grant clan members permission to take items from the clan warehouse',
-              'Blacksmith functions in Community Board',
+              'Mammon merchant functions in the Community Board',
               'Base buff limit — 20, dances/songs — 12',
               'Convenient Community Buff and map teleport to towns and catacombs',
               'Weight limit increased 5x',
@@ -113,11 +113,11 @@ const en: Messages = {
               'The Southern Merchant sells crystal enchant scrolls with a base chance raised by 15%',
               'Safe enchant: +3, +4 for full-body armor',
               'No shop items that affect game balance',
-              'The shop offers accessories, pets and quest items',
+              'The shop offers only accessories, consumables, pets and quest items',
               'Cursed weapons are disabled',
               'Spoil agathion added',
               '"Arena" instance in Oren — a simplified Ant Queen for solo players and off-peak hours',
-              'Updated Hell Bound - Possibility of production S, S80, Vesper',
+              'Updated Hellbound: S, S80 and Vesper gear can be obtained there',
             ],
           },
           {
@@ -133,8 +133,6 @@ const en: Messages = {
             heading: 'Auto-farm',
             text: ['Auto-farm is available for 3 hours a day. Start it with the .autofarm command.'],
             list: [
-              'Attack skills, buffs and self-buffs can be used',
-              'Buffs target only the caster — you cannot buff your party with targeted buffs',
               'Attack, targeting and auto-loot work out of the box',
               'Pick up to 4 skills',
               'Mages attack with skills only',

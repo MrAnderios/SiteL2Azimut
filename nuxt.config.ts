@@ -38,8 +38,17 @@ export default defineNuxtConfig({
     experimental: { tasks: true },
     // Проверка реферальных наград раз в 10 минут (раньше — cron_referrals.php)
     scheduledTasks: { '*/10 * * * *': ['referrals:check'] },
-    // robots.txt и sitemap.xml — серверные маршруты; без явного пререндера они не попадут в статическую сборку
-    prerender: { routes: ['/robots.txt', '/sitemap.xml'] },
+  },
+
+  hooks: {
+    // robots.txt и sitemap.xml — серверные маршруты. В статическую сборку (nuxt generate) их нужно
+    // пререндерить явно. В SSR-сборке пререндер не нужен: иначе адрес сайта в них запекался бы при сборке,
+    // а NUXT_PUBLIC_I18N_BASE_URL из .env на сервере не действовал бы.
+    'nitro:config': (nitroConfig) => {
+      if (!nitroConfig.static) return
+      nitroConfig.prerender ??= {}
+      nitroConfig.prerender.routes = [...(nitroConfig.prerender.routes ?? []), '/robots.txt', '/sitemap.xml']
+    },
   },
 
   routeRules: {
@@ -88,7 +97,6 @@ export default defineNuxtConfig({
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap',
         },
-        { rel: 'preload', as: 'image', href: '/images/hero-bg.jpg' },
       ],
     },
   },

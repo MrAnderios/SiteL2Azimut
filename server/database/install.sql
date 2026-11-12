@@ -123,11 +123,23 @@ INSERT IGNORE INTO referral_settings (s_key, s_value) VALUES
   ('ref_noble_coins', '200');
 
 -- Права пользователя сайта: полный доступ к своим таблицам, к игровой БД — только нужное.
--- Ограничьте хост ('%') IP-адресом сервера сайта.
+-- Имя игровой БД — id сервера из shared/cabinet.ts (сейчас la2x3). Ограничьте хост ('%') IP-адресом сервера сайта.
 GRANT SELECT, INSERT, UPDATE, DELETE ON la2.* TO 'cms_register'@'%';
-GRANT SELECT ON la2x.characters TO 'cms_register'@'%';
-GRANT SELECT ON la2x.character_subclasses TO 'cms_register'@'%';
-GRANT SELECT ON la2x.olympiad_nobles TO 'cms_register'@'%';
-GRANT SELECT ON la2x.hwid_info TO 'cms_register'@'%';
-GRANT SELECT, INSERT, DELETE ON la2x.items_delayed TO 'cms_register'@'%';
+
+-- Кабинет: персонажи, профессии, дворянство, выдача предметов
+GRANT SELECT ON la2x3.characters TO 'cms_register'@'%';
+GRANT SELECT ON la2x3.character_subclasses TO 'cms_register'@'%';
+GRANT SELECT ON la2x3.olympiad_nobles TO 'cms_register'@'%';
+GRANT SELECT, INSERT, DELETE ON la2x3.items_delayed TO 'cms_register'@'%';
+
+-- Реферальная программа: защита от твинков по IP и HWID (если таблиц нет, проверка просто пропускается)
+GRANT SELECT ON la2x3.accounts TO 'cms_register'@'%';
+GRANT SELECT ON la2x3.hwid_info TO 'cms_register'@'%';
+
+-- Статистика (/api/castles, /api/heroes)
+GRANT SELECT ON la2x3.castle TO 'cms_register'@'%';
+GRANT SELECT ON la2x3.clan_data TO 'cms_register'@'%';
+GRANT SELECT ON la2x3.clan_subpledges TO 'cms_register'@'%';
+GRANT SELECT ON la2x3.ally_data TO 'cms_register'@'%';
+GRANT SELECT ON la2x3.heroes TO 'cms_register'@'%';
 FLUSH PRIVILEGES;

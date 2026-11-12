@@ -45,7 +45,8 @@ function poll(id: number) {
       const p = await $fetch<Payment>(`/api/payments/${id}`)
       liveStatus.value = p.status
       if (p.status === 'paid') {
-        setTimeout(() => refresh(), 1500)
+        // Даём прочитать «оплата получена», потом обновляем баланс и историю
+        timer = setTimeout(() => refresh(), 1500)
         return
       }
       if (p.status !== 'pending') return

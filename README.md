@@ -12,6 +12,7 @@ npm run dev        # dev-сервер на http://localhost:3000
 npm run build      # production-сборка (SSR) в .output/
 npm run generate   # статическая сборка в .output/public/
 npm run preview    # просмотр production-сборки
+npm run typecheck  # проверка типов (vue-tsc); выполняется и в CI перед сборкой
 ```
 
 ## Деплой
