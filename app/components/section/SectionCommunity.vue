@@ -2,6 +2,9 @@
 import { banners, links } from '~/data/site'
 
 const t = useContent()
+
+// Первый ряд — основные рейтинги, второй — остальные.
+const bannerRows = [banners.filter(b => b.primary), banners.filter(b => !b.primary)]
 </script>
 
 <template>
@@ -16,13 +19,15 @@ const t = useContent()
         <UiButton :href="links.telegram" size="lg" icon="telegram">{{ t.community.telegram }}</UiButton>
       </div>
 
-      <ul v-reveal="120" class="community__banners" :aria-label="t.community.bannersAria">
-        <li v-for="banner in banners" :key="banner.href">
-          <a :href="banner.href" target="_blank" rel="noopener" :title="banner.labelKey ? t.community.banners[banner.labelKey] : banner.label">
-            <img :src="banner.image" :alt="banner.labelKey ? t.community.banners[banner.labelKey] : banner.label" loading="lazy">
-          </a>
-        </li>
-      </ul>
+      <div v-reveal="120" class="community__banners" role="group" :aria-label="t.community.bannersAria">
+        <ul v-for="(row, i) in bannerRows" :key="i" class="community__banner-row">
+          <li v-for="banner in row" :key="banner.href">
+            <a :href="banner.href" target="_blank" rel="noopener" :title="banner.labelKey ? t.community.banners[banner.labelKey] : banner.label">
+              <img :src="banner.image" :alt="banner.labelKey ? t.community.banners[banner.labelKey] : banner.label" loading="lazy">
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </section>
 </template>
@@ -68,11 +73,17 @@ const t = useContent()
 
 .community__banners {
   display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.community__banner-row {
+  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 20px;
-  margin-top: 40px;
   list-style: none;
 }
 
