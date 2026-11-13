@@ -315,11 +315,12 @@ const ru = {
     castleLeader: 'Лидер',
     castleSiege: 'Осада',
     castleNoSiege: 'не назначена',
-    noAlly: 'Без альянса',
+    castleOwner: 'Владелец',
 
     heroesTitle: 'Герои',
     heroesEmpty: 'Сейчас героев нет.',
     heroTimes: 'Героем подряд: {count}',
+    heroStreak: 'Серия',
     clan: 'Клан',
     noClan: 'Без клана',
   },

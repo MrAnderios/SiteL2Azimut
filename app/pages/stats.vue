@@ -133,6 +133,17 @@ function siegeLabel(c: Castle) {
   return c.siegeAt ? dateTime.value.format(new Date(c.siegeAt)) : t.value.stats.castleNoSiege
 }
 
+// «через 9 дн.» / «через 5 ч» до осады. Считается в браузере (данные грузятся там же), прошедшие даты не подписываем.
+const relative = computed(() => new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto', style: 'short' }))
+
+function siegeIn(c: Castle) {
+  if (!c.siegeAt) return ''
+  const ms = new Date(c.siegeAt).getTime() - Date.now()
+  if (ms <= 0) return ''
+  const hours = Math.round(ms / 3_600_000)
+  return hours < 24 ? relative.value.format(Math.max(hours, 1), 'hour') : relative.value.format(Math.round(hours / 24), 'day')
+}
+
 const updatedLabel = computed(() => status.value
   ? t.value.stats.updated.replace('{time}', time.value.format(new Date(status.value.updatedAt)))
   : '')
@@ -243,48 +254,8 @@ function isSorted(col: TopType) {
         </div>
       </div>
 
-      <!-- Замки -->
-      <div v-reveal="180" class="stats__block panel">
-        <h2 class="stats__top-title text-gold">{{ t.stats.castlesTitle }}</h2>
-
-        <div v-if="castlesError" class="stats__placeholder">
-          {{ t.stats.error }}
-          <button type="button" class="stats__retry" @click="() => refreshCastles()">{{ t.stats.retry }}</button>
-        </div>
-        <div v-else-if="!castles && castlesPending" class="stats__placeholder">{{ t.stats.loading }}</div>
-        <div v-else-if="castles && !castles.castles.length" class="stats__placeholder">{{ t.stats.empty }}</div>
-
-        <ul v-else-if="castles" class="stats__castles">
-          <li v-for="c in castles.castles" :key="c.id" class="stats__castle">
-            <div v-if="castleImage(c.id)" class="stats__castle-image" aria-hidden="true">
-              <img :src="castleImage(c.id)" alt="" width="246" height="171" loading="lazy">
-            </div>
-            <span class="stats__castle-name">{{ c.name }}</span>
-            <span class="stats__castle-owner" :class="{ 'is-free': !c.owner }">
-              {{ c.owner ?? t.stats.castleFree }}
-            </span>
-            <span v-if="c.owner" class="stats__castle-ally">{{ c.ally ?? t.stats.noAlly }}</span>
-
-            <dl class="stats__castle-meta">
-              <div class="stats__castle-row">
-                <dt>{{ t.stats.castleTax }}</dt>
-                <dd>{{ c.tax }}%</dd>
-              </div>
-              <div v-if="c.leader" class="stats__castle-row">
-                <dt>{{ t.stats.castleLeader }}</dt>
-                <dd>{{ c.leader }}</dd>
-              </div>
-              <div class="stats__castle-row">
-                <dt>{{ t.stats.castleSiege }}</dt>
-                <dd>{{ siegeLabel(c) }}</dd>
-              </div>
-            </dl>
-          </li>
-        </ul>
-      </div>
-
       <!-- Герои -->
-      <div v-reveal="240" class="stats__block panel">
+      <div v-reveal="180" class="stats__block panel">
         <h2 class="stats__top-title text-gold">{{ t.stats.heroesTitle }}</h2>
 
         <div v-if="heroesError" class="stats__placeholder">
@@ -301,14 +272,15 @@ function isSorted(col: TopType) {
                 <th class="stats__rank" scope="col">{{ t.stats.rank }}</th>
                 <th scope="col">{{ t.stats.name }}</th>
                 <th class="stats__hide-sm" scope="col">{{ t.stats.class }}</th>
-                <th class="stats__num" scope="col">{{ t.stats.level }}</th>
                 <th class="stats__hide-sm" scope="col">{{ t.stats.clan }}</th>
+                <th class="stats__num" scope="col">{{ t.stats.level }}</th>
+                <th class="stats__streak-col" scope="col">{{ t.stats.heroStreak }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(h, i) in heroes.heroes" :key="h.name" :class="{ 'is-podium': i < 3 }">
+              <tr v-for="(h, i) in heroes.heroes" :key="h.name">
                 <td class="stats__rank">
-                  <span class="stats__place" :class="`stats__place--${i + 1}`">{{ i + 1 }}</span>
+                  <span class="stats__place">{{ i + 1 }}</span>
                 </td>
                 <td>
                   <span class="stats__name">
@@ -316,19 +288,91 @@ function isSorted(col: TopType) {
                     <span v-if="h.online" class="stats__dot stats__dot--sm" :title="t.stats.inGame">
                       <span class="visually-hidden">{{ t.stats.inGame }}</span>
                     </span>
-                    <span class="stats__hero-count" :title="t.stats.heroTimes.replace('{count}', String(h.count))">
-                      ×{{ h.count }}
-                    </span>
                   </span>
                   <span class="stats__class-sm">{{ h.className }}</span>
                 </td>
                 <td class="stats__hide-sm stats__class">{{ h.className }}</td>
+                <td class="stats__hide-sm">
+                  <span v-if="h.clan" class="stats__clan">{{ h.clan }}</span>
+                  <span v-else class="stats__class">{{ t.stats.noClan }}</span>
+                  <span v-if="h.ally" class="stats__ally">{{ h.ally }}</span>
+                </td>
                 <td class="stats__num">{{ h.level }}</td>
-                <td class="stats__hide-sm stats__class">{{ h.clan ?? t.stats.noClan }}</td>
+                <td class="stats__streak-col">
+                  <span
+                    class="stats__streak"
+                    :class="{ 'is-multi': h.count > 1 }"
+                    :title="t.stats.heroTimes.replace('{count}', String(h.count))"
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                      <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="currentColor" />
+                    </svg>
+                    <span class="visually-hidden">{{ t.stats.heroStreak }}:</span>
+                    {{ h.count }}
+                  </span>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Замки -->
+      <div v-reveal="240" class="stats__block panel">
+        <h2 class="stats__top-title text-gold">{{ t.stats.castlesTitle }}</h2>
+
+        <div v-if="castlesError" class="stats__placeholder">
+          {{ t.stats.error }}
+          <button type="button" class="stats__retry" @click="() => refreshCastles()">{{ t.stats.retry }}</button>
+        </div>
+        <div v-else-if="!castles && castlesPending" class="stats__placeholder">{{ t.stats.loading }}</div>
+        <div v-else-if="castles && !castles.castles.length" class="stats__placeholder">{{ t.stats.empty }}</div>
+
+        <ul v-else-if="castles" class="stats__castles">
+          <li v-for="c in castles.castles" :key="c.id" class="stats__castle" :class="{ 'is-free': !c.owner }">
+            <!-- Шапка: картинка, название замка и налог поверх неё -->
+            <div class="stats__castle-head">
+              <img
+                v-if="castleImage(c.id)"
+                :src="castleImage(c.id)"
+                class="stats__castle-image"
+                alt=""
+                width="246"
+                height="171"
+                loading="lazy"
+              >
+              <h3 class="stats__castle-name">{{ c.name }}</h3>
+              <span class="stats__castle-tax" :title="t.stats.castleTax">
+                {{ t.stats.castleTax }} <b>{{ c.tax }}%</b>
+              </span>
+            </div>
+
+            <div class="stats__castle-body">
+              <div class="stats__castle-owner">
+                <span class="stats__castle-label">{{ t.stats.castleOwner }}</span>
+                <span v-if="c.owner" class="stats__castle-clan">
+                  {{ c.owner }}
+                  <span v-if="c.ally" class="stats__castle-ally">{{ c.ally }}</span>
+                </span>
+                <span v-else class="stats__castle-clan is-free">{{ t.stats.castleFree }}</span>
+              </div>
+
+              <dl class="stats__castle-meta">
+                <div v-if="c.leader" class="stats__castle-row">
+                  <dt>{{ t.stats.castleLeader }}</dt>
+                  <dd>{{ c.leader }}</dd>
+                </div>
+                <div class="stats__castle-row">
+                  <dt>{{ t.stats.castleSiege }}</dt>
+                  <dd>
+                    {{ siegeLabel(c) }}
+                    <span v-if="siegeIn(c)" class="stats__castle-siege-in">{{ siegeIn(c) }}</span>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+        </ul>
       </div>
     </UiSection>
   </div>
@@ -460,90 +504,157 @@ function isSorted(col: TopType) {
 .stats__castle {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 18px 20px;
   overflow: hidden;
   border: 1px solid var(--color-line-strong);
   border-radius: var(--radius);
-  background: rgb(255 255 255 / 0.02);
-  transition: border-color 0.3s;
+  background: var(--color-surface);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .stats__castle:hover {
   border-color: var(--gold-500);
+  box-shadow: var(--shadow-glow);
 }
 
-/* Шапка карточки: картинка во всю ширину, снизу уходит в фон карточки */
-.stats__castle-image {
+/* Шапка: картинка во всю ширину, снизу затемнена — на ней название замка */
+.stats__castle-head {
   position: relative;
-  aspect-ratio: 16 / 9;
-  margin: -18px -20px 10px;
+  display: flex;
+  align-items: flex-end;
+  aspect-ratio: 2 / 1;
+  padding: 14px 18px;
   overflow: hidden;
+  background: var(--color-surface-2);
 }
 
-.stats__castle-image img {
+.stats__castle-head::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 0.35) 0%, transparent 30%),
+    linear-gradient(180deg, transparent 40%, rgb(22 17 12 / 0.75) 75%, var(--color-surface) 100%);
+}
+
+.stats__castle-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   /* Чуть увеличиваем, чтобы срезать рамку исходной картинки */
-  transform: scale(1.06);
-  transition: transform 0.6s var(--ease-out);
+  transform: scale(1.08);
+  transition: transform 0.6s var(--ease-out), filter 0.3s;
 }
 
-.stats__castle:hover .stats__castle-image img {
-  transform: scale(1.12);
+.stats__castle:hover .stats__castle-image {
+  transform: scale(1.14);
 }
 
-.stats__castle-image::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 45%, var(--color-surface) 100%);
+/* Свободный замок — обесцвеченная картинка */
+.stats__castle.is-free .stats__castle-image {
+  filter: grayscale(1) brightness(0.7);
 }
 
 .stats__castle-name {
+  position: relative;
+  z-index: 1;
   color: var(--gold-300);
-  font-family: var(--font-heading);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: 30px;
+  line-height: 1;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.8);
+}
+
+.stats__castle-tax {
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  right: 12px;
+  padding: 4px 9px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius);
+  background: rgb(10 8 6 / 0.75);
+  backdrop-filter: blur(4px);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stats__castle-tax b {
+  margin-left: 2px;
+  color: var(--gold-300);
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+.stats__castle-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 18px 18px;
 }
 
 .stats__castle-owner {
-  font-size: 16px;
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.stats__castle-owner.is-free,
-.stats__castle-ally {
+.stats__castle-label,
+.stats__castle-row dt {
   color: var(--color-text-muted);
-  font-weight: 400;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.stats__castle-clan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.stats__castle-clan.is-free {
+  color: var(--color-text-muted);
+  font-weight: 500;
 }
 
 .stats__castle-ally {
-  font-size: 13px;
+  padding: 1px 8px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  color: var(--gold-300);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .stats__castle-meta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin: 12px 0 0;
-  font-size: 13px;
+  gap: 8px;
+  margin: auto 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-line);
+  font-size: 14px;
 }
 
 .stats__castle-row {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
 }
 
 .stats__castle-row dt {
   flex: none;
-  color: var(--color-text-muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 11px;
 }
 
 .stats__castle-row dd {
@@ -551,14 +662,61 @@ function isSorted(col: TopType) {
   text-align: right;
 }
 
-.stats__hero-count {
-  padding: 1px 7px;
-  border: 1px solid var(--color-line-strong);
-  border-radius: 999px;
+.stats__castle-siege-in {
+  display: block;
   color: var(--gold-300);
   font-size: 12px;
+}
+
+/* Герои: клан с альянсом под ним и серия геройства */
+.stats__clan {
+  display: block;
+}
+
+.stats__ally {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.stats__table .stats__streak-col {
+  width: 1%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.stats__streak {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 52px;
+  padding: 4px 10px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius);
+  background: rgb(226 171 63 / 0.06);
+  color: var(--gold-300);
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
+}
+
+.stats__streak svg {
+  flex: none;
+  opacity: 0.7;
+}
+
+/* Герой несколько периодов подряд — «золотой» значок */
+.stats__streak.is-multi {
+  border-color: transparent;
+  background: var(--gradient-gold-btn);
+  color: #1a1206;
+  box-shadow: 0 0 10px rgb(226 171 63 / 0.3);
+}
+
+.stats__streak.is-multi svg {
+  opacity: 1;
 }
 
 .stats__top-head {

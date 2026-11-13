@@ -314,11 +314,12 @@ const en: Messages = {
     castleLeader: 'Leader',
     castleSiege: 'Siege',
     castleNoSiege: 'not scheduled',
-    noAlly: 'No alliance',
+    castleOwner: 'Owner',
 
     heroesTitle: 'Heroes',
     heroesEmpty: 'No heroes right now.',
     heroTimes: 'Hero streak: {count}',
+    heroStreak: 'Streak',
     clan: 'Clan',
     noClan: 'No clan',
   },
