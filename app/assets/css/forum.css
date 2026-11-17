@@ -157,6 +157,10 @@
   gap: 8px;
 }
 
+.forum__head .forum-topic__flags {
+  margin-top: 12px;
+}
+
 .forum-topic__flags,
 .forum-compose__actions {
   display: flex;
@@ -969,7 +973,8 @@
   list-style: none;
 }
 
-.forum-overview__people li {
+.forum-overview__people a {
+  display: inline-block;
   padding: 4px 12px;
   border: 1px solid var(--color-line-strong);
   border-radius: var(--radius);
@@ -978,6 +983,12 @@
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+.forum-overview__people a:hover,
+.forum-overview__people a:focus-visible {
+  border-color: var(--gold-500);
+  color: var(--gold-100);
 }
 
 .forum-overview__empty {

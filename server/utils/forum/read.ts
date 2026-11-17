@@ -1,5 +1,5 @@
-import type { ForumActiveMember, ForumCategoryPage, ForumFormat, ForumIndex, ForumMember, ForumOwnPosts, ForumPost, ForumSearchPage, ForumTopicPage } from '#shared/forum'
-import { forumCategories, forumCategory, forumLimits } from '#shared/forum'
+import type { ForumActiveMember, ForumCategoryPage, ForumFormat, ForumIndex, ForumMember, ForumMemberPosts, ForumOwnPosts, ForumPost, ForumSearchPage, ForumTopicPage } from '#shared/forum'
+import { forumCategories, forumCategory, forumLimits, forumNamePattern } from '#shared/forum'
 
 function forumFormat(value: string): ForumFormat {
   return value === 'markdown' ? 'markdown' : 'plain'
@@ -15,6 +15,25 @@ const lastAuthorSql = `
     ORDER BY fp.id DESC
     LIMIT 1
   )`
+
+/** Сообщения участника по имени. Чужое или кривое имя — как будто такого игрока нет. */
+export async function forumMemberPosts(rawName: string, page: number, staff: boolean): Promise<ForumMemberPosts> {
+  const name = normalizeForumName(rawName)
+  if (
+    name.length < forumLimits.nameMin
+    || name.length > forumLimits.nameMax
+    || !forumNamePattern.test(name)
+  ) {
+    fail(404, 'master_not_found')
+  }
+  const member = await forumProfileByName(name)
+  if (!member) fail(404, 'master_not_found')
+  return {
+    ...await forumOwnPosts(member.id, page, staff),
+    id: staff ? member.id : null,
+    banned: staff && member.banned,
+  }
+}
 
 /** Сообщения игрока, новые сверху. Скрытые видит только администратор, как в теме. */
 export async function forumOwnPosts(masterId: number, page: number, staff: boolean): Promise<ForumOwnPosts> {

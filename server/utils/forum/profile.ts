@@ -15,6 +15,17 @@ export async function forumProfileName(masterId: number): Promise<string | undef
   return (await forumProfile(masterId))?.name
 }
 
+/** Имя в базе уникально. Сравнение без учёта регистра — так устроена колонка. */
+export async function forumProfileByName(name: string): Promise<{ id: number, name: string, banned: boolean } | undefined> {
+  const found = await row<{ id: number, name: string, banned: number }>(
+    cmsDb(),
+    'SELECT master_id AS id, name, banned FROM forum_profiles WHERE name = ?',
+    [name],
+  )
+  if (!found) return
+  return { id: Number(found.id), name: found.name, banned: found.banned === 1 }
+}
+
 /** Забаненный не создаёт темы, не отвечает и не правит текст. Администратора бан не касается. */
 export async function assertForumWriter(masterId: number): Promise<void> {
   const found = await row<{ banned: number, login: string | null }>(cmsDb(), `

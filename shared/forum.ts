@@ -144,7 +144,7 @@ export interface ForumMe {
   banned: boolean
 }
 
-/** Одно сообщение текущего игрока и место, где оно лежит в теме. */
+/** Одно сообщение игрока и место, где оно лежит в теме. */
 export interface ForumOwnPost {
   id: number
   topicId: number
@@ -158,11 +158,17 @@ export interface ForumOwnPost {
   page: number
 }
 
-/** Сообщения текущего игрока, новые сверху. */
+/** Сообщения одного игрока, новые сверху. */
 export interface ForumOwnPosts {
   name: string | null
   page: number
   pages: number
   total: number
   posts: ForumOwnPost[]
+}
+
+/** Сообщения участника. id и запрет писать есть только у администратора. */
+export interface ForumMemberPosts extends ForumOwnPosts {
+  id: number | null
+  banned: boolean
 }

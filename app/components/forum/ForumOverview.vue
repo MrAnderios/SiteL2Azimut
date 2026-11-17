@@ -5,7 +5,12 @@ defineProps<{
   stats: ForumStats
 }>()
 
+const localePath = useLocalePath()
 const { t, date } = useForum()
+
+function memberTo(name: string) {
+  return localePath(`/forum/u/${encodeURIComponent(name)}`)
+}
 </script>
 
 <template>
@@ -38,7 +43,9 @@ const { t, date } = useForum()
     <div v-if="stats.names.length" class="forum-overview__people">
       <h3>{{ t.membersTitle }}</h3>
       <ul>
-        <li v-for="name in stats.names" :key="name">{{ name }}</li>
+        <li v-for="name in stats.names" :key="name">
+          <NuxtLink :to="memberTo(name)">{{ name }}</NuxtLink>
+        </li>
       </ul>
     </div>
     <p v-else class="forum-overview__empty">{{ t.noMembers }}</p>

@@ -479,6 +479,7 @@ const en: Messages = {
     logout: 'Sign out',
     myPosts: 'All your posts',
     myPostsEmpty: 'You have not posted yet.',
+    memberPostsEmpty: 'No posts yet.',
     nameTitle: 'Forum name',
     nameText: 'Other players will see it. You choose it once; after that only an administrator can change it.',
     nameLabel: 'Name',

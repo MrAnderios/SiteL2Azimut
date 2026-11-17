@@ -22,7 +22,12 @@ const emit = defineEmits<{
   error: [message: string]
 }>()
 
+const localePath = useLocalePath()
 const { t, me, date, errorText, refreshMe } = useForum()
+
+function memberTo(name: string) {
+  return localePath(`/forum/u/${encodeURIComponent(name)}`)
+}
 
 const draft = ref('')
 const renameValue = ref('')
@@ -94,7 +99,9 @@ async function setBan(banned: boolean) {
 <template>
   <li :id="`p-${post.id}`" class="forum-post panel" :class="{ 'is-hidden': post.hidden }">
     <div class="forum-post__side">
-      <span class="forum-post__author">{{ post.author }}</span>
+      <span class="forum-post__author">
+        <NuxtLink :to="memberTo(post.author)">{{ post.author }}</NuxtLink>
+      </span>
       <span class="forum-post__meta">
         <span class="forum-post__tools">
           <ForumAction
