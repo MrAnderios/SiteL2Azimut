@@ -5,7 +5,7 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/i18n'],
 
-  css: ['~/assets/css/main.css', '~/assets/css/cabinet.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/cabinet.css', '~/assets/css/forum.css'],
 
   // Серверные настройки личного кабинета. Значения задаются переменными окружения
   // (NUXT_DB_HOST, NUXT_SESSION_PASSWORD и т.д.) — см. .env.example. В репозиторий секреты не кладём.

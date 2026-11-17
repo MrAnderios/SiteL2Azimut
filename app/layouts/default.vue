@@ -5,6 +5,7 @@
       <slot />
     </main>
     <AppFooter />
+    <CabinetToasts />
   </div>
 </template>
 

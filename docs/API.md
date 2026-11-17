@@ -259,3 +259,10 @@ console.table(clans.map((c) => ({
   'PvP': c.pvp,
 })))
 ```
+
+## Форум
+
+API форума (`/api/forum`, `/api/forum/sections`, `/api/forum/topics`, `/api/forum/posts`)
+описан отдельно в [FORUM.md](./FORUM.md): там контракт, права доступа, модерация и
+создание таблиц (`server/database/forum.sql`). В отличие от статистики, форум требует
+авторизации для записи и защищён от CSRF.

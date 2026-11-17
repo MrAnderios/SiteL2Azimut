@@ -182,6 +182,15 @@ export type ApiErrorCode =
   | 'master_not_found'
   | 'invalid_item'
   | 'invalid_reward_key'
+  | 'forum_unavailable'
+  | 'section_not_found'
+  | 'topic_not_found'
+  | 'post_not_found'
+  | 'invalid_section'
+  | 'invalid_title'
+  | 'invalid_body'
+  | 'topic_locked'
+  | 'section_not_empty'
   | 'server_error'
 
 export interface AuthUser {
