@@ -19,35 +19,47 @@ export const donateItem = {
 export const paymentMethods = [
   {
     key: 'card_intl',
-    /** Visa / Mastercard — международные карты */
+    /** Visa / Mastercard — международные карты, доступны всем */
     logos: ['/images/pay/card-visa-mastercard.png'],
     currency: 'RUB',
     minRub: 100,
     maxRub: 100_000,
-  },
-  {
-    key: 'card_ru',
-    /** Visa / Mastercard / Мир */
-    logos: ['/images/pay/card-visa-mastercard-mir.png'],
-    currency: 'RUB',
-    minRub: 100,
-    maxRub: 100_000,
+    requiresProgress: false,
   },
   {
     key: 'sbp',
+    /** СБП — нужен персонаж 3 уровня или пополнения на 500 ₽ */
     logos: ['/images/pay/sbp.png'],
     currency: 'RUB',
     minRub: 10,
     maxRub: 100_000,
+    requiresProgress: true,
+  },
+  {
+    key: 'card_ru',
+    /** Visa / Mastercard / Мир — нужен персонаж 3 уровня или пополнения на 500 ₽ */
+    logos: ['/images/pay/card-visa-mastercard-mir.png'],
+    currency: 'RUB',
+    minRub: 100,
+    maxRub: 100_000,
+    requiresProgress: true,
   },
   {
     key: 'erip',
+    /** ЕРИП — доступен всем */
     logos: ['/images/pay/erip.png'],
     currency: 'BYN',
     minRub: 10,
     maxRub: 100_000,
+    requiresProgress: false,
   },
 ] as const
+
+/** Условие доступа к способам с requiresProgress: персонаж ≥ minLevel ИЛИ оплачено ≥ minPaidRub. */
+export const paymentAccessRules = {
+  minLevel: 3,
+  minPaidRub: 500,
+} as const
 
 export type PaymentMethodKey = (typeof paymentMethods)[number]['key']
 export type PaymentCurrency = (typeof paymentMethods)[number]['currency']
@@ -60,7 +72,7 @@ export function isPaymentMethodKey(value: unknown): value is PaymentMethodKey {
 
 /** Описание способа оплаты по ключу. Неизвестный ключ — СБП. */
 export function paymentMethod(key: PaymentMethodKey) {
-  return paymentMethods.find(m => m.key === key) ?? paymentMethods[2]
+  return paymentMethods.find(m => m.key === key) ?? paymentMethods.find(m => m.key === 'sbp')!
 }
 
 /** Значение payments.provider: manual_ — ручное подтверждение, gw_ — шлюз. */
@@ -170,6 +182,7 @@ export type ApiErrorCode =
   | 'invalid_game_password'
   | 'invalid_amount'
   | 'invalid_method'
+  | 'payment_method_locked'
   | 'payment_unavailable'
   | 'gateway_error'
   | 'invalid_signature'
@@ -261,6 +274,8 @@ export interface PaymentsResponse {
   coins: number
   active: PaymentDetails | null
   history: Payment[]
+  /** Способы оплаты, доступные этому мастеру с учётом условий доступа */
+  allowed: PaymentMethodKey[]
 }
 
 export type ReferralType = 'starter' | 'prof1' | 'prof2' | 'prof3' | 'noble'

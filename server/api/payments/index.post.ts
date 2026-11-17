@@ -1,12 +1,12 @@
 import type { PaymentDetails } from '#shared/cabinet'
-import { isPaymentMethodKey, paymentMethod } from '#shared/cabinet'
+import { isPaymentMethodKey, paymentAccessRules, paymentMethod } from '#shared/cabinet'
 
 // Новый счёт на оплату выбранным способом (карты, СБП, ЕРИП)
 export default defineEventHandler(async (event): Promise<PaymentDetails> => {
   const master = await requireMaster(event)
   const body = await readJson(event)
 
-  const method = body.method ?? 'sbp'
+  const method = body.method ?? 'card_intl'
   if (!isPaymentMethodKey(method)) fail(400, 'invalid_method')
 
   const info = paymentMethod(method)
@@ -14,6 +14,13 @@ export default defineEventHandler(async (event): Promise<PaymentDetails> => {
   if (!(rub >= info.minRub && rub <= info.maxRub)) {
     fail(400, 'invalid_amount', { min: info.minRub, max: info.maxRub })
   }
+
+  // Условия доступа: СБП и карты Мир — только с персонажем 3 уровня или пополнениями на 500 ₽
+  const access = await paymentAccess(master)
+  if (!access.allowed.includes(method)) {
+    fail(403, 'payment_method_locked', { minLevel: paymentAccessRules.minLevel, minPaidRub: paymentAccessRules.minPaidRub })
+  }
+
   rateLimit(`payment:${master.id}`, 10, 60 * 60)
 
   const db = cmsDb()

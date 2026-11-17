@@ -3,12 +3,17 @@ import QRCode from 'qrcode'
 import type { Payment, PaymentCurrency, PaymentDetails, PaymentMethodKey, PaymentStatus } from '#shared/cabinet'
 import {
   donateItem,
+  gameServers,
   isPaymentMethodKey,
   payment as paymentConfig,
+  paymentAccessRules,
   paymentMethod,
   paymentMethodFromProvider,
+  paymentMethods,
   paymentProvider,
 } from '#shared/cabinet'
+import { charactersOf, gameAccountLogins } from './characters'
+import type { CharacterRow } from './characters'
 import type { Db } from './db'
 
 // Без похожих символов (0/O, 1/I/L)
@@ -225,4 +230,49 @@ export async function markPaymentPaid(paymentId: number, confirmedBy: string, pr
 export async function cancelPayment(paymentId: number): Promise<boolean> {
   const res = await exec(cmsDb(), 'UPDATE payments SET status = ? WHERE id = ? AND status = ?', ['canceled', paymentId, 'pending'])
   return res.affectedRows > 0
+}
+
+export interface PaymentAccess {
+  /** Максимальный уровень персонажа мастера на всех игровых серверах */
+  maxLevel: number
+  /** Сумма всех оплаченных пополнений в рублях */
+  paidRub: number
+  /** Выполнено условие доступа: персонаж ≥ minLevel ИЛИ оплачено ≥ minPaidRub */
+  progressOk: boolean
+  allowed: PaymentMethodKey[]
+}
+
+/**
+ * Доступ мастера к способам оплаты.
+ * Способы с requiresProgress доступны, если есть персонаж ≥ 3 уровня
+ * или сумма прошлых оплаченных пополнений ≥ 500 ₽. Остальные — всем.
+ */
+export async function paymentAccess(master: { id: number, email: string }): Promise<PaymentAccess> {
+  const paid = await row<{ total: number | string }>(cmsDb(),
+    'SELECT COALESCE(SUM(amount_rub), 0) AS total FROM payments WHERE master_id = ? AND status = ?',
+    [master.id, 'paid'])
+  const paidRub = Number(paid?.total ?? 0)
+
+  let maxLevel = 0
+  try {
+    const logins = await gameAccountLogins(master.email)
+    if (logins.length) {
+      const perServer = await Promise.all(
+        gameServers.map(s => charactersOf(s.id, logins).catch(() => [] as CharacterRow[])),
+      )
+      for (const chars of perServer) {
+        for (const c of chars) {
+          if (c.level !== null && c.level > maxLevel) maxLevel = c.level
+        }
+      }
+    }
+  }
+  catch (e) {
+    // Игровая БД недоступна — опираемся только на историю пополнений
+    console.error('[payments] не удалось проверить уровень персонажей:', e)
+  }
+
+  const progressOk = maxLevel >= paymentAccessRules.minLevel || paidRub >= paymentAccessRules.minPaidRub
+  const allowed = paymentMethods.filter(m => !m.requiresProgress || progressOk).map(m => m.key)
+  return { maxLevel, paidRub, progressOk, allowed }
 }

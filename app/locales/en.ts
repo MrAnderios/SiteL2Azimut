@@ -630,6 +630,8 @@ const en: Messages = {
       submit: 'Proceed to payment',
       limits: 'Minimum: {min} ₽, maximum: {max} ₽.',
       methodTitle: 'Payment method',
+      locked: 'Locked',
+      progressHint: 'Available once you have a level {level} character or your past top-ups total at least {sum} ₽.',
       methods: {
         card_intl: 'Visa / Mastercard',
         card_ru: 'Visa / Mastercard / Mir',
@@ -835,6 +837,7 @@ const en: Messages = {
       invalid_game_password: 'The current password is incorrect.',
       invalid_amount: 'Enter a valid amount.',
       invalid_method: 'Choose a payment method.',
+      payment_method_locked: 'This payment method is not available yet. You need a level {minLevel} character or top-ups totalling {minPaidRub} ₽.',
       payment_unavailable: 'This payment method is temporarily unavailable.',
       gateway_error: 'The payment gateway did not respond. Try another method or repeat later.',
       invalid_signature: 'Invalid request signature.',

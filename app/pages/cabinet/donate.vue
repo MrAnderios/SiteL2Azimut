@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Payment, PaymentCurrency, PaymentDetails, PaymentMethodKey, PaymentStatus, PaymentsResponse } from '#shared/cabinet'
-import { payment as paymentConfig, paymentMethod, paymentMethods } from '#shared/cabinet'
+import { payment as paymentConfig, paymentAccessRules, paymentMethod, paymentMethods } from '#shared/cabinet'
 
 definePageMeta({ layout: 'cabinet', middleware: 'auth' })
 
@@ -10,9 +10,27 @@ usePrivatePage(() => t.value.titles.donate)
 
 const { data, refresh } = await useCabinetFetch<PaymentsResponse>('/api/payments')
 
-const method = ref<PaymentMethodKey>('sbp')
+const method = ref<PaymentMethodKey>('card_intl')
 const amountRub = ref<number | null>(null)
 const pending = ref(false)
+
+const allowed = computed<PaymentMethodKey[]>(() => data.value?.allowed ?? paymentMethods.filter(m => !m.requiresProgress).map(m => m.key))
+function isAllowed(key: PaymentMethodKey): boolean {
+  return allowed.value.includes(key)
+}
+const hasLocked = computed(() => paymentMethods.some(m => !isAllowed(m.key)))
+const lockHint = computed(() => fmt(t.value.donate.progressHint, {
+  level: paymentAccessRules.minLevel,
+  sum: num(paymentAccessRules.minPaidRub),
+}))
+
+// Если выбранный способ недоступен — переключаемся на первый доступный
+watch(allowed, (list) => {
+  if (!list.includes(method.value)) {
+    const first = paymentMethods.find(m => list.includes(m.key))
+    if (first) method.value = first.key
+  }
+}, { immediate: true })
 
 const selected = computed(() => paymentMethod(method.value))
 const coinsPreview = computed(() => Math.floor((amountRub.value || 0) / paymentConfig.coinPrice))
@@ -27,6 +45,7 @@ function money(amount: number, currency: PaymentCurrency): string {
 }
 
 async function createPayment() {
+  if (!isAllowed(method.value)) return
   pending.value = true
   try {
     await $fetch<PaymentDetails>('/api/payments', {
@@ -117,15 +136,18 @@ const payHint = computed(() => {
               :key="m.key"
               type="button"
               class="cab-pay-method"
-              :class="{ 'is-active': method === m.key }"
+              :class="{ 'is-active': method === m.key, 'is-locked': !isAllowed(m.key) }"
               :aria-pressed="method === m.key"
-              :title="t.donate.methodHints[m.key]"
+              :disabled="!isAllowed(m.key)"
+              :title="isAllowed(m.key) ? t.donate.methodHints[m.key] : lockHint"
               @click="method = m.key"
             >
               <img :src="m.logos[0]" :alt="t.donate.methods[m.key]" class="cab-pay-method__logo" width="138" height="48" loading="lazy">
               <span class="cab-pay-method__name">{{ t.donate.methods[m.key] }}</span>
+              <span v-if="!isAllowed(m.key)" class="cab-pay-method__lock">{{ t.donate.locked }}</span>
             </button>
           </fieldset>
+          <p v-if="hasLocked" class="cab-hint cab-donate-lock">{{ lockHint }}</p>
 
           <label class="cab-field">
             <span>{{ t.donate.amount }}</span>
@@ -143,7 +165,7 @@ const payHint = computed(() => {
           <p v-if="coinsPreview > 0" class="cab-donate-preview">
             {{ t.donate.youGet }}: <strong>{{ num(coinsPreview) }}</strong> {{ item }}
           </p>
-          <UiButton type="submit" :loading="pending">{{ t.donate.submit }}</UiButton>
+          <UiButton type="submit" :loading="pending" :disabled="!isAllowed(method)">{{ t.donate.submit }}</UiButton>
         </form>
         <p class="cab-hint cab-donate-limits">{{ fmt(t.donate.limits, { min: num(selected.minRub), max: num(selected.maxRub) }) }}</p>
       </section>
@@ -272,6 +294,26 @@ const payHint = computed(() => {
 
 .cab-pay-method.is-active .cab-pay-method__name {
   color: var(--gold-100);
+}
+
+.cab-pay-method.is-locked {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cab-pay-method.is-locked:hover {
+  border-color: var(--color-line);
+}
+
+.cab-pay-method__lock {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cab-donate-lock {
+  margin: -8px 0 16px;
 }
 
 .cab-pay {

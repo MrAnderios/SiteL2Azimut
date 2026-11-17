@@ -5,12 +5,28 @@
 
 ## Способы оплаты
 
-| Ключ        | Что на кнопке            | Валюта счёта | `payments.provider`  |
-|-------------|--------------------------|--------------|----------------------|
-| `card_intl` | Visa / Mastercard        | RUB          | `manual_card_intl` / `gw_card_intl` |
-| `card_ru`   | Visa / Mastercard / Мир  | RUB          | `manual_card_ru` / `gw_card_ru`     |
-| `sbp`       | СБП                      | RUB          | `manual_sbp` / `gw_sbp`             |
-| `erip`      | ЕРИП                     | BYN          | `manual_erip` / `gw_erip`           |
+| Ключ        | Что на кнопке            | Валюта счёта | Доступ     | `payments.provider`  |
+|-------------|--------------------------|--------------|------------|----------------------|
+| `card_intl` | Visa / Mastercard        | RUB          | всем       | `manual_card_intl` / `gw_card_intl` |
+| `sbp`       | СБП                      | RUB          | с условием | `manual_sbp` / `gw_sbp`             |
+| `card_ru`   | Visa / Mastercard / Мир  | RUB          | с условием | `manual_card_ru` / `gw_card_ru`     |
+| `erip`      | ЕРИП                     | BYN          | всем       | `manual_erip` / `gw_erip`           |
+
+## Условия доступа
+
+Способы с `requiresProgress: true` (СБП и карты Мир) доступны мастеру, если выполняется
+хотя бы одно условие (`paymentAccessRules` в `shared/cabinet.ts`):
+
+- есть персонаж **≥ 3 уровня** на любом игровом аккаунте мастера (проверяется по `characters`
+  на всех серверах из `gameServers`);
+- **или** сумма всех прошлых оплаченных пополнений (`payments.status = 'paid'`) **≥ 500 ₽**.
+
+Проверка — `paymentAccess()` в `server/utils/payments.ts`. Она выполняется на сервере:
+- `GET /api/payments` возвращает `allowed` — список доступных способов, интерфейс блокирует остальные;
+- `POST /api/payments` отклоняет недоступный способ с `403 payment_method_locked`.
+
+Visa/Mastercard (международные) и ЕРИП доступны всем без условий.
+Если игровая БД недоступна, уровень считается 0 и доступ определяется только по истории пополнений.
 
 - `manual_*` — оплату подтверждает администратор в `/admin` (рабочий резервный вариант).
 - `gw_*` — счёт создан в платёжном шлюзе, статус приходит в callback.

@@ -633,6 +633,8 @@ const ru = {
       submit: 'Перейти к оплате',
       limits: 'Минимальная сумма: {min} ₽, максимальная: {max} ₽.',
       methodTitle: 'Способ оплаты',
+      locked: 'Недоступно',
+      progressHint: 'Доступно, когда есть персонаж {level} уровня или сумма прошлых пополнений не менее {sum} ₽.',
       methods: {
         card_intl: 'Visa / Mastercard',
         card_ru: 'Visa / Mastercard / Мир',
@@ -838,6 +840,7 @@ const ru = {
       invalid_game_password: 'Текущий пароль указан неверно.',
       invalid_amount: 'Укажите корректную сумму.',
       invalid_method: 'Выберите способ оплаты.',
+      payment_method_locked: 'Этот способ оплаты пока недоступен. Нужен персонаж {minLevel} уровня или пополнения на {minPaidRub} ₽.',
       payment_unavailable: 'Этот способ оплаты временно недоступен.',
       gateway_error: 'Платёжный шлюз не ответил. Попробуйте другой способ или повторите позже.',
       invalid_signature: 'Неверная подпись запроса.',
