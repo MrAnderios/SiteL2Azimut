@@ -23,6 +23,8 @@ export const forumLimits = {
   searchMin: 2,
   searchMax: 80,
   searchLimit: 30,
+  /** Байт в загружаемом аватаре. В текстах для игрока это 1 МБ. */
+  avatarBytes: 1_048_576,
 } as const
 
 /** Страница, на которой лежит последнее сообщение. replies не считает первое. */
@@ -142,6 +144,8 @@ export interface ForumMe {
   authenticated: boolean
   /** Администратор запретил писать. У администратора всегда false. */
   banned: boolean
+  /** Адрес своего аватара или null. */
+  avatar: string | null
 }
 
 /** Одно сообщение игрока и место, где оно лежит в теме. */

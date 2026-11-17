@@ -98,6 +98,7 @@ GitHub Actions ──npm run generate──▶ .output/public/ ──FTP──�
 GitHub Actions ──ssh──▶ /var/www/azimut/
                           ├─ releases/<sha>-<дата>/   ← последние 5 сборок
                           ├─ current → releases/…     ← то, что запущено
+                          ├─ avatars/                 ← аватары форума, деплой не удаляет
                           └─ .env                     ← секреты кабинета
 Интернет ──443──▶ nginx ──▶ 127.0.0.1:3000 (systemd: azimut)
 ```

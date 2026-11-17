@@ -59,7 +59,7 @@ main() {
   log "Пользователь $DEPLOY_USER и папка $APP_DIR"
   id "$DEPLOY_USER" >/dev/null 2>&1 || adduser --disabled-password --gecos "" "$DEPLOY_USER" </dev/null
   usermod -aG systemd-journal "$DEPLOY_USER"   # CI читает логи сервиса при неудачном деплое
-  install -d -o "$DEPLOY_USER" -g "$DEPLOY_USER" "$APP_DIR" "$APP_DIR/releases"
+  install -d -o "$DEPLOY_USER" -g "$DEPLOY_USER" "$APP_DIR" "$APP_DIR/releases" "$APP_DIR/avatars"
 
   if [ -n "$DEPLOY_PUBKEY" ]; then
     local home ak

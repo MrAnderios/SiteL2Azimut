@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS forum_profiles (
   master_id INT UNSIGNED NOT NULL,
   name VARCHAR(16) NOT NULL,
   banned TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  avatar VARCHAR(4) NOT NULL DEFAULT '',
+  avatar_at INT UNSIGNED NOT NULL DEFAULT 0,
   created_at INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (master_id),
   UNIQUE KEY uq_name (name)
@@ -65,3 +67,20 @@ SET @forum_banned_sql := IF(
 PREPARE forum_banned_stmt FROM @forum_banned_sql;
 EXECUTE forum_banned_stmt;
 DEALLOCATE PREPARE forum_banned_stmt;
+
+-- avatar: jpeg, png, gif, webp. Пусто — аватара нет. avatar_at — время загрузки.
+SET @forum_avatar_col := (
+  SELECT COUNT(*)
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'forum_profiles'
+    AND COLUMN_NAME = 'avatar'
+);
+SET @forum_avatar_sql := IF(
+  @forum_avatar_col = 0,
+  'ALTER TABLE forum_profiles ADD COLUMN avatar VARCHAR(4) NOT NULL DEFAULT '''', ADD COLUMN avatar_at INT UNSIGNED NOT NULL DEFAULT 0',
+  'SELECT 1'
+);
+PREPARE forum_avatar_stmt FROM @forum_avatar_sql;
+EXECUTE forum_avatar_stmt;
+DEALLOCATE PREPARE forum_avatar_stmt;

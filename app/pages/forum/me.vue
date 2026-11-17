@@ -45,6 +45,7 @@ function postTo(post: ForumOwnPost) {
           {{ t.myPosts }}
           <template v-if="data.total"> · {{ fmt(t.memberPosts, { n: data.total }) }}</template>
         </p>
+        <ForumAvatarForm v-if="me?.name" />
       </header>
 
       <p v-if="!cabinetEnabled" class="cab-note">{{ t.unavailable }}</p>

@@ -23,7 +23,10 @@ async function logout() {
 <template>
   <div v-if="me?.name" class="forum-user">
     <span class="forum-user__label">{{ t.youAre }}</span>
-    <NuxtLink :to="minePath" :aria-current="onMine ? 'page' : undefined">{{ me.name }}</NuxtLink>
+    <NuxtLink :to="minePath" :aria-current="onMine ? 'page' : undefined">
+      <ForumAvatar v-if="me.avatar" size="sm" :name="me.name" :src="me.avatar" />
+      {{ me.name }}
+    </NuxtLink>
     <button type="button" class="forum-user__logout" :disabled="loggingOut" @click="logout">{{ t.logout }}</button>
   </div>
 </template>

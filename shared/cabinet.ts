@@ -202,6 +202,8 @@ export type ApiErrorCode =
   | 'forum_name_required'
   | 'forum_name_locked'
   | 'forum_banned'
+  | 'invalid_avatar'
+  | 'avatar_too_large'
   | 'cannot_ban_admin'
   | 'invalid_title'
   | 'invalid_post'

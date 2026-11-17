@@ -44,6 +44,10 @@ export default defineNuxtConfig({
     gameServer: { host: '', port: 7778 },
     // Логины мастер-аккаунтов с доступом к админ-панели, через запятую
     adminLogins: 'admin',
+    // Папка аватаров форума. Пусто — локально .data/forum-avatars,
+    // на сервере /var/www/azimut/avatars (релизы при деплое удаляются).
+    // Переопределяется NUXT_FORUM_AVATAR_DIR.
+    forumAvatarDir: '',
     // Ссылка СБП для оплаты (переводы по номеру/C2C), её кодирует QR на странице пополнения.
     // Переопределяется NUXT_SBP_PAYMENT_URL; пусто — QR с текстом «сумма + код платежа».
     sbpPaymentUrl: 'https://c2c.cbrpay.ru/BS1I0000E4C1IOK88SOA7IUC9BB3C9KL',

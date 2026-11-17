@@ -1,6 +1,6 @@
 import type { ForumMe } from '#shared/forum'
 
-const emptyMe: ForumMe = { name: null, isAdmin: false, authenticated: false, banned: false }
+const emptyMe: ForumMe = { name: null, isAdmin: false, authenticated: false, banned: false, avatar: null }
 
 /** Тексты форума, имя текущего игрока и разбор ошибок API. */
 export function useForum() {

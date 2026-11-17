@@ -3,12 +3,18 @@ import type { ForumMe } from '#shared/forum'
 interface ForumProfile {
   name: string
   banned: boolean
+  avatar: string
+  avatarAt: number
 }
 
 async function forumProfile(masterId: number): Promise<ForumProfile | undefined> {
-  const found = await row<{ name: string, banned: number }>(cmsDb(), 'SELECT name, banned FROM forum_profiles WHERE master_id = ?', [masterId])
+  const found = await row<{ name: string, banned: number, avatar: string, avatarAt: number }>(
+    cmsDb(),
+    'SELECT name, banned, avatar, avatar_at AS avatarAt FROM forum_profiles WHERE master_id = ?',
+    [masterId],
+  )
   if (!found) return
-  return { name: found.name, banned: found.banned === 1 }
+  return { name: found.name, banned: found.banned === 1, avatar: found.avatar, avatarAt: Number(found.avatarAt) }
 }
 
 export async function forumProfileName(masterId: number): Promise<string | undefined> {
@@ -16,14 +22,26 @@ export async function forumProfileName(masterId: number): Promise<string | undef
 }
 
 /** Имя в базе уникально. Сравнение без учёта регистра — так устроена колонка. */
-export async function forumProfileByName(name: string): Promise<{ id: number, name: string, banned: boolean } | undefined> {
-  const found = await row<{ id: number, name: string, banned: number }>(
+export async function forumProfileByName(name: string): Promise<{
+  id: number
+  name: string
+  banned: boolean
+  avatar: string
+  avatarAt: number
+} | undefined> {
+  const found = await row<{ id: number, name: string, banned: number, avatar: string, avatarAt: number }>(
     cmsDb(),
-    'SELECT master_id AS id, name, banned FROM forum_profiles WHERE name = ?',
+    'SELECT master_id AS id, name, banned, avatar, avatar_at AS avatarAt FROM forum_profiles WHERE name = ?',
     [name],
   )
   if (!found) return
-  return { id: Number(found.id), name: found.name, banned: found.banned === 1 }
+  return {
+    id: Number(found.id),
+    name: found.name,
+    banned: found.banned === 1,
+    avatar: found.avatar,
+    avatarAt: Number(found.avatarAt),
+  }
 }
 
 /** Забаненный не создаёт темы, не отвечает и не правит текст. Администратора бан не касается. */
@@ -48,13 +66,14 @@ export async function requireForumName(masterId: number): Promise<string> {
 
 export async function forumMe(event: Parameters<typeof getSessionUser>[0]): Promise<ForumMe> {
   const user = await getSessionUser(event)
-  if (!user) return { name: null, isAdmin: false, authenticated: false, banned: false }
+  if (!user) return { name: null, isAdmin: false, authenticated: false, banned: false, avatar: null }
   const profile = await forumProfile(user.id)
   return {
     name: profile?.name ?? null,
     isAdmin: user.isAdmin,
     authenticated: true,
     banned: !user.isAdmin && !!profile?.banned,
+    avatar: profile ? forumAvatarUrl(profile.name, profile.avatar, profile.avatarAt) : null,
   }
 }
 
