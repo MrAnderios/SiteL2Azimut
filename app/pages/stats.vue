@@ -62,9 +62,33 @@ interface HeroesResponse {
   heroes: Hero[]
 }
 
+type ClanType = 'level' | 'reputation' | 'members' | 'pvp'
+
+interface Clan {
+  rank: number
+  id: number
+  name: string
+  level: number
+  reputation: number
+  leader: string | null
+  members: number
+  ally: string | null
+  castle: string | null
+  pvp: number
+}
+
+interface ClansResponse {
+  type: ClanType
+  limit: number
+  updatedAt: string
+  clans: Clan[]
+}
+
 const TOP_LIMIT = 20
+const CLAN_LIMIT = 20
 const STATUS_POLL_MS = 60_000
 const topTypes: TopType[] = ['level', 'pvp', 'pk']
+const clanTypes: ClanType[] = ['level', 'reputation', 'pvp']
 
 const t = useContent()
 const { locale } = useI18n()
@@ -78,6 +102,7 @@ useSeoMeta({
 })
 
 const topType = ref<TopType>('level')
+const clanType = ref<ClanType>('level')
 
 const { data: status, error: statusError, refresh: refreshStatus } = useFetch<ServerStatus>('/api/status', {
   baseURL: apiBase,
@@ -88,6 +113,13 @@ const { data: status, error: statusError, refresh: refreshStatus } = useFetch<Se
 const { data: top, error: topError, pending: topPending, refresh: refreshTop } = useFetch<TopResponse>('/api/top', {
   baseURL: apiBase,
   query: { type: topType, limit: TOP_LIMIT },
+  server: false,
+  lazy: true,
+})
+
+const { data: clans, error: clansError, pending: clansPending, refresh: refreshClans } = useFetch<ClansResponse>('/api/clans', {
+  baseURL: apiBase,
+  query: { type: clanType, limit: CLAN_LIMIT },
   server: false,
   lazy: true,
 })
@@ -159,6 +191,11 @@ const playersLabel = computed(() => {
 /** Колонка, по которой построен текущий топ, — её подсвечиваем. */
 function isSorted(col: TopType) {
   return topType.value === col
+}
+
+/** То же для топа кланов: подсвечиваем уровень, репутацию или PvP. */
+function isClanSorted(col: ClanType) {
+  return clanType.value === col
 }
 </script>
 
@@ -248,6 +285,71 @@ function isSorted(col: TopType) {
                 <td class="stats__num" :class="{ 'is-sorted': isSorted('level') }">{{ p.level }}</td>
                 <td class="stats__num" :class="{ 'is-sorted': isSorted('pvp') }">{{ number.format(p.pvp) }}</td>
                 <td class="stats__num" :class="{ 'is-sorted': isSorted('pk') }">{{ number.format(p.pk) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Топ кланов -->
+      <div v-reveal="160" class="stats__top panel">
+        <div class="stats__top-head">
+          <h2 class="stats__top-title text-gold">{{ t.stats.clansTitle }}</h2>
+          <div class="stats__tabs" role="tablist" :aria-label="t.stats.clanTabsAria">
+            <button
+              v-for="type in clanTypes"
+              :key="type"
+              type="button"
+              role="tab"
+              class="stats__tab"
+              :class="{ 'is-active': clanType === type }"
+              :aria-selected="clanType === type"
+              @click="clanType = type"
+            >
+              {{ t.stats.clanTabs[type] }}
+            </button>
+          </div>
+        </div>
+
+        <div v-if="clansError" class="stats__placeholder">
+          {{ t.stats.error }}
+          <button type="button" class="stats__retry" @click="() => refreshClans()">{{ t.stats.retry }}</button>
+        </div>
+        <div v-else-if="!clans && clansPending" class="stats__placeholder">{{ t.stats.loading }}</div>
+        <div v-else-if="clans && !clans.clans.length" class="stats__placeholder">{{ t.stats.clansEmpty }}</div>
+
+        <div v-else-if="clans" class="stats__table-wrap" :class="{ 'is-pending': clansPending }">
+          <table class="stats__table">
+            <thead>
+              <tr>
+                <th class="stats__rank" scope="col">{{ t.stats.rank }}</th>
+                <th scope="col">{{ t.stats.clan }}</th>
+                <th class="stats__num" :class="{ 'is-sorted': isClanSorted('level') }" scope="col">{{ t.stats.level }}</th>
+                <th class="stats__hide-sm" scope="col">{{ t.stats.clanLeader }}</th>
+                <th class="stats__num" scope="col">{{ t.stats.clanMembers }}</th>
+                <th class="stats__hide-sm" scope="col">{{ t.stats.clanCastle }}</th>
+                <th class="stats__num" :class="{ 'is-sorted': isClanSorted('reputation') }" scope="col">{{ t.stats.clanReputation }}</th>
+                <th class="stats__num" :class="{ 'is-sorted': isClanSorted('pvp') }" scope="col">{{ t.stats.pvp }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(c, i) in clans.clans" :key="c.id" :class="{ 'is-podium': i < 3 }">
+                <td class="stats__rank">
+                  <span class="stats__place">{{ i + 1 }}</span>
+                </td>
+                <td>
+                  <span class="stats__name">{{ c.name }}</span>
+                  <span v-if="c.ally" class="stats__ally">{{ c.ally }}</span>
+                </td>
+                <td class="stats__num" :class="{ 'is-sorted': isClanSorted('level') }">{{ c.level }}</td>
+                <td class="stats__hide-sm stats__class">{{ c.leader ?? t.stats.unknown }}</td>
+                <td class="stats__num">{{ number.format(c.members) }}</td>
+                <td class="stats__hide-sm">
+                  <span v-if="c.castle" class="stats__castle-badge">{{ c.castle }}</span>
+                  <span v-else class="stats__class">{{ t.stats.unknown }}</span>
+                </td>
+                <td class="stats__num" :class="{ 'is-sorted': isClanSorted('reputation') }">{{ number.format(c.reputation) }}</td>
+                <td class="stats__num" :class="{ 'is-sorted': isClanSorted('pvp') }">{{ number.format(c.pvp) }}</td>
               </tr>
             </tbody>
           </table>
@@ -677,6 +779,18 @@ function isSorted(col: TopType) {
   display: block;
   color: var(--color-text-muted);
   font-size: 12px;
+}
+
+.stats__castle-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  color: var(--gold-300);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .stats__table .stats__streak-col {

@@ -183,3 +183,79 @@ console.table(players.map((p) => ({
 Особенности: берутся только текущие герои (`heroes.played = 1`), отсортированы
 по уровню; кеш — 60 секунд; при недоступной базе HTTP `503` и
 `{ "error": "database_unavailable" }`.
+
+## GET /api/clans
+
+Топ кланов сервера: уровень, репутация, состав, альянс, замок и суммарный PvP.
+
+```json
+{
+  "type": "level",
+  "limit": 20,
+  "updatedAt": "2026-11-08T12:34:56.000Z",
+  "clans": [
+    {
+      "rank": 1,
+      "id": 268491552,
+      "name": "Скверна",
+      "level": 7,
+      "reputation": 29368,
+      "leader": "Voin",
+      "members": 84,
+      "ally": "Скверна",
+      "castle": "Aden",
+      "pvp": 153
+    }
+  ]
+}
+```
+
+| Поле         | Тип             | Описание                                              |
+|--------------|-----------------|-------------------------------------------------------|
+| `type`       | string          | Срез рейтинга, по которому построен ответ             |
+| `limit`      | number          | Сколько кланов запрошено (1–100)                      |
+| `updatedAt`  | string (ISO 8601)| Время формирования ответа                            |
+| `rank`       | number          | Место в рейтинге                                      |
+| `id`         | number          | ID клана                                              |
+| `name`       | string          | Название клана                                        |
+| `level`      | number          | Уровень клана                                         |
+| `reputation` | number          | Репутация клана                                       |
+| `leader`     | string \| null  | Ник лидера клана                                      |
+| `members`    | number          | Количество персонажей в клане (без помеченных на удаление) |
+| `ally`       | string \| null  | Название альянса; `null` — клан без альянса            |
+| `castle`     | string \| null  | Название замка во владении; `null` — замка нет         |
+| `pvp`        | number          | Суммарные PvP-убийства всех участников клана          |
+
+Параметры запроса:
+
+| Параметр | Значения                              | По умолчанию |
+|----------|---------------------------------------|--------------|
+| `type`   | `level`, `reputation`, `members`, `pvp` | `level`    |
+| `limit`  | 1–100                                 | 20           |
+
+Особенности: считается по таблицам `clan_data`, `clan_subpledges` (`type = 0`),
+`ally_data`, `castle` и `characters` (`deletetime = 0`); кеш — 60 секунд
+отдельно для каждого среза; при недоступной базе HTTP `503` и
+`{ "error": "database_unavailable" }`.
+
+Примеры:
+
+```
+GET /api/clans
+GET /api/clans?type=reputation&limit=10
+GET /api/clans?type=pvp&limit=5
+```
+
+```js
+const res = await fetch('https://l2azimut.ru/api/clans?type=reputation&limit=10')
+const { clans } = await res.json()
+
+console.table(clans.map((c) => ({
+  'Место': c.rank,
+  'Клан': c.name,
+  'Уровень': c.level,
+  'Репутация': c.reputation,
+  'Состав': c.members,
+  'PvP': c.pvp,
+})))
+```
