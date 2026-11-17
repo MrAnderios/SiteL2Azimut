@@ -115,6 +115,8 @@ export interface ForumPost {
   editedAt: number
   hidden: boolean
   own: boolean
+  /** Администратор видит, что автору запрещено писать. */
+  banned: boolean
 }
 
 export interface ForumTopicPage {
@@ -138,6 +140,8 @@ export interface ForumMe {
   name: string | null
   isAdmin: boolean
   authenticated: boolean
+  /** Администратор запретил писать. У администратора всегда false. */
+  banned: boolean
 }
 
 /** Одно сообщение текущего игрока и место, где оно лежит в теме. */

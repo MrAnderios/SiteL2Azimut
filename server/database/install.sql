@@ -130,6 +130,7 @@ INSERT IGNORE INTO referral_settings (s_key, s_value) VALUES
 CREATE TABLE IF NOT EXISTS forum_profiles (
   master_id INT UNSIGNED NOT NULL,
   name VARCHAR(16) NOT NULL,
+  banned TINYINT UNSIGNED NOT NULL DEFAULT 0,
   created_at INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (master_id),
   UNIQUE KEY uq_name (name)

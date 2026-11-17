@@ -65,7 +65,8 @@ GitHub Actions ──npm run generate──▶ .output/public/ ──FTP──�
 - **Нет бэкенда.** Маршруты `server/` (`/api/*`, задачи по расписанию) в статику не попадают.
   Поэтому сборка идёт с `NUXT_PUBLIC_CABINET_ENABLED=false`: кнопка «Войти» и шаг «Регистрация»
   ведут в старую CMS (`links.legacyCabinet` в `app/data/site.ts`), а страницы `/login`, `/register`,
-  `/cabinet`, `/admin` собираются как редирект туда же.
+  `/cabinet`, `/admin` собираются как редирект туда же. Форум в старую CMS не уходит: пункта в меню
+  нет, страницы `/forum` остаются и показывают, что форум работает вместе с кабинетом.
 - **`robots.txt` и `sitemap.xml`** генерируются серверными маршрутами (`server/routes/`). На них нет
   ссылок со страниц, поэтому для статики они явно добавляются в пререндер (хук `nitro:config` в
   `nuxt.config.ts`) и попадают в `.output/public/`. В SSR-сборке они отдаются на лету, и адрес сайта
@@ -165,6 +166,8 @@ ssh root@<IP> "DOMAIN=l2azimut.ru CERTBOT_EMAIL=you@example.com DEPLOY_PUBKEY='s
 2. В MySQL выдайте права пользователю `cms_register` по
    [`server/database/install.sql`](../server/database/install.sql), заменив `'%'` на IP сервера
    (`setup.sh` печатает его в конце). Порт 3306 откройте только для этого IP.
+   Если база кабинета уже есть и в ней нет таблиц форума, выполните ещё
+   [`server/database/forum.sql`](../server/database/forum.sql) — см. [FORUM.md](FORUM.md).
 
 ### Шаг 4. Первый деплой
 

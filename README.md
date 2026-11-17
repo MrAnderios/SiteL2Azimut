@@ -31,7 +31,7 @@ npm run typecheck  # проверка типов (vue-tsc); выполняетс
 
 Форум (`/forum`) читается без входа, писать можно мастер-аккаунтом кабинета. Имя автора задаётся при первом заходе.
 На уже работающей базе таблицы создаёт [server/database/forum.sql](server/database/forum.sql)
-(для новой установки они есть в `install.sql`).
+(для новой установки они есть в `install.sql`). Страницы, права и API — [docs/FORUM.md](docs/FORUM.md).
 
 ## Структура
 
@@ -45,13 +45,16 @@ app/
 ├─ plugins/reveal.ts       # директива v-reveal — появление при прокрутке
 ├─ layouts/default.vue     # шапка → контент → подвал
 ├─ pages/index.vue         # порядок разделов лендинга
+├─ pages/forum/            # форум (docs/FORUM.md)
 └─ components/
    ├─ app/                 # AppHeader, AppFooter
    ├─ ui/                  # UiButton, UiSection, UiIcon, UiOrnament
-   └─ section/             # разделы лендинга (SectionHero, SectionRates, …)
+   ├─ section/             # разделы лендинга (SectionHero, SectionRates, …)
+   └─ forum/               # доска, тема, редактор
 public/images/             # изображения
 shared/cabinet.ts          # настройки и типы личного кабинета (общие для сервера и фронта)
-server/                    # бэкенд кабинета: api/, utils/, tasks/; robots.txt и sitemap.xml
+shared/forum.ts            # разделы, лимиты и типы форума
+server/                    # бэкенд кабинета и форума: api/, utils/, tasks/; robots.txt и sitemap.xml
 scripts/server/            # подготовка сервера (setup.sh) и GitHub (github-setup.sh) для деплоя
 ```
 
@@ -75,5 +78,6 @@ scripts/server/            # подготовка сервера (setup.sh) и G
   переопределить переменной `NUXT_PUBLIC_I18N_BASE_URL=https://ваш-домен` (без слеша в конце).
 - Заголовок, описание и alt превью — `meta` в `app/locales/*.ts`; общие мета-теги и JSON-LD — `app/app.vue`.
 - `/robots.txt` и `/sitemap.xml` отдаются из `server/routes/`; новые страницы добавляйте в `sitemap.xml.ts`.
+  Форум и его разделы в карте сайта уже есть, отдельные темы — нет.
 - Иконки (`favicon.ico`, `favicon-*.png`, `apple-touch-icon.png`, `icon-192/512.png`), манифест
   `site.webmanifest` и превью для соцсетей `og-image.jpg` (1200×630) лежат в `public/`.

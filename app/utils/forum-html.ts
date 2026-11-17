@@ -20,6 +20,12 @@ export function isForumUrl(url: string): boolean {
   }
 }
 
+/** Картинка только по http(s). Файл не загружается, mailto: и data: не проходят. */
+export function isForumImageUrl(url: string): boolean {
+  if (!isForumUrl(url)) return false
+  return url.startsWith('http://') || url.startsWith('https://')
+}
+
 /** Адрес из поля ссылки: голый домен дополняется https://. */
 export function normalizeForumUrl(raw: string): string | null {
   const value = raw.trim()
@@ -71,7 +77,7 @@ const postHtmlOptions: IFilterXSSOptions = {
     if (tag === 'a' && name === 'target') return attr('target', '_blank')
     if (tag === 'img' && name === 'src') {
       const url = forumUrl(value)
-      if (!url || !url.startsWith('http')) return ''
+      if (!url || !isForumImageUrl(url)) return ''
       return attr('src', url)
     }
     if (tag === 'img' && name === 'alt') return attr('alt', html.friendlyAttrValue(value))
@@ -103,7 +109,7 @@ function sealForumTags(html: string): string {
     .replace(/<img\b([^>]*?)\/?>/gi, (_open, attrs: string) => {
       const src = readAttr(attrs, 'src')
       const decoded = src ? decodeAttr(src) : ''
-      if (!src || !isForumUrl(decoded) || !decoded.startsWith('http')) {
+      if (!src || !isForumImageUrl(decoded)) {
         const alt = readAttr(attrs, 'alt')
         return alt ? escapeText(decodeAttr(alt)) : ''
       }

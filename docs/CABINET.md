@@ -14,29 +14,34 @@
 | `/cabinet/referrals`        | referral.php             | реферальная ссылка, приглашённые, награды                     |
 | `/admin`                    | admin.php                | подтверждение платежей, начисление/списание, журнал           |
 | `/admin/referrals`          | admin_referral.php       | настройки и предметы реферальных наград, ручная проверка      |
+| `/forum`                    | —                        | форум сервера; читается без входа, пишется мастер-аккаунтом. Подробности — [FORUM.md](FORUM.md) |
 
-Английские версии: `/en/...`. Тексты — `cabinet` в `app/locales/ru.ts` и `en.ts`.
+Английские версии: `/en/...`. Тексты кабинета — `cabinet` в `app/locales/ru.ts` и `en.ts`, форума — `forum`.
 
 ## Устройство
 
 ```
 shared/cabinet.ts            настройки (ID монеты, курс, лимиты, серверы), типы API — общие для сервера и фронта
-server/utils/                db (пулы MySQL), auth (сессия), passwords, payments, referrals, characters, rate-limit
+shared/forum.ts              разделы, лимиты и типы форума
+server/utils/                db (пулы MySQL), auth (сессия), passwords, payments, referrals, characters, rate-limit, forum/
 server/api/auth/*            вход, регистрация, выход, текущий пользователь
 server/api/cabinet/*         обзор кабинета, создание игрового аккаунта, смена пароля, перевод монет
 server/api/payments/*        счета на оплату
 server/api/referrals/*       реферальная страница и проверка наград
 server/api/admin/*           админ-панель
+server/api/forum/*           чтение и запись форума
 server/tasks/referrals/      проверка реферальных наград каждые 10 минут (было cron_referrals.php)
 server/middleware/csrf.ts    изменяющие запросы к API — только со своего сайта
-server/database/install.sql  схема таблиц для новой установки
-app/pages/{login,register}.vue, app/pages/cabinet/*, app/pages/admin/*
+server/database/install.sql  схема таблиц для новой установки (кабинет и форум)
+server/database/forum.sql    только таблицы форума — для уже работающей базы
+app/pages/{login,register}.vue, app/pages/cabinet/*, app/pages/admin/*, app/pages/forum/*
 app/layouts/cabinet.vue, app/components/cabinet/*, app/assets/css/cabinet.css
+app/components/forum/*, app/assets/css/forum.css
 ```
 
 - **Сессия** — зашифрованная httpOnly-cookie `azimut_session` (ключ `NUXT_SESSION_PASSWORD`), 30 дней.
 - **Админы** — логины из `NUXT_ADMIN_LOGINS` (через запятую), раньше было зашито `admin`.
-- **Ошибки API** возвращаются кодом (`data.code`), текст для игрока берётся из `cabinet.errors` в locales.
+- **Ошибки API** возвращаются кодом (`data.code`), текст для игрока берётся из `cabinet.errors` в locales, у форума — из `forum.errors`.
 - **Настройки** без секретов (ID монеты 4037, курс, мин./макс. сумма, срок счёта, список игровых серверов) —
   в `shared/cabinet.ts`. Доступы к БД — только в переменных окружения.
 

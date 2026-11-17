@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import type { ForumOwnPost, ForumOwnPosts } from '#shared/forum'
 
-const route = useRoute()
 const localePath = useLocalePath()
-const { t, cabinetEnabled, me, mePending, date, errorText } = useForum()
-
-const page = computed(() => {
-  const n = Number(route.query.page)
-  return Number.isInteger(n) && n > 0 ? n : 1
-})
+const { t, cabinetEnabled, me, mePending, date } = useForum()
+const { page } = useForumPage()
 
 const { data, error, pending, refresh } = useFetch<ForumOwnPosts>('/api/forum/me/posts', {
   query: { page },
@@ -38,7 +33,6 @@ function postTo(post: ForumOwnPost) {
   <div class="forum">
     <div class="container">
       <header class="forum__head">
-        <ForumUser />
         <p class="forum__crumbs">
           <NuxtLink :to="localePath('/forum')">{{ t.title }}</NuxtLink>
           <template v-if="name">
@@ -54,34 +48,40 @@ function postTo(post: ForumOwnPost) {
       </header>
 
       <p v-if="!cabinetEnabled" class="cab-note">{{ t.unavailable }}</p>
-      <ForumNameForm v-else-if="me?.authenticated && !me.name" />
-      <p v-else-if="mePending && !me?.name" class="forum-hint">{{ t.loading }}</p>
-      <p v-else-if="!me?.authenticated" class="forum-login">
-        {{ t.loginToPost }}
-        <NuxtLink :to="{ path: localePath('/login'), query: { redirect: route.fullPath } }" class="cab-link">{{ t.login }}</NuxtLink>
-      </p>
-      <template v-else-if="me?.name">
-        <p v-if="error" class="cab-note cab-note--error">
-          {{ errorText(error) }}
-          <button type="button" class="forum-text-btn" @click="() => refresh()">{{ t.retry }}</button>
-        </p>
-        <p v-else-if="pending && !data" class="forum-hint">{{ t.loading }}</p>
-        <p v-else-if="data && !data.posts.length" class="forum-hint">{{ t.myPostsEmpty }}</p>
-        <ol v-else-if="data" class="forum__posts">
-          <li v-for="post in data.posts" :key="post.id" class="forum-mine panel">
-            <p class="forum-mine__meta">
-              <NuxtLink :to="localePath(`/forum/${post.slug}`)">{{ t.categories[post.slug].title }}</NuxtLink>
-              <span>· {{ date(post.createdAt) }}</span>
-              <template v-if="post.editedAt"> · {{ t.edited }}</template>
-              <template v-if="post.hidden"> · {{ t.hidden }}</template>
-            </p>
-            <h2 class="forum-mine__title">
-              <NuxtLink :to="postTo(post)">{{ post.topicTitle }}</NuxtLink>
-            </h2>
-            <div class="forum-post__body" v-html="renderPost(post.body, post.format)" />
-          </li>
-        </ol>
-        <ForumPager v-if="data" :page="data.page" :pages="data.pages" />
+      <template v-else>
+        <ForumNameForm v-if="me?.authenticated && !me.name" />
+        <ForumBar />
+        <p v-if="mePending && !me?.name" class="forum-hint">{{ t.loading }}</p>
+        <ForumLogin v-else-if="!me?.authenticated" />
+        <template v-else-if="me?.name">
+          <ForumStatus
+            v-if="error || (pending && !data)"
+            :error="error"
+            @retry="refresh()"
+          />
+          <p v-else-if="data && !data.posts.length" class="forum-hint">{{ t.myPostsEmpty }}</p>
+          <ol v-else-if="data" class="forum__posts">
+            <li v-for="post in data.posts" :key="post.id" class="forum-post panel" :class="{ 'is-hidden': post.hidden }">
+              <div class="forum-post__side">
+                <h2 class="forum-post__author">
+                  <NuxtLink :to="postTo(post)">{{ post.topicTitle }}</NuxtLink>
+                </h2>
+                <span class="forum-post__meta">
+                  <span class="forum-post__facts">
+                    <NuxtLink class="forum-post__anchor" :to="localePath(`/forum/${post.slug}`)">{{ t.categories[post.slug].title }}</NuxtLink>
+                    <span>{{ date(post.createdAt) }}</span>
+                    <span v-if="post.editedAt" class="forum-post__mark">{{ t.edited }}</span>
+                    <span v-if="post.hidden" class="forum-post__mark">{{ t.hidden }}</span>
+                  </span>
+                </span>
+              </div>
+              <div class="forum-post__main">
+                <ForumPostBody :body="post.body" :format="post.format" />
+              </div>
+            </li>
+          </ol>
+          <ForumPager v-if="data" :page="data.page" :pages="data.pages" />
+        </template>
       </template>
     </div>
   </div>

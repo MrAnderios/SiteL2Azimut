@@ -1,9 +1,9 @@
-import type { ForumFormat } from '#shared/forum'
+import type { ForumFormat, ForumMe, ForumPost } from '#shared/forum'
 import { forumLimits } from '#shared/forum'
 import MarkdownIt from 'markdown-it'
-import { isForumUrl, sanitizePostHtml } from './forum-html'
+import { isForumImageUrl, isForumUrl, sanitizePostHtml } from './forum-html'
 
-export { isForumUrl, normalizeForumUrl } from './forum-html'
+export { isForumImageUrl, isForumUrl, normalizeForumUrl } from './forum-html'
 
 /** Текст сообщения для v-html. Свой рендер, затем allowlist: сырой HTML и опасные адреса не проходят. */
 export function renderPost(body: string, format: ForumFormat): string {
@@ -26,6 +26,42 @@ export function normalizedForumBody(body: string): string {
 export function forumBodyReady(body: string): boolean {
   const text = normalizedForumBody(body)
   return text.length > 0 && text.length <= forumLimits.bodyMax
+}
+
+/** Кнопки на страницах. Итог всё равно проверяет сервер. */
+
+export function forumCanStartTopic(me: ForumMe | null | undefined, staffOnly: boolean): boolean {
+  return !!me?.name && !me.banned && (!staffOnly || me.isAdmin)
+}
+
+export function forumCanReply(
+  me: ForumMe | null | undefined,
+  topic: { closed: boolean } | null | undefined,
+  staffOnly: boolean,
+): boolean {
+  if (!topic || !me?.name || me.banned) return false
+  if (staffOnly && !me.isAdmin) return false
+  if (topic.closed && !me.isAdmin) return false
+  return true
+}
+
+export function forumCanDeleteTopic(
+  topic: { empty: boolean, own: boolean } | null | undefined,
+  isAdmin: boolean | undefined,
+): boolean {
+  return !!topic?.empty && (topic.own || !!isAdmin)
+}
+
+/** Админ скрывает любое видимое сообщение. Автор — только своё последнее на последней странице. */
+export function forumCanHidePost(
+  post: Pick<ForumPost, 'hidden' | 'own'>,
+  me: ForumMe | null | undefined,
+  lastOnLastPage: boolean,
+): boolean {
+  if (post.hidden) return false
+  if (me?.isAdmin) return true
+  if (me?.banned || !post.own) return false
+  return lastOnLastPage
 }
 
 /** Цитата для редактора: имя и текст сообщения блоком markdown. */
@@ -83,7 +119,7 @@ markdown.renderer.rules.image = (tokens, idx) => {
   if (!token) return ''
   const src = String(token.attrGet('src') ?? '')
   const alt = markdown.utils.escapeHtml(token.content)
-  if (!isForumUrl(src) || !src.startsWith('http')) return alt
+  if (!isForumImageUrl(src)) return alt
   return `<img src="${markdown.utils.escapeHtml(src)}" alt="${alt}" loading="lazy" referrerpolicy="no-referrer">`
 }
 

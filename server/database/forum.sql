@@ -8,6 +8,7 @@
 CREATE TABLE IF NOT EXISTS forum_profiles (
   master_id INT UNSIGNED NOT NULL,
   name VARCHAR(16) NOT NULL,
+  banned TINYINT UNSIGNED NOT NULL DEFAULT 0,
   created_at INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (master_id),
   UNIQUE KEY uq_name (name)
@@ -47,3 +48,20 @@ CREATE TABLE IF NOT EXISTS forum_posts (
 ALTER TABLE forum_posts
   MODIFY format ENUM('plain', 'markdown')
     CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'plain';
+
+-- Уже созданная таблица: CREATE выше колонку не добавляет. Повторный запуск ничего не меняет.
+SET @forum_banned_col := (
+  SELECT COUNT(*)
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'forum_profiles'
+    AND COLUMN_NAME = 'banned'
+);
+SET @forum_banned_sql := IF(
+  @forum_banned_col = 0,
+  'ALTER TABLE forum_profiles ADD COLUMN banned TINYINT UNSIGNED NOT NULL DEFAULT 0',
+  'SELECT 1'
+);
+PREPARE forum_banned_stmt FROM @forum_banned_sql;
+EXECUTE forum_banned_stmt;
+DEALLOCATE PREPARE forum_banned_stmt;

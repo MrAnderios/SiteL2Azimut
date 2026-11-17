@@ -187,6 +187,8 @@ export type ApiErrorCode =
   | 'forum_name_taken'
   | 'forum_name_required'
   | 'forum_name_locked'
+  | 'forum_banned'
+  | 'cannot_ban_admin'
   | 'invalid_title'
   | 'invalid_post'
   | 'topic_closed'

@@ -2,7 +2,7 @@
 import type { Editor } from '@tiptap/vue-3'
 import type { EditorCustomHandlers, EditorToolbarItem } from '@nuxt/ui'
 import { forumLimits } from '#shared/forum'
-import { isForumUrl, normalizeForumUrl, normalizedForumBody } from '~/utils/forum'
+import { isForumImageUrl, isForumUrl, normalizeForumUrl, normalizedForumBody } from '~/utils/forum'
 
 const model = defineModel<string>({ required: true })
 
@@ -12,14 +12,22 @@ defineProps<{
 }>()
 
 const { t } = useForum()
-const linkError = ref('')
+const urlError = ref('')
 
 const length = computed(() => normalizedForumBody(model.value).length)
 const over = computed(() => length.value > forumLimits.bodyMax)
 
 watch(model, () => {
-  linkError.value = ''
+  urlError.value = ''
 })
+
+const image = {
+  allowBase64: false,
+  HTMLAttributes: {
+    loading: 'lazy',
+    referrerpolicy: 'no-referrer',
+  },
+}
 
 const handlers = {
   link: {
@@ -31,20 +39,46 @@ const handlers = {
       if (entered === null) return chain
       const href = entered.trim()
       if (!href) {
-        linkError.value = ''
+        urlError.value = ''
         return chain.focus().extendMarkRange('link').unsetLink()
       }
       const next = normalizeForumUrl(href)
       if (!next || !isForumUrl(next)) {
-        linkError.value = t.value.editor.linkInvalid
+        urlError.value = t.value.editor.linkInvalid
         return chain
       }
-      linkError.value = ''
+      urlError.value = ''
       const focused = chain.focus().extendMarkRange(editor.isActive('code') ? 'code' : 'link')
       return focused.setLink({ href: next })
     },
     isActive: (editor: Editor) => editor.isActive('link'),
     isDisabled: (editor: Editor) => editor.state.selection.empty && !editor.isActive('link'),
+  },
+  image: {
+    canExecute: (editor: Editor) => editor.can().setImage({ src: 'https://example.com/image.png' }),
+    execute: (editor: Editor) => {
+      const current = editor.isActive('image')
+      const previous = current ? String(editor.getAttributes('image').src || '') : ''
+      const entered = window.prompt(t.value.editor.imagePrompt, previous || 'https://')
+      const chain = editor.chain()
+      if (entered === null) return chain
+      const href = entered.trim()
+      if (!href) {
+        urlError.value = ''
+        return current ? chain.focus().deleteSelection() : chain
+      }
+      const next = normalizeForumUrl(href)
+      if (!next || !isForumImageUrl(next)) {
+        urlError.value = t.value.editor.imageInvalid
+        return chain
+      }
+      urlError.value = ''
+      const focused = chain.focus()
+      return current
+        ? focused.updateAttributes('image', { src: next })
+        : focused.setImage({ src: next, alt: '' })
+    },
+    isActive: (editor: Editor) => editor.isActive('image'),
   },
 } satisfies EditorCustomHandlers
 
@@ -132,6 +166,11 @@ const items = computed<EditorToolbarItem<typeof handlers>[][]>(() => {
     'aria-label': label.link,
     tooltip: { text: label.link },
   }, {
+    kind: 'image',
+    icon: 'i-lucide-image',
+    'aria-label': label.image,
+    tooltip: { text: label.image },
+  }, {
     kind: 'horizontalRule',
     icon: 'i-lucide-separator-horizontal',
     'aria-label': label.rule,
@@ -162,7 +201,7 @@ const starterKit = {
       v-model="model"
       content-type="markdown"
       :immediately-render="false"
-      :image="false"
+      :image="image"
       :mention="false"
       :starter-kit="starterKit"
       :handlers="handlers"
@@ -175,6 +214,6 @@ const starterKit = {
     </UEditor>
     <p class="forum-editor__count" :class="{ 'is-over': over }">{{ length }} / {{ forumLimits.bodyMax }}</p>
     <p v-if="over" class="forum-editor__error">{{ fmt(t.errors.invalid_post, { max: forumLimits.bodyMax }) }}</p>
-    <p v-else-if="linkError" class="forum-editor__error">{{ linkError }}</p>
+    <p v-else-if="urlError" class="forum-editor__error">{{ urlError }}</p>
   </div>
 </template>

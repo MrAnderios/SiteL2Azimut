@@ -157,6 +157,23 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 900px) {
+  .header__inner {
+    gap: 12px;
+  }
+
+  .header :deep(.logo) {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .header :deep(.logo img) {
+    width: auto;
+    height: 34px;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: left center;
+  }
+
   .header__actions {
     margin-left: auto;
   }
@@ -197,6 +214,32 @@ onBeforeUnmount(() => {
 
   .header__nav a::after {
     display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .header__inner {
+    gap: 8px;
+  }
+
+  .header__actions {
+    gap: 8px;
+  }
+
+  .header :deep(.lang) {
+    letter-spacing: 0.04em;
+  }
+
+  .header :deep(.lang a) {
+    padding: 6px 4px;
+  }
+
+  .header :deep(.btn--sm) {
+    padding: 9px 12px;
+  }
+
+  .header :deep(.logo img) {
+    height: 30px;
   }
 }
 </style>
