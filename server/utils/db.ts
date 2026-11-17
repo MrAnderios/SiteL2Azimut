@@ -10,12 +10,13 @@ export type Db = Pool | PoolConnection
 let cmsPool: Pool | undefined
 const gamePools = new Map<string, Pool>()
 
-function createPool(opts: { host: string, port: number, user: string, password: string, database: string }): Pool {
+function createPool(opts: { host: string, port: number, user: string, password: string, database: string }, charset = 'utf8mb4'): Pool {
   return mysql.createPool({
     ...opts,
     port: Number(opts.port) || 3306,
-    // utf8mb4: форум хранит текст в этой кодировке; таблицы кабинета остаются utf8, MySQL сам приводит строки
-    charset: 'utf8mb4',
+    // Кодировка соединения задаётся вызывающей стороной: cmsDb — utf8mb4 (форум),
+    // gameDb — UTF8_GENERAL_CI (игровая база хранит имена в utf8, см. ниже).
+    charset,
     connectionLimit: 10,
     waitForConnections: true,
     enableKeepAlive: true,
@@ -31,6 +32,8 @@ export function cmsDb(): Pool {
     if (!db.host || !db.user) {
       throw new Error('Не заданы доступы к БД: NUXT_DB_HOST, NUXT_DB_USER, NUXT_DB_PASSWORD (см. .env.example)')
     }
+    // utf8mb4 (по умолчанию): форум хранит текст в utf8mb4; таблицы кабинета (master_accounts,
+    // payments, donate_log и т.д.) остаются utf8 — MySQL сам приводит строки, не перекодируем их.
     cmsPool = createPool(db)
   }
   return cmsPool
@@ -40,13 +43,17 @@ export function gameDb(serverId: GameServerId): Pool {
   let pool = gamePools.get(serverId)
   if (!pool) {
     const { db, gameDb: game } = useRuntimeConfig()
+    // Игровая база (characters.char_name, clan_subpledges.name, ally_data.ally_name) хранит
+    // кириллицу в utf8 (utf8_general_ci). Соединение utf8mb4 на старом MySQL (5.1, без utf8mb4)
+    // откатывается и подменяет русские буквы на «?» (0x3F). Возвращаем UTF8_GENERAL_CI — колляцию
+    // из списка mysql2 (id 33), которая раньше отдавала имена корректно. Данные в БД не меняем.
     pool = createPool({
       host: game.host || db.host,
       port: game.port || db.port,
       user: game.user || db.user,
       password: game.user ? game.password : db.password,
       database: serverId,
-    })
+    }, 'UTF8_GENERAL_CI')
     gamePools.set(serverId, pool)
   }
   return pool
