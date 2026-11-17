@@ -12,7 +12,7 @@
 | `/cabinet`                  | index.php, game_account.php, transfer.php | баланс, игровые аккаунты, персонажи, перевод монет, смена паролей |
 | `/cabinet/donate`           | donate.php, payment_status.php | счёт на оплату (карты, СБП, ЕРИП), QR, статус, история |
 | `/cabinet/referrals`        | referral.php             | реферальная ссылка, приглашённые, награды                     |
-| `/admin`                    | admin.php                | подтверждение платежей, начисление/списание, журнал           |
+| `/admin`                    | admin.php                | уникальные заходы, подтверждение платежей, начисление/списание, журнал |
 | `/admin/referrals`          | admin_referral.php       | настройки и предметы реферальных наград, ручная проверка      |
 | `/forum`                    | —                        | форум сервера; читается без входа, пишется мастер-аккаунтом. Подробности — [FORUM.md](FORUM.md) |
 
@@ -22,6 +22,7 @@
 
 ```
 shared/cabinet.ts            настройки (ID монеты, курс, лимиты, серверы), типы API — общие для сервера и фронта
+shared/visits.ts             разделы заходов и московские сутки
 shared/forum.ts              разделы, лимиты и типы форума
 server/utils/                db (пулы MySQL), auth (сессия), passwords, payments, referrals, characters, rate-limit, forum/
 server/api/auth/*            вход, регистрация, выход, текущий пользователь
@@ -29,11 +30,14 @@ server/api/cabinet/*         обзор кабинета, создание иг�
 server/api/payments/*        счета на оплату
 server/api/referrals/*       реферальная страница и проверка наград
 server/api/admin/*           админ-панель
+server/api/visits.post.ts    уникальный заход по IP (сайт, статистика, кабинет, форум)
 server/api/forum/*           чтение и запись форума
 server/tasks/referrals/      проверка реферальных наград каждые 10 минут (было cron_referrals.php)
 server/middleware/csrf.ts    изменяющие запросы к API — только со своего сайта
-server/database/install.sql  схема таблиц для новой установки (кабинет и форум)
+server/database/install.sql  схема таблиц для новой установки (кабинет, форум, заходы)
 server/database/forum.sql    только таблицы форума — для уже работающей базы
+server/database/visits.sql   таблица заходов — для уже работающей базы
+app/plugins/visits.client.ts учёт захода при открытии страницы
 app/pages/{login,register}.vue, app/pages/cabinet/*, app/pages/admin/*, app/pages/forum/*
 app/layouts/cabinet.vue, app/components/cabinet/*, app/assets/css/cabinet.css
 app/components/forum/*, app/assets/css/forum.css
@@ -44,6 +48,27 @@ app/components/forum/*, app/assets/css/forum.css
 - **Ошибки API** возвращаются кодом (`data.code`), текст для игрока берётся из `cabinet.errors` в locales, у форума — из `forum.errors`.
 - **Настройки** без секретов (ID монеты 4037, курс, мин./макс. сумма, срок счёта, список игровых серверов) —
   в `shared/cabinet.ts`. Доступы к БД — только в переменных окружения.
+
+## Заходы
+
+Первая таблица на `/admin` — уникальные IP по разделам. Колонки: сегодня, 7 суток, 30 суток (включая сегодня) и всё время. Сутки — календарный день Москвы.
+
+| Раздел | Страницы |
+|--------|----------|
+| Сайт | `/` |
+| Статистика | `/stats` |
+| Личный кабинет | `/cabinet` и вложенные, `/login`, `/register` |
+| Форум | `/forum` |
+
+Английские адреса `/en/...` попадают в тот же раздел. Админка (`/admin`) не считается. Один IP в одном разделе — одна строка за сутки. «Всего» — разные IP по всем разделам, а не сумма строк: человек на сайте и на форуме стоит в двух строках и один раз в итоге.
+
+Заход записывает браузер при открытии страницы (`POST /api/visits`). Повтор в том же разделе в те же сутки не создаёт строку: у `site_visits` первичный ключ `(day, section, ip)`.
+
+Новая установка создаёт таблицу из [`server/database/install.sql`](../server/database/install.sql). На уже работающей базе скрипт можно запускать повторно:
+
+```bash
+mysql -u cms_register -p la2 < server/database/visits.sql
+```
 
 ## Что изменилось по сравнению с PHP-версией
 

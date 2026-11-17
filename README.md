@@ -25,13 +25,15 @@ npm run typecheck  # проверка типов (vue-tsc); выполняетс
 ## Личный кабинет
 
 Регистрация, игровые аккаунты, баланс Coin of Luck, оплата по СБП, реферальная программа и админ-панель
-(`/login`, `/cabinet`, `/admin`). Бэкенд — серверные маршруты Nuxt (`server/api`), база — MySQL логин-сервера L2.
+(`/login`, `/cabinet`, `/admin`). На `/admin` — уникальные заходы по IP: сайт, статистика, кабинет и форум.
+Бэкенд — серверные маршруты Nuxt (`server/api`), база — MySQL логин-сервера L2.
 Для работы нужны переменные окружения из [`.env.example`](.env.example).
 Подробности и план перехода со старой PHP-CMS — [docs/CABINET.md](docs/CABINET.md).
 
 Форум (`/forum`) читается без входа, писать можно мастер-аккаунтом кабинета. Имя автора задаётся при первом заходе.
-На уже работающей базе таблицы создаёт [server/database/forum.sql](server/database/forum.sql)
-(для новой установки они есть в `install.sql`). Страницы, права и API — [docs/FORUM.md](docs/FORUM.md).
+На уже работающей базе таблицы форума создаёт [server/database/forum.sql](server/database/forum.sql),
+таблицу заходов — [server/database/visits.sql](server/database/visits.sql)
+(для новой установки они есть в `install.sql`). Страницы, права и API форума — [docs/FORUM.md](docs/FORUM.md).
 
 ## Структура
 
@@ -43,6 +45,7 @@ app/
 ├─ utils/streams.ts        # разбор ссылок на стримы (docs/STREAMS.md)
 ├─ assets/css/main.css     # токены (цвета, шрифты), базовые стили, .panel, .text-gold
 ├─ plugins/reveal.ts       # директива v-reveal — появление при прокрутке
+├─ plugins/visits.client.ts # учёт уникального захода при открытии страницы
 ├─ layouts/default.vue     # шапка → контент → подвал
 ├─ pages/index.vue         # порядок разделов лендинга
 ├─ pages/forum/            # форум (docs/FORUM.md)
@@ -53,6 +56,7 @@ app/
    └─ forum/               # доска, тема, редактор
 public/images/             # изображения
 shared/cabinet.ts          # настройки и типы личного кабинета (общие для сервера и фронта)
+shared/visits.ts           # разделы заходов и московские сутки
 shared/forum.ts            # разделы, лимиты и типы форума
 server/                    # бэкенд кабинета и форума: api/, utils/, tasks/; robots.txt и sitemap.xml
 scripts/server/            # подготовка сервера (setup.sh) и GitHub (github-setup.sh) для деплоя

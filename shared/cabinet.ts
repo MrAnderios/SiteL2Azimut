@@ -1,5 +1,6 @@
 // Настройки личного кабинета, общие для сервера и фронтенда (не секретные).
 // Доступы к БД и прочие секреты — в переменных окружения (см. .env.example).
+import type { VisitReport } from './visits'
 
 /** Донат-валюта: на баланс мастер-аккаунта начисляются монеты, в игру выдаётся этот предмет. */
 export const donateItem = {
@@ -326,6 +327,7 @@ export interface AdminDashboard {
   pending: AdminPayment[]
   history: AdminPayment[]
   log: AdminLogEntry[]
+  visits: VisitReport
 }
 
 /** Ключи наборов предметов, которые получает приглашённый игрок */

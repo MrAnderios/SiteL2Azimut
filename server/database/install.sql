@@ -165,6 +165,15 @@ CREATE TABLE IF NOT EXISTS forum_posts (
   KEY idx_author (author_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+-- Уникальные заходы: один IP, один раздел, одни московские сутки. На уже работающей базе — visits.sql.
+CREATE TABLE IF NOT EXISTS site_visits (
+  section VARCHAR(16) NOT NULL,
+  day CHAR(8) NOT NULL,
+  ip VARCHAR(45) NOT NULL,
+  created_at INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, section, ip)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- Права пользователя сайта: полный доступ к своим таблицам, к игровой БД — только нужное.
 -- Имя игровой БД — id сервера из shared/cabinet.ts (сейчас la2x3). Ограничьте хост ('%') IP-адресом сервера сайта.
 GRANT SELECT, INSERT, UPDATE, DELETE ON la2.* TO 'cms_register'@'%';

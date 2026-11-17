@@ -68,6 +68,45 @@ async function processPayment(p: AdminPayment, action: 'confirm' | 'cancel') {
     <CabinetPageHead :title="t.admin.title" />
 
     <section class="panel cab-panel">
+      <h2 class="cab-panel__title">{{ t.admin.visitsTitle }}</h2>
+      <p class="cab-hint cab-visits-hint">{{ t.admin.visitsHint }}</p>
+      <div class="cab-table-wrap">
+        <table class="cab-table cab-visits">
+          <thead>
+            <tr>
+              <th>{{ t.admin.visits.section }}</th>
+              <th class="cab-num">{{ t.admin.visits.today }}</th>
+              <th class="cab-num">{{ t.admin.visits.week }}</th>
+              <th class="cab-num">{{ t.admin.visits.month }}</th>
+              <th class="cab-num">{{ t.admin.visits.total }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!data?.visits">
+              <td colspan="5" class="cab-empty-row">{{ t.common.empty }}</td>
+            </tr>
+            <template v-else>
+              <tr v-for="row in data.visits.sections" :key="row.section">
+                <td>{{ t.admin.visits[row.section] }}</td>
+                <td class="cab-num">{{ num(row.today) }}</td>
+                <td class="cab-num">{{ num(row.week) }}</td>
+                <td class="cab-num">{{ num(row.month) }}</td>
+                <td class="cab-num">{{ num(row.total) }}</td>
+              </tr>
+              <tr class="cab-visits-total">
+                <td>{{ t.admin.visits.all }}</td>
+                <td class="cab-num">{{ num(data.visits.total.today) }}</td>
+                <td class="cab-num">{{ num(data.visits.total.week) }}</td>
+                <td class="cab-num">{{ num(data.visits.total.month) }}</td>
+                <td class="cab-num">{{ num(data.visits.total.total) }}</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel cab-panel">
       <h2 class="cab-panel__title">
         {{ t.admin.pendingTitle }}
         <span v-if="data?.pending.length" class="cab-badge cab-badge--pending">{{ data.pending.length }}</span>
@@ -239,6 +278,25 @@ async function processPayment(p: AdminPayment, action: 'confirm' | 'cancel') {
 <style scoped>
 .cab-admin-hint {
   margin-top: 12px;
+}
+
+.cab-visits-hint {
+  margin: 0 0 14px;
+}
+
+.cab-visits th,
+.cab-visits td {
+  padding-inline: 6px;
+}
+
+.cab-visits th {
+  letter-spacing: 0.04em;
+  white-space: normal;
+}
+
+.cab-visits-total td {
+  color: var(--gold-300);
+  font-weight: 600;
 }
 
 .cab-admin-search {

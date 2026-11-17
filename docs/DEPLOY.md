@@ -168,6 +168,8 @@ ssh root@<IP> "DOMAIN=l2azimut.ru CERTBOT_EMAIL=you@example.com DEPLOY_PUBKEY='s
    (`setup.sh` печатает его в конце). Порт 3306 откройте только для этого IP.
    Если база кабинета уже есть и в ней нет таблиц форума, выполните ещё
    [`server/database/forum.sql`](../server/database/forum.sql) — см. [FORUM.md](FORUM.md).
+   Если нет таблицы заходов `site_visits`, выполните
+   [`server/database/visits.sql`](../server/database/visits.sql).
 
 ### Шаг 4. Первый деплой
 
