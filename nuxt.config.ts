@@ -24,6 +24,24 @@ export default defineNuxtConfig({
     // Ссылка СБП для оплаты (переводы по номеру/C2C), её кодирует QR на странице пополнения.
     // Переопределяется NUXT_SBP_PAYMENT_URL; пусто — QR с текстом «сумма + код платежа».
     sbpPaymentUrl: 'https://c2c.cbrpay.ru/BS1I0000E4C1IOK88SOA7IUC9BB3C9KL',
+    // Платёжный шлюз (карты, СБП, ЕРИП). Пусто — счёт создаётся с ручным подтверждением оператором.
+    // 1 терминал = 1 касса: у каждого способа оплаты своя пара terminal_id/cashbox_id.
+    payments: {
+      gatewayUrl: '',
+      merchantId: '',
+      secret: '',
+      callbackUrl: '',
+      // Сколько рублей стоит 1 BYN — курс для счетов ЕРИП
+      eripRubPerByn: 28,
+      cardIntlTerminalId: '',
+      cardIntlCashboxId: '',
+      cardRuTerminalId: '',
+      cardRuCashboxId: '',
+      sbpTerminalId: '',
+      sbpCashboxId: '',
+      eripTerminalId: '',
+      eripCashboxId: '',
+    },
     public: {
       // Новый личный кабинет. false — ссылки на кабинет ведут в старую CMS (статическая сборка без бэкенда).
       // Переопределяется переменной NUXT_PUBLIC_CABINET_ENABLED при сборке.

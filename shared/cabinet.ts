@@ -7,9 +7,76 @@ export const donateItem = {
   name: 'Coin of Luck',
 } as const
 
-/** Оплата по СБП с ручным подтверждением администратором. */
+/**
+ * Способы оплаты. Ключ способа хранится в payments.provider:
+ * manual_<ключ> — оплату подтверждает оператор, gw_<ключ> — платёжный шлюз.
+ * Старые записи с provider = 'manual' считаются оплатой по СБП.
+ *
+ * minRub/maxRub заданы в рублях: сумма всегда вводится в рублях,
+ * для ЕРИП сервер пересчитывает её в BYN по курсу NUXT_PAYMENTS_ERIP_RUB_PER_BYN.
+ */
+export const paymentMethods = [
+  {
+    key: 'card_intl',
+    /** Visa / Mastercard — международные карты */
+    logos: ['/images/pay/card-visa-mastercard.png'],
+    currency: 'RUB',
+    minRub: 100,
+    maxRub: 100_000,
+  },
+  {
+    key: 'card_ru',
+    /** Visa / Mastercard / Мир */
+    logos: ['/images/pay/card-visa-mastercard-mir.png'],
+    currency: 'RUB',
+    minRub: 100,
+    maxRub: 100_000,
+  },
+  {
+    key: 'sbp',
+    logos: ['/images/pay/sbp.png'],
+    currency: 'RUB',
+    minRub: 10,
+    maxRub: 100_000,
+  },
+  {
+    key: 'erip',
+    logos: ['/images/pay/erip.png'],
+    currency: 'BYN',
+    minRub: 10,
+    maxRub: 100_000,
+  },
+] as const
+
+export type PaymentMethodKey = (typeof paymentMethods)[number]['key']
+export type PaymentCurrency = (typeof paymentMethods)[number]['currency']
+
+export const paymentMethodKeys: PaymentMethodKey[] = paymentMethods.map(m => m.key)
+
+export function isPaymentMethodKey(value: unknown): value is PaymentMethodKey {
+  return typeof value === 'string' && paymentMethods.some(m => m.key === value)
+}
+
+/** Описание способа оплаты по ключу. Неизвестный ключ — СБП. */
+export function paymentMethod(key: PaymentMethodKey) {
+  return paymentMethods.find(m => m.key === key) ?? paymentMethods[2]
+}
+
+/** Значение payments.provider: manual_ — ручное подтверждение, gw_ — шлюз. */
+export function paymentProvider(key: PaymentMethodKey, viaGateway: boolean): string {
+  return `${viaGateway ? 'gw' : 'manual'}_${key}`
+}
+
+/** Обратное преобразование payments.provider → способ оплаты. */
+export function paymentMethodFromProvider(provider: string): PaymentMethodKey {
+  const raw = String(provider || '').trim()
+  if (!raw || raw === 'manual') return 'sbp'
+  const key = raw.replace(/^(manual|gw)_/, '')
+  return isPaymentMethodKey(key) ? key : 'sbp'
+}
+
+/** Общие настройки оплаты (суммы — в рублях). */
 export const payment = {
-  provider: 'manual',
   /** Сколько рублей стоит одна монета */
   coinPrice: 1,
   minRub: 10,
@@ -101,6 +168,11 @@ export type ApiErrorCode =
   | 'game_account_not_found'
   | 'invalid_game_password'
   | 'invalid_amount'
+  | 'invalid_method'
+  | 'payment_unavailable'
+  | 'gateway_error'
+  | 'invalid_signature'
+  | 'invalid_request'
   | 'not_enough_coins'
   | 'unknown_server'
   | 'character_not_found'
@@ -149,7 +221,12 @@ export type PaymentStatus = 'pending' | 'paid' | 'canceled' | 'expired'
 export interface Payment {
   id: number
   code: string
+  /** Сумма в рублях — по ней начисляются монеты */
   amountRub: number
+  /** Сумма в валюте способа оплаты (для ЕРИП — BYN) */
+  amount: number
+  currency: PaymentCurrency
+  method: PaymentMethodKey
   amountCoins: number
   status: PaymentStatus
   createdAt: number
@@ -159,8 +236,10 @@ export interface Payment {
 export interface PaymentDetails extends Payment {
   /** Картинка QR (data: URL); только для ожидающих оплаты */
   qr: string | null
-  /** Ссылка СБП на оплату (её же кодирует QR) — для кнопки «Открыть в банке» на телефоне */
+  /** Ссылка на оплату (её же кодирует QR) — для кнопки «Открыть в банке» на телефоне */
   payUrl: string | null
+  /** true — счёт создан через платёжный шлюз и ждёт его подтверждения */
+  gateway: boolean
 }
 
 export interface PaymentsResponse {

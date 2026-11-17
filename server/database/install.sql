@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS master_accounts (
   UNIQUE KEY uq_ref_code (ref_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- provider: manual_<способ> — подтверждает оператор, gw_<способ> — платёжный шлюз.
+-- Старые записи со значением 'manual' считаются оплатой по СБП.
+-- Сумма в валюте способа и ссылка на оплату хранятся в qr_data (JSON).
 CREATE TABLE IF NOT EXISTS payments (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   payment_code VARCHAR(20) NOT NULL,

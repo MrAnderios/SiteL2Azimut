@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import { paymentMethods } from '#shared/cabinet'
 import { links } from '~/data/site'
 
 const t = useContent()
+const localePath = useLocalePath()
+const cabinetEnabled = useCabinetEnabled()
+const donateHref = computed(() => cabinetEnabled ? localePath('/cabinet/donate') : links.legacyCabinet)
 const modalOpen = ref(false)
 </script>
 
@@ -37,9 +41,19 @@ const modalOpen = ref(false)
       <section class="store__modal-section">
         <h3 class="store__modal-heading">{{ t.store.modal.paymentHeading }}</h3>
         <p>{{ t.store.modal.paymentNote }}</p>
+        <div class="store__modal-pay">
+          <img
+            v-for="m in paymentMethods"
+            :key="m.key"
+            :src="m.logos[0]"
+            :alt="t.cabinet.donate.methods[m.key]"
+            width="138"
+            height="48"
+            loading="lazy"
+          >
+        </div>
         <div class="store__modal-actions">
-          <UiButton :href="links.payment" icon="telegram">{{ t.store.modal.paymentRu }}</UiButton>
-          <UiButton :href="links.payment" icon="telegram" variant="secondary">{{ t.store.modal.paymentVisa }}</UiButton>
+          <UiButton :href="donateHref">{{ t.store.modal.pay }}</UiButton>
         </div>
       </section>
     </UiModal>
@@ -119,6 +133,18 @@ const modalOpen = ref(false)
 .store__modal-list {
   gap: 8px;
   font-size: 15px;
+}
+
+.store__modal-pay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.store__modal-pay img {
+  width: 110px;
+  height: auto;
+  border-radius: 4px;
 }
 
 .store__modal-actions {
