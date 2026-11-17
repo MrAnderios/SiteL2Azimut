@@ -1,8 +1,8 @@
 export default defineEventHandler(async (event): Promise<{ page: number }> => {
   const master = await requireMaster(event)
-  // Первые сутки — пять ответов в час, дальше обычные тридцать.
+  // Первые сутки — три ответа за 10 минут, дальше тридцать в час.
   const fresh = !isAdminLogin(master.login) && await isFreshForumAccount(master.id)
-  rateLimit(`forum:post:${master.id}`, fresh ? 5 : 30, 60 * 60)
+  rateLimit(`forum:post:${master.id}`, fresh ? 3 : 30, fresh ? 10 * 60 : 60 * 60)
   await requireForumName(master.id)
 
   const topicId = forumParamId(event, 'id', 'topic_not_found')

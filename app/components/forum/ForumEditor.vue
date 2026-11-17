@@ -13,9 +13,31 @@ defineProps<{
 
 const { t } = useForum()
 const urlError = ref('')
+const source = ref(false)
+const sourceField = ref<HTMLTextAreaElement | null>(null)
+// Пока открыт исходник, редактор держит прежний текст и не переписывает model своей сериализацией.
+const held = ref('')
 
 const length = computed(() => normalizedForumBody(model.value).length)
 const over = computed(() => length.value > forumLimits.bodyMax)
+
+function onEditorInput(value: string) {
+  if (source.value) return
+  model.value = value
+}
+
+function toggleSource(editor: Editor) {
+  if (!source.value) {
+    held.value = model.value
+    editor.setEditable(false)
+    source.value = true
+    void nextTick(() => sourceField.value?.focus())
+    return
+  }
+  editor.setEditable(true)
+  source.value = false
+  void nextTick(() => editor.commands.focus('end'))
+}
 
 watch(model, () => {
   urlError.value = ''
@@ -84,6 +106,8 @@ const handlers = {
 
 const items = computed<EditorToolbarItem<typeof handlers>[][]>(() => {
   const label = t.value.editor
+  // Новая ссылка на список, чтобы панель заново прочитала editor.isEditable.
+  void source.value
   return [[{
     kind: 'undo',
     icon: 'i-lucide-undo',
@@ -195,10 +219,10 @@ const starterKit = {
 </script>
 
 <template>
-  <div class="forum-editor" :class="{ 'is-over': over }">
+  <div class="forum-editor" :class="{ 'is-over': over, 'is-source': source }">
     <UEditor
       v-slot="{ editor }"
-      v-model="model"
+      :model-value="source ? held : model"
       content-type="markdown"
       :immediately-render="false"
       :image="image"
@@ -206,11 +230,41 @@ const starterKit = {
       :starter-kit="starterKit"
       :handlers="handlers"
       :placeholder="{ placeholder, mode: 'firstLine' }"
-      :aria-label="label"
+      :aria-label="source ? undefined : label"
       :aria-invalid="over || undefined"
       class="forum-editor__field"
+      @update:model-value="onEditorInput"
     >
-      <UEditorToolbar :editor="editor" :items="items" class="forum-editor__bar" />
+      <div class="forum-editor__bar">
+        <UEditorToolbar :editor="editor" :items="items" class="forum-editor__tools" />
+        <div class="forum-editor__source-toggle">
+          <UTooltip :text="t.editor.markdown">
+            <UButton
+              type="button"
+              color="neutral"
+              variant="ghost"
+              active-color="primary"
+              active-variant="soft"
+              size="sm"
+              icon="i-lucide-file-code"
+              :active="source"
+              :aria-label="t.editor.markdown"
+              :aria-pressed="source"
+              @click="toggleSource(editor)"
+            />
+          </UTooltip>
+        </div>
+      </div>
+      <textarea
+        v-if="source"
+        ref="sourceField"
+        v-model="model"
+        class="forum-editor__source"
+        :placeholder="placeholder"
+        :aria-label="label"
+        :aria-invalid="over || undefined"
+        autocomplete="off"
+      />
     </UEditor>
     <p class="forum-editor__count" :class="{ 'is-over': over }">{{ length }} / {{ forumLimits.bodyMax }}</p>
     <p v-if="over" class="forum-editor__error">{{ fmt(t.errors.invalid_post, { max: forumLimits.bodyMax }) }}</p>

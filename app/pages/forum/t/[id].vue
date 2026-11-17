@@ -33,6 +33,7 @@ useSeoMeta({
 const reply = ref('')
 const replyKey = ref(0)
 const pendingReply = ref(false)
+const replyError = ref('')
 const actionError = ref('')
 const editingId = ref<number | null>(null)
 const renamingId = ref<number | null>(null)
@@ -70,7 +71,8 @@ async function run(task: () => Promise<void>) {
 async function sendReply() {
   if (!forumBodyReady(reply.value)) return
   pendingReply.value = true
-  await run(async () => {
+  replyError.value = ''
+  try {
     const result = await $fetch<{ page: number }>(`/api/forum/topics/${topicId.value}/posts`, {
       method: 'POST',
       body: { body: reply.value },
@@ -81,8 +83,15 @@ async function sendReply() {
       await navigateTo({ path: route.path, query: { page: String(result.page) } })
     }
     await refresh()
-  })
-  pendingReply.value = false
+  }
+  catch (e) {
+    replyError.value = errorText(e)
+    await nextTick()
+    scrollToId('forum-reply-error', 'nearest')
+  }
+  finally {
+    pendingReply.value = false
+  }
 }
 
 async function setFlag(path: 'pin' | 'close', body: { pinned?: boolean, closed?: boolean }) {
@@ -171,6 +180,7 @@ async function removeTopic() {
             <span>{{ t.bodyLabel }}</span>
             <ForumEditor :key="replyKey" v-model="reply" :label="t.bodyLabel" :placeholder="t.editor.placeholder" />
           </div>
+          <p v-if="replyError" id="forum-reply-error" class="cab-note cab-note--error" role="alert">{{ replyError }}</p>
           <UiButton type="submit" :loading="pendingReply" :disabled="!forumBodyReady(reply)">{{ t.submitReply }}</UiButton>
         </form>
       </template>

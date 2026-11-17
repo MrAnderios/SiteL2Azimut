@@ -456,6 +456,7 @@ const ru = {
       rule: 'Линия',
       undo: 'Отменить',
       redo: 'Вернуть',
+      markdown: 'Исходный Markdown',
     },
     submitTopic: 'Создать тему',
     submitReply: 'Ответить',

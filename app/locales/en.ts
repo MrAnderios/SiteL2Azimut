@@ -454,6 +454,7 @@ const en: Messages = {
       rule: 'Divider',
       undo: 'Undo',
       redo: 'Redo',
+      markdown: 'Markdown source',
     },
     submitTopic: 'Create topic',
     submitReply: 'Reply',

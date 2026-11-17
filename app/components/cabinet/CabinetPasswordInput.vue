@@ -13,6 +13,7 @@ const visible = ref(false)
     <button
       type="button"
       class="cab-password__toggle"
+      tabindex="-1"
       :aria-label="visible ? t.fields.hidePassword : t.fields.showPassword"
       :title="visible ? t.fields.hidePassword : t.fields.showPassword"
       :aria-pressed="visible"
