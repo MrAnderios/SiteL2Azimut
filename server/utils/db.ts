@@ -10,12 +10,12 @@ export type Db = Pool | PoolConnection
 let cmsPool: Pool | undefined
 const gamePools = new Map<string, Pool>()
 
-function createPool(opts: { host: string, port: number, user: string, password: string, database: string }, charset = 'utf8mb4'): Pool {
+function createPool(opts: { host: string, port: number, user: string, password: string, database: string }, charset = 'UTF8_GENERAL_CI'): Pool {
   return mysql.createPool({
     ...opts,
     port: Number(opts.port) || 3306,
-    // Кодировка соединения задаётся вызывающей стороной: cmsDb — utf8mb4 (форум),
-    // gameDb — UTF8_GENERAL_CI (игровая база хранит имена в utf8, см. ниже).
+    // utf8 (UTF8_GENERAL_CI): боевой MySQL 5.1 не поддерживает utf8mb4 — соединение с ним
+    // откатывается и портит кириллицу. Форум и кабинет работают в utf8 (см. cmsDb/gameDb).
     charset,
     connectionLimit: 10,
     waitForConnections: true,
@@ -32,8 +32,8 @@ export function cmsDb(): Pool {
     if (!db.host || !db.user) {
       throw new Error('Не заданы доступы к БД: NUXT_DB_HOST, NUXT_DB_USER, NUXT_DB_PASSWORD (см. .env.example)')
     }
-    // utf8mb4 (по умолчанию): форум хранит текст в utf8mb4; таблицы кабинета (master_accounts,
-    // payments, donate_log и т.д.) остаются utf8 — MySQL сам приводит строки, не перекодируем их.
+    // utf8 (UTF8_GENERAL_CI): таблицы форума (forum_*) и кабинета созданы в utf8 под боевой
+    // MySQL 5.1 (без utf8mb4). Админ форума согласовал utf8. Кириллицу не перекодируем.
     cmsPool = createPool(db)
   }
   return cmsPool
