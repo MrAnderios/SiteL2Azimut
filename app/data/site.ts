@@ -102,7 +102,6 @@ export const nav: { key: keyof Messages['nav'], href: string }[] = [
   { key: 'start', href: '#start' },
   { key: 'community', href: '#community' },
   { key: 'stats', href: '/stats' },
-  { key: 'forum', href: '/forum' },
 ]
 
 /** Адрес пункта меню с учётом языка: якоря ведут на главную, пути — на страницу. */
