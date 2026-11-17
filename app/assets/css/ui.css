@@ -1,0 +1,3 @@
+/* Редактор форума (Nuxt UI). Сброс Tailwind в @layer base: наши стили вне слоя его перекрывают. */
+@import "tailwindcss";
+@import "@nuxt/ui";

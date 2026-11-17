@@ -14,7 +14,8 @@ function createPool(opts: { host: string, port: number, user: string, password: 
   return mysql.createPool({
     ...opts,
     port: Number(opts.port) || 3306,
-    charset: 'UTF8_GENERAL_CI',
+    // utf8mb4: форум хранит текст в этой кодировке; таблицы кабинета остаются utf8, MySQL сам приводит строки
+    charset: 'utf8mb4',
     connectionLimit: 10,
     waitForConnections: true,
     enableKeepAlive: true,

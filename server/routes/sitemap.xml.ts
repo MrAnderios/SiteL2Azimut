@@ -1,10 +1,12 @@
+import { forumCategories } from '#shared/forum'
+
 // Карта сайта: главная на каждом языке со ссылками hreflang друг на друга.
 // При добавлении страниц или языков допишите их в pages / locales.
 const locales = [
   { code: 'ru', hreflang: 'ru-RU', prefix: '' },
   { code: 'en', hreflang: 'en-US', prefix: '/en' },
 ]
-const pages = ['/', '/stats']
+const pages = ['/', '/stats', '/forum', ...forumCategories.map(c => `/forum/${c.slug}`)]
 
 export default defineEventHandler((event) => {
   const baseUrl = useRuntimeConfig(event).public.i18n.baseUrl as string

@@ -100,7 +100,7 @@ export const nav: { key: keyof Messages['nav'], href: string }[] = [
   { key: 'rates', href: '#rates' },
   { key: 'features', href: '#features' },
   { key: 'start', href: '#start' },
-  { key: 'community', href: '#community' },
+  { key: 'forum', href: '/forum' },
   { key: 'stats', href: '/stats' },
 ]
 

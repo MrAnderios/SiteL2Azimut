@@ -82,10 +82,15 @@ app/layouts/cabinet.vue, app/components/cabinet/*, app/assets/css/cabinet.css
 
 ## Локальная разработка
 
+Кабинет и форум работают с той же схемой MySQL, что и боевой логин-сервер. Локально её поднимает MariaDB в Docker: база `la2` (кабинет, форум, игровые аккаунты) и `la2x3` (заглушки персонажей, `items_delayed` и статистики).
+
 ```bash
-cp .env.example .env    # заполнить доступы к тестовой БД
+npm run db:up           # первый запуск создаёт таблицы и демо-данные
+cp .env.example .env    # NUXT_DB_HOST=127.0.0.1, NUXT_DB_PORT=3307, пользователь и пароль azimut
 npm run dev
 ```
+
+Демо-вход: мастер-аккаунт `admin` / `azimut` (админ, 1000 монет), игровой аккаунт `player` / `azimut`, персонаж Azimut, одна тема на форуме. Сбросить базу: `npm run db:reset`.
 
 Без `NUXT_SESSION_PASSWORD` в dev-режиме используется временный ключ; в production без него лендинг работает,
 а запросы кабинета падают с ошибкой (при старте в лог пишется предупреждение).

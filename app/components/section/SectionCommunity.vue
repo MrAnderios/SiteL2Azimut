@@ -2,6 +2,7 @@
 import { banners, links } from '~/data/site'
 
 const t = useContent()
+const cabinetEnabled = useCabinetEnabled()
 
 // Первый ряд — основные рейтинги, второй — остальные.
 const bannerRows = [banners.filter(b => b.primary), banners.filter(b => !b.primary)]
@@ -16,7 +17,10 @@ const bannerRows = [banners.filter(b => b.primary), banners.filter(b => !b.prima
           <h2 class="community__title text-gold">{{ t.community.title }}</h2>
           <p class="community__text">{{ t.community.text }}</p>
         </div>
-        <UiButton :href="links.telegram" size="lg" icon="telegram">{{ t.community.telegram }}</UiButton>
+        <div class="community__actions">
+          <UiButton v-if="cabinetEnabled" href="/forum" size="lg">{{ t.community.forum }}</UiButton>
+          <UiButton :href="links.telegram" size="lg" icon="telegram">{{ t.community.telegram }}</UiButton>
+        </div>
       </div>
 
       <div v-reveal="120" class="community__banners" role="group" :aria-label="t.community.bannersAria">
@@ -51,6 +55,13 @@ const bannerRows = [banners.filter(b => b.primary), banners.filter(b => !b.prima
 
 .community__content {
   max-width: 640px;
+}
+
+.community__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .community__eyebrow {

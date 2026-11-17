@@ -8,22 +8,31 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@iconify-json/lucide": "^1.2.155",
+    "@nuxt/ui": "^4.12.2",
     "@nuxtjs/i18n": "^10.6.0",
     "bcryptjs": "^3.0.3",
     "hash-wasm": "^4.13.0",
+    "markdown-it": "^15.0.3",
     "mysql2": "^3.24.6",
     "nuxt": "^4.6.4",
     "qrcode": "^1.5.4",
+    "tailwindcss": "^4.3.5",
     "vue": "^3.5.44",
-    "vue-router": "^5.4.0"
+    "vue-router": "^5.4.0",
+    "xss": "^1.0.17"
   },
   "devDependencies": {
+    "@types/markdown-it": "^14.2.0",
     "@types/qrcode": "^1.5.6",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.3.14"

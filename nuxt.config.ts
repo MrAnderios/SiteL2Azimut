@@ -3,9 +3,32 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  modules: ['@nuxtjs/i18n'],
+  modules: ['@nuxt/ui', '@nuxtjs/i18n'],
 
-  css: ['~/assets/css/main.css', '~/assets/css/cabinet.css'],
+  css: ['~/assets/css/ui.css', '~/assets/css/main.css', '~/assets/css/cabinet.css', '~/assets/css/forum.css'],
+
+  // Редактор форума. Свои шрифты уже подключены, цветовая схема сайта всегда тёмная.
+  ui: {
+    fonts: false,
+    experimental: { componentDetection: true },
+  },
+
+  colorMode: {
+    preference: 'dark',
+    fallback: 'dark',
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@nuxt/ui > prosemirror-state',
+        '@nuxt/ui > prosemirror-transform',
+        '@nuxt/ui > prosemirror-model',
+        '@nuxt/ui > prosemirror-view',
+        '@nuxt/ui > prosemirror-gapcursor',
+      ],
+    },
+  },
 
   // Серверные настройки личного кабинета. Значения задаются переменными окружения
   // (NUXT_DB_HOST, NUXT_SESSION_PASSWORD и т.д.) — см. .env.example. В репозиторий секреты не кладём.
@@ -95,6 +118,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      htmlAttrs: { class: 'dark' },
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'theme-color', content: '#0a0806' },

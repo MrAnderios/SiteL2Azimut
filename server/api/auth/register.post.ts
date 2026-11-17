@@ -12,7 +12,9 @@ export default defineEventHandler(async (event): Promise<AuthUser & { referrer: 
   validateNewPassword(password, str(body.passwordConfirm))
 
   const ip = clientIp(event)
-  rateLimit(`register:ip:${ip}`, 5, 60 * 60)
+  // Серия новых аккаунтов — обычный путь накрутки форума.
+  rateLimit(`register:ip:${ip}`, 3, 60 * 60)
+  rateLimit(`register:day:${ip}`, 8, 24 * 60 * 60)
 
   const db = cmsDb()
   if (await row(db, 'SELECT 1 FROM master_accounts WHERE login = ? OR email = ?', [login, email])) {

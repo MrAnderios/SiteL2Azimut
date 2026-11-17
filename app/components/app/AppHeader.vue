@@ -10,6 +10,14 @@ const cabinetEnabled = useCabinetEnabled()
 const auth = useAuth()
 const user = auth.user
 const cabinetHref = computed(() => cabinetEnabled ? (user.value ? links.cabinet : links.login) : links.legacyCabinet)
+const menu = computed(() => cabinetEnabled ? nav : nav.filter(item => item.key !== 'forum'))
+
+function isCurrent(href: string) {
+  if (href.startsWith('#')) return false
+  const path = localePath(href)
+  if (href === '/forum') return route.path === path || route.path.startsWith(`${path}/`)
+  return route.path === path
+}
 onMounted(() => {
   if (cabinetEnabled) auth.ensure()
 })
@@ -42,12 +50,12 @@ onBeforeUnmount(() => {
 
       <nav id="main-nav" class="header__nav" :aria-label="t.header.navAria">
         <NuxtLink
-          v-for="item in nav"
+          v-for="item in menu"
           :key="item.href"
           :to="navTarget(item.href, localePath)"
           active-class=""
           exact-active-class=""
-          :class="{ 'is-active': !item.href.startsWith('#') && route.path === localePath(item.href) }"
+          :class="{ 'is-active': isCurrent(item.href) }"
           @click="closeMenu"
         >
           {{ t.nav[item.key] }}

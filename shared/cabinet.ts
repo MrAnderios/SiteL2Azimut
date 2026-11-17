@@ -152,7 +152,7 @@ export const l2Classes: Record<number, string> = {
 // Типы ответов API
 // ---------------------------------------------------------------------------
 
-/** Коды ошибок API. Тексты для них — в locales: cabinet.errors */
+/** Коды ошибок API. Тексты — в locales: cabinet.errors, для форума ещё forum.errors. */
 export type ApiErrorCode =
   | 'unauthorized'
   | 'forbidden'
@@ -183,6 +183,18 @@ export type ApiErrorCode =
   | 'invalid_item'
   | 'invalid_reward_key'
   | 'server_error'
+  | 'invalid_forum_name'
+  | 'forum_name_taken'
+  | 'forum_name_required'
+  | 'forum_name_locked'
+  | 'invalid_title'
+  | 'invalid_post'
+  | 'topic_closed'
+  | 'topic_not_found'
+  | 'topic_not_empty'
+  | 'post_not_found'
+  | 'not_last_post'
+  | 'unknown_category'
 
 export interface AuthUser {
   id: number

@@ -4,6 +4,8 @@ import { nav, navTarget, site, socials } from '~/data/site'
 const t = useContent()
 const localePath = useLocalePath()
 const year = new Date().getFullYear()
+const cabinetEnabled = useCabinetEnabled()
+const menu = computed(() => cabinetEnabled ? nav : nav.filter(item => item.key !== 'forum'))
 </script>
 
 <template>
@@ -18,7 +20,7 @@ const year = new Date().getFullYear()
       <nav class="footer__col" :aria-label="t.footer.navAria">
         <h4 class="footer__heading">{{ t.footer.nav }}</h4>
         <NuxtLink
-          v-for="item in nav"
+          v-for="item in menu"
           :key="item.href"
           :to="navTarget(item.href, localePath)"
           active-class=""

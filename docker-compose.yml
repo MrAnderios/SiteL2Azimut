@@ -1,0 +1,26 @@
+# Локальные базы кабинета и форума. Порт 3307: 3306 на этой машине часто занят другим MariaDB.
+# Первый запуск применяет server/database/install.sql и server/database/local.sql.
+services:
+  db:
+    image: mariadb:11.8
+    container_name: azimut-db
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: azimut
+      MARIADB_DATABASE: la2
+      MARIADB_USER: azimut
+      MARIADB_PASSWORD: azimut
+    volumes:
+      - azimut-db:/var/lib/mysql
+      - ./server/database/install.sql:/opt/azimut/install.sql:ro
+      - ./server/database/local.sql:/opt/azimut/local.sql:ro
+      - ./server/database/docker-init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  azimut-db:
