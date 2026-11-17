@@ -14,8 +14,8 @@ function createPool(opts: { host: string, port: number, user: string, password: 
   return mysql.createPool({
     ...opts,
     port: Number(opts.port) || 3306,
-    // utf8 (UTF8_GENERAL_CI): боевой MySQL 5.1 не поддерживает utf8mb4 — соединение с ним
-    // откатывается и портит кириллицу. Форум и кабинет работают в utf8 (см. cmsDb/gameDb).
+    // MySQL 5.1.73 не поддерживает utf8mb4: такое соединение откатывается и портит кириллицу.
+    // UTF8_GENERAL_CI — utf8 из списка mysql2 (id 33). Строки в таблицах не конвертируем.
     charset,
     connectionLimit: 10,
     waitForConnections: true,
@@ -32,8 +32,8 @@ export function cmsDb(): Pool {
     if (!db.host || !db.user) {
       throw new Error('Не заданы доступы к БД: NUXT_DB_HOST, NUXT_DB_USER, NUXT_DB_PASSWORD (см. .env.example)')
     }
-    // utf8 (UTF8_GENERAL_CI): таблицы форума (forum_*) и кабинета созданы в utf8 под боевой
-    // MySQL 5.1 (без utf8mb4). Админ форума согласовал utf8. Кириллицу не перекодируем.
+    // Форум — utf8 / utf8_unicode_ci, кабинет — utf8. Соединение UTF8_GENERAL_CI:
+    // набор символов тот же, новые записи пишутся в utf8. Старые строки не перекодируем.
     cmsPool = createPool(db)
   }
   return cmsPool

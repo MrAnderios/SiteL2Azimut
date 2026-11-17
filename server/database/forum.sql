@@ -2,6 +2,8 @@
 -- Для новой установки те же таблицы есть в install.sql.
 -- Разделы фиксированы в shared/forum.ts.
 -- format: plain — текст без разметки, markdown — сообщение из редактора.
+-- Боевой MySQL 5.1.73 без utf8mb4. Таблицы — utf8 / utf8_unicode_ci.
+-- Соединение приложения — UTF8_GENERAL_CI. Уже записанные строки не конвертируем.
 
 CREATE TABLE IF NOT EXISTS forum_profiles (
   master_id INT UNSIGNED NOT NULL,
@@ -9,7 +11,7 @@ CREATE TABLE IF NOT EXISTS forum_profiles (
   created_at INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (master_id),
   UNIQUE KEY uq_name (name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS forum_topics (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -24,7 +26,7 @@ CREATE TABLE IF NOT EXISTS forum_topics (
   PRIMARY KEY (id),
   KEY idx_category_list (category, pinned, last_post_at),
   KEY idx_author (author_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS forum_posts (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -38,8 +40,10 @@ CREATE TABLE IF NOT EXISTS forum_posts (
   PRIMARY KEY (id),
   KEY idx_topic (topic_id, id),
   KEY idx_author (author_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- Уже созданная таблица: CREATE выше её не меняет.
+-- Уже созданная таблица: CREATE выше её не меняет. В MODIFY кодировка названа явно,
+-- иначе MySQL 5.1 возьмёт latin1 базы и новые значения format лягут не в utf8.
 ALTER TABLE forum_posts
-  MODIFY format ENUM('plain', 'markdown') NOT NULL DEFAULT 'plain';
+  MODIFY format ENUM('plain', 'markdown')
+    CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT 'plain';

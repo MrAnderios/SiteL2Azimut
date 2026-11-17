@@ -126,14 +126,14 @@ INSERT IGNORE INTO referral_settings (s_key, s_value) VALUES
   ('ref_noble_coins', '200');
 
 -- Форум. Разделы фиксированы в shared/forum.ts, в базе хранятся только их ключи.
--- utf8mb4 — чтобы позже влезала разметка и символы вне BMP. Колонка format сейчас всегда plain.
+-- utf8 / utf8_unicode_ci: боевой MySQL 5.1.73 без utf8mb4. Соединение — UTF8_GENERAL_CI.
 CREATE TABLE IF NOT EXISTS forum_profiles (
   master_id INT UNSIGNED NOT NULL,
   name VARCHAR(16) NOT NULL,
   created_at INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (master_id),
   UNIQUE KEY uq_name (name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS forum_topics (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS forum_topics (
   PRIMARY KEY (id),
   KEY idx_category_list (category, pinned, last_post_at),
   KEY idx_author (author_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS forum_posts (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS forum_posts (
   PRIMARY KEY (id),
   KEY idx_topic (topic_id, id),
   KEY idx_author (author_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Права пользователя сайта: полный доступ к своим таблицам, к игровой БД — только нужное.
 -- Имя игровой БД — id сервера из shared/cabinet.ts (сейчас la2x3). Ограничьте хост ('%') IP-адресом сервера сайта.
