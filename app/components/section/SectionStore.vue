@@ -40,13 +40,12 @@ const modalOpen = ref(false)
 
       <section class="store__modal-section">
         <h3 class="store__modal-heading">{{ t.store.modal.paymentHeading }}</h3>
-        <p>{{ t.store.modal.paymentNote }}</p>
         <div class="store__modal-pay">
           <img
             v-for="m in paymentMethods"
             :key="m.key"
             :src="m.logos[0]"
-            :alt="t.cabinet.donate.methods[m.key]"
+            :alt="t.cabinet.donate.method"
             width="138"
             height="48"
             loading="lazy"

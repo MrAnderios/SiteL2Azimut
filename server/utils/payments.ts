@@ -1,19 +1,7 @@
 import { randomInt } from 'node:crypto'
 import QRCode from 'qrcode'
 import type { Payment, PaymentCurrency, PaymentDetails, PaymentMethodKey, PaymentStatus } from '#shared/cabinet'
-import {
-  donateItem,
-  gameServers,
-  isPaymentMethodKey,
-  payment as paymentConfig,
-  paymentAccessRules,
-  paymentMethod,
-  paymentMethodFromProvider,
-  paymentMethods,
-  paymentProvider,
-} from '#shared/cabinet'
-import { charactersOf, gameAccountLogins } from './characters'
-import type { CharacterRow } from './characters'
+import { donateItem, payment as paymentConfig, paymentMethod, paymentMethodFromProvider } from '#shared/cabinet'
 import type { Db } from './db'
 
 // Без похожих символов (0/O, 1/I/L)
@@ -41,59 +29,40 @@ export interface PaymentRow {
   confirmed_by: string
 }
 
-/**
- * Данные способа оплаты, которые нельзя хранить отдельными колонками:
- * схему payments не меняем (у cms_register нет прав ALTER), поэтому всё лежит в qr_data.
- */
+/** Данные платежа в qr_data (схему БД не меняем). Поддерживает чтение старых записей. */
 interface PaymentMeta {
   v: 1
-  method: PaymentMethodKey
+  method: string
   currency: PaymentCurrency
   amount: number
-  payUrl?: string | null
-  gatewayPaymentId?: string | null
+  payUrl?: string | null
 }
 
 function parseMeta(raw: string | null): PaymentMeta | null {
   if (!raw) return null
   try {
     const data = JSON.parse(raw) as Partial<PaymentMeta>
-    if (data && data.v === 1 && isPaymentMethodKey(data.method) && (data.currency === 'RUB' || data.currency === 'BYN')) {
+    if (data && data.v === 1 && (data.currency === 'RUB' || data.currency === 'BYN')) {
       return {
         v: 1,
-        method: data.method,
+        method: String(data.method || 'sbp'),
         currency: data.currency,
         amount: Number(data.amount) || 0,
-        payUrl: typeof data.payUrl === 'string' ? data.payUrl : null,
-        gatewayPaymentId: typeof data.gatewayPaymentId === 'string' ? data.gatewayPaymentId : null,
+        payUrl: typeof data.payUrl === 'string' ? data.payUrl : null,
       }
     }
   }
   catch {
-    // Старые записи: в qr_data лежит обычный текст, а не JSON
+    // Старые записи: в qr_data лежит обычный текст
   }
   return null
 }
 
-/** Сколько рублей стоит 1 BYN для ЕРИП. */
-function eripRubPerByn(): number {
-  const rate = Number(useRuntimeConfig().payments.eripRubPerByn)
-  return rate > 0 ? rate : 28
-}
-
-/** Пересчёт рублей в BYN с округлением до копеек. */
-export function rubToByn(rub: number): number {
-  return Math.max(0, Math.round((Number(rub) / eripRubPerByn()) * 100) / 100)
-}
-
-/** Сумма и валюта платежа: для новых счетов — из qr_data, для старых — по способу. */
+/** Сумма и валюта платежа: из qr_data, для старых записей — рубли. */
 export function paymentAmount(p: PaymentRow): { amount: number, currency: PaymentCurrency } {
   const meta = parseMeta(p.qr_data)
   if (meta) return { amount: meta.amount, currency: meta.currency }
-
-  const currency = paymentMethod(paymentMethodFromProvider(p.provider)).currency
-  const rub = Number(p.amount_rub)
-  return { amount: currency === 'BYN' ? rubToByn(rub) : rub, currency }
+  return { amount: Number(p.amount_rub), currency: 'RUB' }
 }
 
 export function toPayment(p: PaymentRow): Payment {
@@ -114,23 +83,17 @@ export function toPayment(p: PaymentRow): Payment {
 
 export async function toPaymentDetails(p: PaymentRow): Promise<PaymentDetails> {
   const base = toPayment(p)
-  const gateway = String(p.provider).startsWith('gw_')
+  const gateway = false
   if (p.status !== 'pending') return { ...base, qr: null, payUrl: null, gateway }
 
   const meta = parseMeta(p.qr_data)
-  let payUrl = meta?.payUrl || null
-
-  // СБП: ссылка из настроек, её же кодируем в QR (для ЕРИП и карт ссылку даёт шлюз)
-  if (!payUrl && base.method === 'sbp') {
-    payUrl = String(useRuntimeConfig().sbpPaymentUrl || '').trim() || null
-  }
+  let payUrl = meta?.payUrl || String(useRuntimeConfig().sbpPaymentUrl || '').trim() || null
 
   let qr: string | null = null
   if (payUrl) {
     qr = await QRCode.toDataURL(payUrl, { width: 260, margin: 1 })
   }
-  else if (base.method === 'sbp') {
-    // Без ссылки СБП — старый вариант: текст с суммой и кодом
+  else {
     const qrText = p.qr_data && !meta
       ? p.qr_data
       : `Пополнение ${donateItem.name}: ${p.amount_rub} руб. Код: ${p.payment_code}`
@@ -151,26 +114,18 @@ export async function expireStalePayments(db: Db, masterId?: number): Promise<vo
   await exec(db, sql, params)
 }
 
-/**
- * Создаёт счёт на оплату выбранным способом.
- * Провайдер: gw_<ключ>, если шлюз для этого способа настроен, иначе manual_<ключ>.
- */
-export async function createPayment(master: { id: number, login: string }, rub: number, method: PaymentMethodKey): Promise<number> {
+/** Создаёт счёт на оплату по СБП с ручным подтверждением оператором. */
+export async function createPayment(master: { id: number, login: string }, rub: number, _method: PaymentMethodKey = 'sbp'): Promise<number> {
   const coins = Math.floor(rub / paymentConfig.coinPrice)
-  const info = paymentMethod(method)
-  const currency = info.currency
-  const amount = currency === 'BYN' ? rubToByn(rub) : rub
-  const viaGateway = isGatewayConfigured(method)
-  const provider = paymentProvider(method, viaGateway)
-  const meta: PaymentMeta = { v: 1, method, currency, amount, payUrl: null, gatewayPaymentId: null }
+  const meta: PaymentMeta = { v: 1, method: 'sbp', currency: 'RUB', amount: rub, payUrl: null }
 
   for (let attempt = 0; attempt < 10; attempt++) {
     const code = `COIN-${randomCode(4)}-${randomCode(4)}`
     try {
       const res = await exec(cmsDb(),
         `INSERT INTO payments (payment_code, master_id, master_login, amount_rub, amount_coins, status, provider, qr_data, created_at)
-         VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
-        [code, master.id, master.login, rub, coins, provider, JSON.stringify(meta), now()])
+         VALUES (?, ?, ?, ?, ?, 'pending', 'manual_sbp', ?, ?)`,
+        [code, master.id, master.login, rub, coins, JSON.stringify(meta), now()])
       return res.insertId
     }
     catch (e) {
@@ -178,35 +133,6 @@ export async function createPayment(master: { id: number, login: string }, rub: 
     }
   }
   throw new Error('Не удалось сгенерировать уникальный код платежа')
-}
-
-/**
- * Досоздаёт платёж в шлюзе и сохраняет ссылку на оплату.
- * Если шлюз не ответил, счёт отменяется, чтобы не висел в ожидании.
- */
-export async function startGatewayPayment(p: PaymentRow, master: { id: number, email: string }): Promise<PaymentRow> {
-  const method = paymentMethodFromProvider(p.provider)
-  const meta = parseMeta(p.qr_data)
-  if (!meta) throw new Error('Некорректные данные счёта')
-
-  try {
-    const result = await createGatewayPayment({
-      method,
-      orderId: p.payment_code,
-      amount: meta.amount,
-      currency: meta.currency,
-      clientEmail: master.email,
-      clientId: String(master.id),
-    })
-    const updated: PaymentMeta = { ...meta, payUrl: result.payUrl, gatewayPaymentId: result.paymentId }
-    const raw = JSON.stringify(updated)
-    await exec(cmsDb(), 'UPDATE payments SET qr_data = ? WHERE id = ?', [raw, p.id])
-    return { ...p, qr_data: raw }
-  }
-  catch (e) {
-    await exec(cmsDb(), 'UPDATE payments SET status = ? WHERE id = ? AND status = ?', ['canceled', p.id, 'pending'])
-    throw e
-  }
 }
 
 /** Подтверждает оплату: начисляет монеты мастеру и комиссию его рефереру. false — платёж уже обработан. */
@@ -231,49 +157,4 @@ export async function markPaymentPaid(paymentId: number, confirmedBy: string, pr
 export async function cancelPayment(paymentId: number): Promise<boolean> {
   const res = await exec(cmsDb(), 'UPDATE payments SET status = ? WHERE id = ? AND status = ?', ['canceled', paymentId, 'pending'])
   return res.affectedRows > 0
-}
-
-export interface PaymentAccess {
-  /** Максимальный уровень персонажа мастера на всех игровых серверах */
-  maxLevel: number
-  /** Сумма всех оплаченных пополнений в рублях */
-  paidRub: number
-  /** Выполнено условие доступа: персонаж ≥ minLevel ИЛИ оплачено ≥ minPaidRub */
-  progressOk: boolean
-  allowed: PaymentMethodKey[]
-}
-
-/**
- * Доступ мастера к способам оплаты.
- * Способы с requiresProgress доступны, если есть персонаж ≥ 3 уровня
- * или сумма прошлых оплаченных пополнений ≥ 500 ₽. Остальные — всем.
- */
-export async function paymentAccess(master: { id: number, email: string }): Promise<PaymentAccess> {
-  const paid = await row<{ total: number | string }>(cmsDb(),
-    'SELECT COALESCE(SUM(amount_rub), 0) AS total FROM payments WHERE master_id = ? AND status = ?',
-    [master.id, 'paid'])
-  const paidRub = Number(paid?.total ?? 0)
-
-  let maxLevel = 0
-  try {
-    const logins = await gameAccountLogins(master.email)
-    if (logins.length) {
-      const perServer = await Promise.all(
-        gameServers.map(s => charactersOf(s.id, logins).catch(() => [] as CharacterRow[])),
-      )
-      for (const chars of perServer) {
-        for (const c of chars) {
-          if (c.level !== null && c.level > maxLevel) maxLevel = c.level
-        }
-      }
-    }
-  }
-  catch (e) {
-    // Игровая БД недоступна — опираемся только на историю пополнений
-    console.error('[payments] не удалось проверить уровень персонажей:', e)
-  }
-
-  const progressOk = maxLevel >= paymentAccessRules.minLevel || paidRub >= paymentAccessRules.minPaidRub
-  const allowed = paymentMethods.filter(m => !m.requiresProgress || progressOk).map(m => m.key)
-  return { maxLevel, paidRub, progressOk, allowed }
 }

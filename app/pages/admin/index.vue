@@ -116,7 +116,7 @@ async function processPayment(p: AdminPayment, action: 'confirm' | 'cancel') {
           <thead>
             <tr>
               <th>{{ t.admin.code }}</th>
-              <th>{{ t.donate.method }}</th>
+              <th>{{ t.donate.methodCol }}</th>
               <th>{{ t.admin.master }}</th>
               <th class="cab-num">{{ t.admin.sum }}</th>
               <th class="cab-num">{{ item }}</th>
@@ -130,7 +130,7 @@ async function processPayment(p: AdminPayment, action: 'confirm' | 'cancel') {
             </tr>
             <tr v-for="p in data?.pending" :key="p.id">
               <td class="cab-nowrap">{{ p.code }}</td>
-              <td class="cab-nowrap">{{ t.donate.methods[p.method] }}</td>
+              <td class="cab-nowrap">{{ t.donate.method }}</td>
               <td>{{ p.masterLogin }}</td>
               <td class="cab-num">{{ num(p.amountRub) }} ₽</td>
               <td class="cab-num">{{ num(p.amountCoins) }}</td>
@@ -212,7 +212,7 @@ async function processPayment(p: AdminPayment, action: 'confirm' | 'cancel') {
           <thead>
             <tr>
               <th>{{ t.admin.code }}</th>
-              <th>{{ t.donate.method }}</th>
+              <th>{{ t.donate.methodCol }}</th>
               <th>{{ t.admin.master }}</th>
               <th class="cab-num">{{ t.admin.sum }}</th>
               <th>{{ t.admin.status }}</th>
@@ -227,7 +227,7 @@ async function processPayment(p: AdminPayment, action: 'confirm' | 'cancel') {
             </tr>
             <tr v-for="p in data?.history" :key="p.id">
               <td class="cab-nowrap">{{ p.code }}</td>
-              <td class="cab-nowrap">{{ t.donate.methods[p.method] }}</td>
+              <td class="cab-nowrap">{{ t.donate.method }}</td>
               <td>{{ p.masterLogin }}</td>
               <td class="cab-num">{{ num(p.amountRub) }} ₽</td>
               <td><span class="cab-badge" :class="`cab-badge--${p.status}`">{{ t.donate.statuses[p.status] }}</span></td>

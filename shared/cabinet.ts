@@ -9,57 +9,18 @@ export const donateItem = {
 } as const
 
 /**
- * Способы оплаты. Ключ способа хранится в payments.provider:
- * manual_<ключ> — оплату подтверждает оператор, gw_<ключ> — платёжный шлюз.
- * Старые записи с provider = 'manual' считаются оплатой по СБП.
- *
- * minRub/maxRub заданы в рублях: сумма всегда вводится в рублях,
- * для ЕРИП сервер пересчитывает её в BYN по курсу NUXT_PAYMENTS_ERIP_RUB_PER_BYN.
+ * Способ оплаты — СБП с ручным подтверждением оператором в админ-панели.
+ * Ключ хранится в payments.provider (manual_sbp; старые записи с provider = 'manual' — тоже СБП).
  */
 export const paymentMethods = [
   {
-    key: 'card_intl',
-    /** Visa / Mastercard — международные карты, доступны всем */
-    logos: ['/images/pay/card-visa-mastercard.png'],
-    currency: 'RUB',
-    minRub: 100,
-    maxRub: 100_000,
-    requiresProgress: false,
-  },
-  {
     key: 'sbp',
-    /** СБП — нужен персонаж 3 уровня или пополнения на 500 ₽ */
     logos: ['/images/pay/sbp.png'],
     currency: 'RUB',
     minRub: 10,
     maxRub: 100_000,
-    requiresProgress: true,
-  },
-  {
-    key: 'card_ru',
-    /** Visa / Mastercard / Мир — нужен персонаж 3 уровня или пополнения на 500 ₽ */
-    logos: ['/images/pay/card-visa-mastercard-mir.png'],
-    currency: 'RUB',
-    minRub: 100,
-    maxRub: 100_000,
-    requiresProgress: true,
-  },
-  {
-    key: 'erip',
-    /** ЕРИП — доступен всем */
-    logos: ['/images/pay/erip.png'],
-    currency: 'BYN',
-    minRub: 10,
-    maxRub: 100_000,
-    requiresProgress: false,
   },
 ] as const
-
-/** Условие доступа к способам с requiresProgress: персонаж ≥ minLevel ИЛИ оплачено ≥ minPaidRub. */
-export const paymentAccessRules = {
-  minLevel: 3,
-  minPaidRub: 500,
-} as const
 
 export type PaymentMethodKey = (typeof paymentMethods)[number]['key']
 export type PaymentCurrency = (typeof paymentMethods)[number]['currency']
@@ -67,25 +28,22 @@ export type PaymentCurrency = (typeof paymentMethods)[number]['currency']
 export const paymentMethodKeys: PaymentMethodKey[] = paymentMethods.map(m => m.key)
 
 export function isPaymentMethodKey(value: unknown): value is PaymentMethodKey {
-  return typeof value === 'string' && paymentMethods.some(m => m.key === value)
+  return value === 'sbp'
 }
 
-/** Описание способа оплаты по ключу. Неизвестный ключ — СБП. */
-export function paymentMethod(key: PaymentMethodKey) {
-  return paymentMethods.find(m => m.key === key) ?? paymentMethods.find(m => m.key === 'sbp')!
+/** Описание способа оплаты (всегда СБП). */
+export function paymentMethod(_key?: unknown) {
+  return paymentMethods[0]
 }
 
-/** Значение payments.provider: manual_ — ручное подтверждение, gw_ — шлюз. */
-export function paymentProvider(key: PaymentMethodKey, viaGateway: boolean): string {
+/** Значение payments.provider для создаваемого счёта. */
+export function paymentProvider(key: PaymentMethodKey = 'sbp', viaGateway = false): string {
   return `${viaGateway ? 'gw' : 'manual'}_${key}`
 }
 
-/** Обратное преобразование payments.provider → способ оплаты. */
-export function paymentMethodFromProvider(provider: string): PaymentMethodKey {
-  const raw = String(provider || '').trim()
-  if (!raw || raw === 'manual') return 'sbp'
-  const key = raw.replace(/^(manual|gw)_/, '')
-  return isPaymentMethodKey(key) ? key : 'sbp'
+/** Обратное преобразование payments.provider → способ оплаты (старые записи тоже считаются СБП). */
+export function paymentMethodFromProvider(_provider: string): PaymentMethodKey {
+  return 'sbp'
 }
 
 /** Общие настройки оплаты (суммы — в рублях). */
@@ -276,7 +234,7 @@ export interface PaymentsResponse {
   coins: number
   active: PaymentDetails | null
   history: Payment[]
-  /** Способы оплаты, доступные этому мастеру с учётом условий доступа */
+  /** Доступные способы оплаты */
   allowed: PaymentMethodKey[]
 }
 

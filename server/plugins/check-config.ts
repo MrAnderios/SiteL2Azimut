@@ -1,7 +1,7 @@
 // Предупреждение при старте, если кабинет не настроен. Сайт не роняем: лендинг должен работать и без БД.
 export default defineNitroPlugin(() => {
   if (import.meta.dev) return
-  const { sessionPassword, db, payments } = useRuntimeConfig()
+  const { sessionPassword, db } = useRuntimeConfig()
   const missing = [
     (!sessionPassword || sessionPassword.length < 32) && 'NUXT_SESSION_PASSWORD (≥ 32 символов)',
     !db.host && 'NUXT_DB_HOST',
@@ -9,23 +9,5 @@ export default defineNitroPlugin(() => {
   ].filter(Boolean)
   if (missing.length) {
     console.error(`[cabinet] Личный кабинет не настроен, не заданы: ${missing.join(', ')}. См. .env.example и docs/DEPLOY.md`)
-  }
-
-  // Проверка настройки терминалов SeverPay: если для способа задан MID или токен — должны быть оба
-  const methods = [
-    ['card_intl', payments.cardIntlMid, payments.cardIntlToken, 'CARD_INTL'],
-    ['sbp', payments.sbpMid, payments.sbpToken, 'SBP'],
-    ['card_ru', payments.cardRuMid, payments.cardRuToken, 'CARD_RU'],
-    ['erip', payments.eripMid, payments.eripToken, 'ERIP'],
-  ] as const
-  for (const [, mid, token, name] of methods) {
-    const hasMid = String(mid || '').trim() !== ''
-    const hasToken = String(token || '').trim() !== ''
-    if (hasMid !== hasToken) {
-      console.error(`[payments] Терминал ${name} настроен частично: нужны оба NUXT_PAYMENTS_${name}_MID и NUXT_PAYMENTS_${name}_TOKEN. См. docs/PAYMENTS.md`)
-    }
-  }
-  if (Number(payments.eripRubPerByn) <= 0) {
-    console.error('[payments] NUXT_PAYMENTS_ERIP_RUB_PER_BYN должен быть больше 0, используется курс 28')
   }
 })

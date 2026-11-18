@@ -6,10 +6,7 @@ export default defineEventHandler(async (event): Promise<PaymentsResponse> => {
   const db = cmsDb()
   await expireStalePayments(db, master.id)
 
-  const [history, access] = await Promise.all([
-    rows<PaymentRow>(db, 'SELECT * FROM payments WHERE master_id = ? ORDER BY id DESC LIMIT 20', [master.id]),
-    paymentAccess(master),
-  ])
+  const history = await rows<PaymentRow>(db, 'SELECT * FROM payments WHERE master_id = ? ORDER BY id DESC LIMIT 20', [master.id])
   const active = history.find(p => p.status === 'pending')
     ?? await row<PaymentRow>(db, 'SELECT * FROM payments WHERE master_id = ? AND status = ? ORDER BY id DESC LIMIT 1', [master.id, 'pending'])
 
@@ -17,6 +14,6 @@ export default defineEventHandler(async (event): Promise<PaymentsResponse> => {
     coins: Number(master.coins),
     active: active ? await toPaymentDetails(active) : null,
     history: history.map(toPayment),
-    allowed: access.allowed,
+    allowed: ['sbp'],
   }
 })

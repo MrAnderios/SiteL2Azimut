@@ -5,10 +5,6 @@ export default defineEventHandler((event) => {
   const method = event.method
   if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return
 
-  // Callback платёжного шлюза приходит с чужого домена: подлинность проверяется
-  // HMAC-подписью в server/api/payments/callback.post.ts
-  if (event.path.startsWith('/api/payments/callback')) return
-
   const fetchSite = getRequestHeader(event, 'sec-fetch-site')
   if (fetchSite && fetchSite !== 'same-origin' && fetchSite !== 'none') fail(403, 'bad_origin')
 

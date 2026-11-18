@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Payment, PaymentCurrency, PaymentDetails, PaymentMethodKey, PaymentStatus, PaymentsResponse } from '#shared/cabinet'
-import { payment as paymentConfig, paymentAccessRules, paymentMethod, paymentMethods } from '#shared/cabinet'
+import type { Payment, PaymentDetails, PaymentStatus, PaymentsResponse } from '#shared/cabinet'
+import { payment as paymentConfig, paymentMethod } from '#shared/cabinet'
 
 definePageMeta({ layout: 'cabinet', middleware: 'auth' })
 
@@ -10,47 +10,23 @@ usePrivatePage(() => t.value.titles.donate)
 
 const { data, refresh } = await useCabinetFetch<PaymentsResponse>('/api/payments')
 
-const method = ref<PaymentMethodKey>('card_intl')
 const amountRub = ref<number | null>(null)
 const pending = ref(false)
 
-const allowed = computed<PaymentMethodKey[]>(() => data.value?.allowed ?? paymentMethods.filter(m => !m.requiresProgress).map(m => m.key))
-function isAllowed(key: PaymentMethodKey): boolean {
-  return allowed.value.includes(key)
-}
-const hasLocked = computed(() => paymentMethods.some(m => !isAllowed(m.key)))
-const lockHint = computed(() => fmt(t.value.donate.progressHint, {
-  level: paymentAccessRules.minLevel,
-  sum: num(paymentAccessRules.minPaidRub),
-}))
-
-// Если выбранный способ недоступен — переключаемся на первый доступный
-watch(allowed, (list) => {
-  if (!list.includes(method.value)) {
-    const first = paymentMethods.find(m => list.includes(m.key))
-    if (first) method.value = first.key
-  }
-}, { immediate: true })
-
-const selected = computed(() => paymentMethod(method.value))
+const info = paymentMethod('sbp')
 const coinsPreview = computed(() => Math.floor((amountRub.value || 0) / paymentConfig.coinPrice))
 const active = computed(() => data.value?.active ?? null)
-const activeInfo = computed(() => {
-  const a = active.value
-  return a ? paymentMethod(a.method) : null
-})
 
-function money(amount: number, currency: PaymentCurrency): string {
-  return `${num(amount)} ${currency === 'BYN' ? 'BYN' : '₽'}`
+function money(amount: number): string {
+  return `${num(amount)} ₽`
 }
 
 async function createPayment() {
-  if (!isAllowed(method.value)) return
   pending.value = true
   try {
     await $fetch<PaymentDetails>('/api/payments', {
       method: 'POST',
-      body: { amountRub: amountRub.value, method: method.value },
+      body: { amountRub: amountRub.value },
     })
     amountRub.value = null
     await refresh()
@@ -108,11 +84,6 @@ const statusText = computed(() => {
     default: return t.value.donate.waiting
   }
 })
-
-const payHint = computed(() => {
-  const a = active.value
-  return a ? t.value.donate.payHints[a.method] : ''
-})
 </script>
 
 <template>
@@ -129,34 +100,15 @@ const payHint = computed(() => {
         <h2 class="cab-panel__title">{{ t.donate.createTitle }}</h2>
         <p class="cab-hint cab-donate-rate">{{ fmt(t.donate.rate, { price: num(paymentConfig.coinPrice), item }) }}</p>
         <form class="cab-form" autocomplete="off" @submit.prevent="createPayment">
-          <fieldset class="cab-pay-methods">
-            <legend>{{ t.donate.methodTitle }}</legend>
-            <button
-              v-for="m in paymentMethods"
-              :key="m.key"
-              type="button"
-              class="cab-pay-method"
-              :class="{ 'is-active': method === m.key, 'is-locked': !isAllowed(m.key) }"
-              :aria-pressed="method === m.key"
-              :disabled="!isAllowed(m.key)"
-              :title="isAllowed(m.key) ? t.donate.methodHints[m.key] : lockHint"
-              @click="method = m.key"
-            >
-              <img :src="m.logos[0]" :alt="t.donate.methods[m.key]" class="cab-pay-method__logo" width="138" height="48" loading="lazy">
-              <span class="cab-pay-method__name">{{ t.donate.methods[m.key] }}</span>
-              <span v-if="!isAllowed(m.key)" class="cab-pay-method__lock">{{ t.donate.locked }}</span>
-            </button>
-          </fieldset>
-          <p v-if="hasLocked" class="cab-hint cab-donate-lock">{{ lockHint }}</p>
-
+          <p class="cab-hint cab-donate-method"><img :src="info.logos[0]" alt="" width="96" height="33"> {{ t.donate.methodHint }}</p>
           <label class="cab-field">
             <span>{{ t.donate.amount }}</span>
             <input
               v-model.number="amountRub"
               class="cab-input"
               type="number"
-              :min="selected.minRub"
-              :max="selected.maxRub"
+              :min="info.minRub"
+              :max="info.maxRub"
               step="1"
               required
               :placeholder="t.donate.amountPlaceholder"
@@ -165,25 +117,19 @@ const payHint = computed(() => {
           <p v-if="coinsPreview > 0" class="cab-donate-preview">
             {{ t.donate.youGet }}: <strong>{{ num(coinsPreview) }}</strong> {{ item }}
           </p>
-          <UiButton type="submit" :loading="pending" :disabled="!isAllowed(method)">{{ t.donate.submit }}</UiButton>
+          <UiButton type="submit" :loading="pending">{{ t.donate.submit }}</UiButton>
         </form>
-        <p class="cab-hint cab-donate-limits">{{ fmt(t.donate.limits, { min: num(selected.minRub), max: num(selected.maxRub) }) }}</p>
+        <p class="cab-hint cab-donate-limits">{{ fmt(t.donate.limits, { min: num(info.minRub), max: num(info.maxRub) }) }}</p>
       </section>
 
       <section v-if="active" class="panel cab-panel cab-pay">
         <h2 class="cab-panel__title">{{ t.donate.payTitle }}</h2>
-        <div v-if="activeInfo" class="cab-pay__method">
-          <img :src="activeInfo.logos[0]" :alt="t.donate.methods[active.method]" width="138" height="48">
-          <span>{{ t.donate.methods[active.method] }}</span>
-        </div>
         <img v-if="active.qr" :src="active.qr" :alt="t.donate.qrAlt" class="cab-pay__qr" width="260" height="260">
         <UiButton v-if="active.payUrl" :href="active.payUrl" size="sm" class="cab-pay__bank">{{ t.donate.openBank }}</UiButton>
-        <p>{{ t.donate.sum }}: <strong>{{ money(active.amount, active.currency) }}</strong></p>
-        <p v-if="active.currency !== 'RUB'" class="cab-hint">{{ fmt(t.donate.rateNote, { rub: num(active.amountRub) }) }}</p>
+        <p>{{ t.donate.sum }}: <strong>{{ money(active.amountRub) }}</strong></p>
         <p>{{ t.donate.youGet }}: <strong>{{ num(active.amountCoins) }}</strong> {{ item }}</p>
         <p class="cab-pay__code">{{ active.code }}</p>
-        <p class="cab-hint">{{ payHint }}</p>
-        <p v-if="!active.gateway && active.method !== 'sbp'" class="cab-hint cab-pay__manual">{{ t.donate.manualNote }}</p>
+        <p class="cab-hint">{{ t.donate.payHint }}</p>
         <p class="cab-pay__status" :class="`is-${liveStatus ?? 'pending'}`">{{ statusText }}</p>
       </section>
     </div>
@@ -195,7 +141,7 @@ const payHint = computed(() => {
           <thead>
             <tr>
               <th>{{ t.donate.code }}</th>
-              <th>{{ t.donate.method }}</th>
+              <th>{{ t.donate.methodCol }}</th>
               <th class="cab-num">{{ t.donate.sum }}</th>
               <th class="cab-num">{{ fmt(t.donate.coins, { item }) }}</th>
               <th>{{ t.donate.status }}</th>
@@ -209,8 +155,8 @@ const payHint = computed(() => {
             </tr>
             <tr v-for="p in data?.history" :key="p.id">
               <td class="cab-nowrap">{{ p.code }}</td>
-              <td>{{ t.donate.methods[p.method] }}</td>
-              <td class="cab-num">{{ money(p.amount, p.currency) }}</td>
+              <td>{{ t.donate.method }}</td>
+              <td class="cab-num">{{ money(p.amountRub) }}</td>
               <td class="cab-num">{{ num(p.amountCoins) }}</td>
               <td><span class="cab-badge" :class="`cab-badge--${p.status}`">{{ t.donate.statuses[p.status] }}</span></td>
               <td class="cab-nowrap">{{ date(p.createdAt) }}</td>
@@ -228,6 +174,19 @@ const payHint = computed(() => {
   margin: -8px 0 18px;
 }
 
+.cab-donate-method {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -4px 0 16px;
+}
+
+.cab-donate-method img {
+  width: 96px;
+  height: auto;
+  border-radius: 4px;
+}
+
 .cab-donate-preview {
   color: var(--color-text-muted);
   font-size: 14px;
@@ -241,100 +200,11 @@ const payHint = computed(() => {
   margin-top: 14px;
 }
 
-.cab-pay-methods {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin: 0 0 18px;
-  padding: 0;
-  border: 0;
-}
-
-.cab-pay-methods legend {
-  margin-bottom: 10px;
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
-
-.cab-pay-method {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  padding: 12px 10px;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius);
-  background: rgb(0 0 0 / 0.18);
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.cab-pay-method:hover {
-  border-color: var(--gold-500);
-}
-
-.cab-pay-method.is-active {
-  border-color: var(--gold-300);
-  box-shadow: inset 0 0 0 1px var(--gold-300);
-}
-
-.cab-pay-method__logo {
-  width: 138px;
-  height: 48px;
-  object-fit: contain;
-}
-
-.cab-pay-method__name {
-  color: var(--color-text-muted);
-  font-size: 13px;
-  line-height: 1.3;
-  text-align: center;
-}
-
-.cab-pay-method.is-active .cab-pay-method__name {
-  color: var(--gold-100);
-}
-
-.cab-pay-method.is-locked {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.cab-pay-method.is-locked:hover {
-  border-color: var(--color-line);
-}
-
-.cab-pay-method__lock {
-  color: var(--color-text-muted);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.cab-donate-lock {
-  margin: -8px 0 16px;
-}
-
 .cab-pay {
   display: grid;
   justify-items: center;
   gap: 10px;
   text-align: center;
-}
-
-.cab-pay__method {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
-
-.cab-pay__method img {
-  width: 96px;
-  height: auto;
-  border-radius: 4px;
 }
 
 .cab-pay__qr {
@@ -364,10 +234,6 @@ const payHint = computed(() => {
   font-weight: 700;
   letter-spacing: 0.12em;
   user-select: all;
-}
-
-.cab-pay__manual {
-  max-width: 420px;
 }
 
 .cab-pay__status {
