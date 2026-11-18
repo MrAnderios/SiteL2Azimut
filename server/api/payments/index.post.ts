@@ -36,9 +36,10 @@ export default defineEventHandler(async (event): Promise<PaymentDetails> => {
 
   if (String(created!.provider).startsWith('gw_')) {
     try {
-      created = await startGatewayPayment(created!)
+      created = await startGatewayPayment(created!, { id: master.id, email: master.email })
     }
-    catch {
+    catch (e) {
+      console.error('[payments] gateway create failed:', e)
       fail(502, 'gateway_error')
     }
   }

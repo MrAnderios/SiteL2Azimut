@@ -184,7 +184,7 @@ export async function createPayment(master: { id: number, login: string }, rub: 
  * Досоздаёт платёж в шлюзе и сохраняет ссылку на оплату.
  * Если шлюз не ответил, счёт отменяется, чтобы не висел в ожидании.
  */
-export async function startGatewayPayment(p: PaymentRow): Promise<PaymentRow> {
+export async function startGatewayPayment(p: PaymentRow, master: { id: number, email: string }): Promise<PaymentRow> {
   const method = paymentMethodFromProvider(p.provider)
   const meta = parseMeta(p.qr_data)
   if (!meta) throw new Error('Некорректные данные счёта')
@@ -195,7 +195,8 @@ export async function startGatewayPayment(p: PaymentRow): Promise<PaymentRow> {
       orderId: p.payment_code,
       amount: meta.amount,
       currency: meta.currency,
-      description: `Пополнение ${donateItem.name}: ${p.amount_rub} RUB`,
+      clientEmail: master.email,
+      clientId: String(master.id),
     })
     const updated: PaymentMeta = { ...meta, payUrl: result.payUrl, gatewayPaymentId: result.paymentId }
     const raw = JSON.stringify(updated)

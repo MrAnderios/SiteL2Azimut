@@ -51,23 +51,24 @@ export default defineNuxtConfig({
     // Ссылка СБП для оплаты (переводы по номеру/C2C), её кодирует QR на странице пополнения.
     // Переопределяется NUXT_SBP_PAYMENT_URL; пусто — QR с текстом «сумма + код платежа».
     sbpPaymentUrl: 'https://c2c.cbrpay.ru/BS1I0000E4C1IOK88SOA7IUC9BB3C9KL',
-    // Платёжный шлюз (карты, СБП, ЕРИП). Пусто — счёт создаётся с ручным подтверждением оператором.
-    // 1 терминал = 1 касса: у каждого способа оплаты своя пара terminal_id/cashbox_id.
+    // Платёжный шлюз SeverPay (карты, СБП, ЕРИП). Пусто — счёт создаётся с ручным подтверждением оператором.
+    // 1 терминал = 1 касса = 1 способ оплаты: у каждого свой MID и токен в кабинете SeverPay.
     payments: {
-      gatewayUrl: '',
-      merchantId: '',
-      secret: '',
-      callbackUrl: '',
+      baseUrl: 'https://severpay.io/api/merchant',
+      // URL нашего webhook (регистрируется в кабинете SeverPay для каждого терминала)
+      callbackUrl: 'https://l2azimut.ru/api/payments/callback',
+      // Куда вернуть пользователя после оплаты
+      returnUrl: 'https://l2azimut.ru/cabinet/donate',
       // Сколько рублей стоит 1 BYN — курс для счетов ЕРИП
       eripRubPerByn: 28,
-      cardIntlTerminalId: '',
-      cardIntlCashboxId: '',
-      cardRuTerminalId: '',
-      cardRuCashboxId: '',
-      sbpTerminalId: '',
-      sbpCashboxId: '',
-      eripTerminalId: '',
-      eripCashboxId: '',
+      cardIntlMid: '',
+      cardIntlToken: '',
+      sbpMid: '',
+      sbpToken: '',
+      cardRuMid: '',
+      cardRuToken: '',
+      eripMid: '',
+      eripToken: '',
     },
     public: {
       // Новый личный кабинет. false — ссылки на кабинет ведут в старую CMS (статическая сборка без бэкенда).

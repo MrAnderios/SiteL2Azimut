@@ -11,15 +11,18 @@ export default defineNitroPlugin(() => {
     console.error(`[cabinet] Личный кабинет не настроен, не заданы: ${missing.join(', ')}. См. .env.example и docs/DEPLOY.md`)
   }
 
-  // Шлюз настроен частично — счета будут создаваться с ручным подтверждением оператором
-  if (payments.gatewayUrl || payments.merchantId || payments.secret) {
-    const gatewayMissing = [
-      !payments.gatewayUrl && 'NUXT_PAYMENTS_GATEWAY_URL',
-      !payments.merchantId && 'NUXT_PAYMENTS_MERCHANT_ID',
-      !payments.secret && 'NUXT_PAYMENTS_SECRET',
-    ].filter(Boolean)
-    if (gatewayMissing.length) {
-      console.error(`[payments] Платёжный шлюз настроен частично, не заданы: ${gatewayMissing.join(', ')}. См. docs/PAYMENTS.md`)
+  // Проверка настройки терминалов SeverPay: если для способа задан MID или токен — должны быть оба
+  const methods = [
+    ['card_intl', payments.cardIntlMid, payments.cardIntlToken, 'CARD_INTL'],
+    ['sbp', payments.sbpMid, payments.sbpToken, 'SBP'],
+    ['card_ru', payments.cardRuMid, payments.cardRuToken, 'CARD_RU'],
+    ['erip', payments.eripMid, payments.eripToken, 'ERIP'],
+  ] as const
+  for (const [, mid, token, name] of methods) {
+    const hasMid = String(mid || '').trim() !== ''
+    const hasToken = String(token || '').trim() !== ''
+    if (hasMid !== hasToken) {
+      console.error(`[payments] Терминал ${name} настроен частично: нужны оба NUXT_PAYMENTS_${name}_MID и NUXT_PAYMENTS_${name}_TOKEN. См. docs/PAYMENTS.md`)
     }
   }
   if (Number(payments.eripRubPerByn) <= 0) {
