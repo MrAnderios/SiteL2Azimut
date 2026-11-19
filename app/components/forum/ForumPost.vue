@@ -14,7 +14,6 @@ const props = defineProps<{
 
 // Одно поле на всю тему: правка второго сообщения закрывает первое.
 const editingId = defineModel<number | null>('editingId', { required: true })
-const renamingId = defineModel<number | null>('renamingId', { required: true })
 
 const emit = defineEmits<{
   quote: []
@@ -24,18 +23,16 @@ const emit = defineEmits<{
 }>()
 
 const localePath = useLocalePath()
-const { t, me, date, errorText, refreshMe } = useForum()
+const { t, me, date, errorText } = useForum()
 
 function memberTo(name: string) {
   return localePath(`/forum/u/${encodeURIComponent(name)}`)
 }
 
 const draft = ref('')
-const renameValue = ref('')
 
 const number = computed(() => (props.page - 1) * forumLimits.pageSize + props.index + 1)
 const editing = computed(() => editingId.value === props.post.id)
-const renaming = computed(() => renamingId.value === props.post.id)
 const canDelete = computed(() => forumCanDeletePost(
   props.post,
   me.value,
@@ -45,11 +42,6 @@ const canDelete = computed(() => forumCanDeletePost(
 function startEdit() {
   draft.value = props.post.body
   editingId.value = props.post.id
-}
-
-function startRename() {
-  renameValue.value = props.post.author
-  renamingId.value = props.post.id
 }
 
 async function act(task: () => Promise<void>) {
@@ -87,15 +79,6 @@ async function remove() {
   catch (e) {
     emit('error', errorText(e))
   }
-}
-
-async function saveRename() {
-  if (!props.post.authorId) return
-  await act(async () => {
-    await $fetch(`/api/forum/profiles/${props.post.authorId}`, { method: 'PATCH', body: { name: renameValue.value } })
-    renamingId.value = null
-    await refreshMe()
-  })
 }
 
 async function setBan(banned: boolean) {
@@ -141,12 +124,6 @@ async function setBan(banned: boolean) {
             @click="unhide"
           />
           <ForumAction
-            v-if="me?.isAdmin && post.authorId && !renaming"
-            :label="t.rename"
-            icon="i-lucide-user-pen"
-            @click="startRename"
-          />
-          <ForumAction
             v-if="me?.isAdmin && post.authorId && !post.own"
             :label="post.banned ? t.unban : t.ban"
             :icon="post.banned ? 'i-lucide-user-check' : 'i-lucide-ban'"
@@ -172,12 +149,6 @@ async function setBan(banned: boolean) {
       </form>
       <ForumPostBody v-else :body="post.body" :format="post.format" />
       <ForumReactions :post="post" @changed="emit('changed')" @error="emit('error', $event)" />
-
-      <form v-if="renaming && post.authorId" class="forum-rename" @submit.prevent="saveRename">
-        <input v-model="renameValue" class="cab-input" required :maxlength="forumLimits.nameMax">
-        <UiButton type="submit" size="sm">{{ t.save }}</UiButton>
-        <button type="button" class="forum-text-btn" @click="renamingId = null">{{ t.cancel }}</button>
-      </form>
     </div>
   </li>
 </template>

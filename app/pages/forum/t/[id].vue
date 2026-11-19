@@ -36,7 +36,6 @@ const pendingReply = ref(false)
 const replyError = ref('')
 const actionError = ref('')
 const editingId = ref<number | null>(null)
-const renamingId = ref<number | null>(null)
 
 function scrollToId(id: string, block: ScrollLogicalPosition) {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -170,7 +169,6 @@ async function removeTopic() {
             v-for="(post, index) in data.posts"
             :key="post.id"
             v-model:editing-id="editingId"
-            v-model:renaming-id="renamingId"
             :post="post"
             :index="index"
             :page="data.page"
