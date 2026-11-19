@@ -32,21 +32,14 @@ function postTo(post: ForumOwnPost) {
 <template>
   <div class="forum">
     <div class="container">
-      <header class="forum__head">
-        <p class="forum__crumbs">
-          <NuxtLink :to="localePath('/forum')">{{ t.title }}</NuxtLink>
-          <template v-if="name">
-            <span>/</span>
-            <span>{{ name }}</span>
-          </template>
-        </p>
-        <h1 class="forum__title text-gold">{{ name || t.title }}</h1>
-        <p v-if="data?.name" class="forum__lead">
-          {{ t.myPosts }}
-          <template v-if="data.total"> · {{ fmt(t.memberPosts, { n: data.total }) }}</template>
-        </p>
-        <ForumAvatarForm v-if="me?.name" />
-      </header>
+      <p class="forum__crumbs">
+        <NuxtLink :to="localePath('/forum')">{{ t.title }}</NuxtLink>
+        <template v-if="name">
+          <span>/</span>
+          <span>{{ name }}</span>
+        </template>
+      </p>
+      <h1 v-if="!data?.name" class="forum__title text-gold">{{ name || t.title }}</h1>
 
       <p v-if="!cabinetEnabled" class="cab-note">{{ t.unavailable }}</p>
       <template v-else>
@@ -60,8 +53,21 @@ function postTo(post: ForumOwnPost) {
             :error="error"
             @retry="refresh()"
           />
-          <p v-else-if="data && !data.posts.length" class="forum-hint">{{ t.myPostsEmpty }}</p>
-          <ol v-else-if="data" class="forum__posts">
+          <template v-else-if="data">
+            <ForumProfile
+              :name="name"
+              :avatar="me?.avatar ?? data.avatar"
+              :registered-at="data.registeredAt"
+              :last-seen-at="data.lastSeenAt"
+              :total="data.total"
+              :login="me?.isAdmin ? data.login : null"
+              show-actions
+            >
+              <ForumAvatarForm :image="false" />
+            </ForumProfile>
+            <p class="forum-posts-title">{{ t.postsTitle }}</p>
+            <p v-if="!data.posts.length" class="forum-hint">{{ t.myPostsEmpty }}</p>
+            <ol v-else class="forum__posts">
             <li v-for="post in data.posts" :key="post.id" class="forum-post panel" :class="{ 'is-hidden': post.hidden }">
               <div class="forum-post__side">
                 <h2 class="forum-post__author">
@@ -80,8 +86,9 @@ function postTo(post: ForumOwnPost) {
                 <ForumPostBody :body="post.body" :format="post.format" />
               </div>
             </li>
-          </ol>
-          <ForumPager v-if="data" :page="data.page" :pages="data.pages" />
+            </ol>
+            <ForumPager :page="data.page" :pages="data.pages" />
+          </template>
         </template>
       </template>
     </div>

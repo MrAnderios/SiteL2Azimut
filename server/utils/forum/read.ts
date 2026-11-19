@@ -1,5 +1,5 @@
 import type { ForumActiveMember, ForumCategoryPage, ForumFormat, ForumIndex, ForumMember, ForumMemberPosts, ForumOwnPosts, ForumPost, ForumSearchPage, ForumTopicPage } from '#shared/forum'
-import { forumCategories, forumCategory, forumLimits, forumNamePattern } from '#shared/forum'
+import { emptyForumReactions, forumCategories, forumCategory, forumLimits, forumNamePattern } from '#shared/forum'
 
 function forumFormat(value: string): ForumFormat {
   return value === 'markdown' ? 'markdown' : 'plain'
@@ -37,8 +37,8 @@ export async function forumMemberPosts(rawName: string, page: number, staff: boo
 
 /** Сообщения игрока, новые сверху. Скрытые видит только администратор, как в теме. */
 export async function forumOwnPosts(masterId: number, page: number, staff: boolean): Promise<ForumOwnPosts> {
-  const name = await forumProfileName(masterId)
-  if (!name) return { name: null, page: 1, pages: 1, total: 0, posts: [] }
+  const about = await forumProfileCard(masterId, staff)
+  if (!about.name) return { ...about, page: 1, pages: 1, total: 0, posts: [] }
 
   const seeHidden = staff ? 1 : 0
   const db = cmsDb()
@@ -76,7 +76,7 @@ export async function forumOwnPosts(masterId: number, page: number, staff: boole
   `, [seeHidden, masterId, seeHidden, list.limit, list.offset])
 
   return {
-    name,
+    ...about,
     page: list.page,
     pages: list.pages,
     total,
@@ -317,6 +317,7 @@ export async function forumTopic(id: number, page: number, viewer: { id: number,
     ORDER BY p.id
     LIMIT ? OFFSET ?
   `, [id, seeHidden, list.limit, list.offset])
+  const reactions = await forumPostReactions(posts.map(p => p.id), viewer?.id ?? null)
 
   return {
     id: topic.id,
@@ -340,6 +341,7 @@ export async function forumTopic(id: number, page: number, viewer: { id: number,
       hidden: p.hidden === 1,
       own: viewer?.id === p.authorId,
       banned: !!viewer?.isAdmin && p.banned === 1,
+      reactions: reactions.get(p.id) ?? emptyForumReactions(),
     })),
   }
 }

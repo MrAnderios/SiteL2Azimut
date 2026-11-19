@@ -2,7 +2,7 @@
 const props = defineProps<{
   name: string
   src: string | null
-  size?: 'sm' | 'md'
+  size?: 'sm' | 'md' | 'lg'
 }>()
 
 const failed = ref(false)
@@ -17,7 +17,7 @@ watch(() => props.src, () => {
 </script>
 
 <template>
-  <span class="forum-avatar" :class="{ 'forum-avatar--sm': size === 'sm' }" aria-hidden="true">
+  <span class="forum-avatar" :class="{ 'forum-avatar--sm': size === 'sm', 'forum-avatar--lg': size === 'lg' }" aria-hidden="true">
     <img v-if="src && !failed" :src="src" alt="" @error="failed = true">
     <span v-else>{{ letter }}</span>
   </span>

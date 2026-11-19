@@ -26,8 +26,12 @@ export function useForum() {
     return errors.server_error!
   }
 
-  const dateFormat = computed(() => new Intl.DateTimeFormat(locale.value === 'ru' ? 'ru-RU' : 'en-GB', {
+  const dateLocale = computed(() => (locale.value === 'ru' ? 'ru-RU' : 'en-GB'))
+  const dateFormat = computed(() => new Intl.DateTimeFormat(dateLocale.value, {
     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+  }))
+  const profileDate = computed(() => new Intl.DateTimeFormat(dateLocale.value, {
+    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
   }))
 
   return {
@@ -38,5 +42,6 @@ export function useForum() {
     cabinetEnabled,
     errorText,
     date: (sec: number) => (sec > 0 ? dateFormat.value.format(new Date(sec * 1000)) : ''),
+    dateFull: (sec: number) => (sec > 0 ? profileDate.value.format(new Date(sec * 1000)) : ''),
   }
 }

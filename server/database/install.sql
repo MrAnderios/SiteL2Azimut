@@ -133,6 +133,7 @@ CREATE TABLE IF NOT EXISTS forum_profiles (
   banned TINYINT UNSIGNED NOT NULL DEFAULT 0,
   avatar VARCHAR(4) NOT NULL DEFAULT '',
   avatar_at INT UNSIGNED NOT NULL DEFAULT 0,
+  last_seen INT UNSIGNED NOT NULL DEFAULT 0,
   created_at INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (master_id),
   UNIQUE KEY uq_name (name)
@@ -165,6 +166,15 @@ CREATE TABLE IF NOT EXISTS forum_posts (
   PRIMARY KEY (id),
   KEY idx_topic (topic_id, id),
   KEY idx_author (author_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- Реакции на сообщение. kind: like, clown. Повтор той же реакции тем же игроком снимает её.
+CREATE TABLE IF NOT EXISTS forum_reactions (
+  post_id INT UNSIGNED NOT NULL,
+  master_id INT UNSIGNED NOT NULL,
+  kind VARCHAR(16) NOT NULL,
+  created_at INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (post_id, master_id, kind)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Уникальные заходы: один IP, один раздел, одни московские сутки. На уже работающей базе — visits.sql.

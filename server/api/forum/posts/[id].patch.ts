@@ -9,7 +9,10 @@ export default defineEventHandler(async (event): Promise<{ ok: true }> => {
     patch.body = normalizeBody(str(body.body))
     validateBody(patch.body)
   }
-  if ('hidden' in body) patch.hidden = forumBool(body.hidden)
+  if ('hidden' in body) {
+    patch.hidden = forumBool(body.hidden)
+    if (patch.hidden) fail(400, 'invalid_post')
+  }
   if (patch.body === undefined && patch.hidden === undefined) fail(400, 'invalid_post')
 
   await updatePost(master, postId, patch, isAdminLogin(master.login))

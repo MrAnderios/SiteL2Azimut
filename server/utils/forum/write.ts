@@ -89,22 +89,13 @@ export async function updatePost(master: Master, postId: number, patch: { body?:
         await exec(conn, 'UPDATE forum_posts SET body = ?, format = ?, edited_at = ? WHERE id = ?', [patch.body, formatMarkdown, now(), postId])
       }
       if (patch.hidden !== undefined) {
-        const hide = patch.hidden
-        if (!staff) await assertForumWriter(master.id)
-        if (hide && !own && !staff) fail(403, 'forbidden')
-        if (!hide && !staff) fail(403, 'forbidden')
-        // Вместе с ответом, который тоже блокирует тему: иначе «последнее» успевает перестать быть последним.
-        await row(conn, 'SELECT id FROM forum_topics WHERE id = ? FOR UPDATE', [post.topicId])
-        if (hide && !staff) {
-          const later = await row<{ id: number }>(conn, `
-            SELECT id FROM forum_posts
-            WHERE topic_id = ? AND id > ? AND hidden = 0
-            LIMIT 1
-          `, [post.topicId, post.id])
-          if (later) fail(403, 'not_last_post')
+        // Скрытие больше не пишем: кнопка удаляет строку. Вернуть можно только уже скрытое.
+        if (patch.hidden) fail(400, 'invalid_post')
+        if (!staff) fail(403, 'forbidden')
+        if (post.hidden === 1) {
+          await exec(conn, 'UPDATE forum_posts SET hidden = 0 WHERE id = ?', [postId])
+          await refreshTopic(conn, post.topicId)
         }
-        await exec(conn, 'UPDATE forum_posts SET hidden = ? WHERE id = ?', [hide ? 1 : 0, postId])
-        await refreshTopic(conn, post.topicId)
       }
     })
   }
@@ -112,6 +103,39 @@ export async function updatePost(master: Master, postId: number, patch: { body?:
     failIfBadForumText(e, 'invalid_post')
     throw e
   }
+}
+
+/** Стирает сообщение и его реакции. Автор — только своё последнее видимое, администратор — любое. */
+export async function deletePost(master: Master, postId: number, staff: boolean): Promise<{ topicDeleted: boolean, slug: string }> {
+  return await transaction(cmsDb(), async (conn) => {
+    const post = await row<PostRow>(conn,
+      'SELECT id, topic_id AS topicId, author_id AS authorId, hidden FROM forum_posts WHERE id = ? FOR UPDATE', [postId])
+    if (!post) fail(404, 'post_not_found')
+    if (!staff) await assertForumWriter(master.id)
+    if (post.authorId !== master.id && !staff) fail(403, 'forbidden')
+    if (post.hidden === 1 && !staff) fail(403, 'forbidden')
+    const topic = await row<{ category: string }>(conn,
+      'SELECT category FROM forum_topics WHERE id = ? FOR UPDATE', [post.topicId])
+    const category = topic && forumCategory(topic.category)
+    if (!topic || !category) fail(404, 'topic_not_found')
+    if (!staff) {
+      const later = await row<{ id: number }>(conn, `
+        SELECT id FROM forum_posts
+        WHERE topic_id = ? AND id > ? AND hidden = 0
+        LIMIT 1
+      `, [post.topicId, post.id])
+      if (later) fail(403, 'not_last_post')
+    }
+    await clearPostReactions(conn, postId)
+    await exec(conn, 'DELETE FROM forum_posts WHERE id = ?', [postId])
+    const left = await row<{ n: number }>(conn, 'SELECT COUNT(*) AS n FROM forum_posts WHERE topic_id = ?', [post.topicId])
+    if (Number(left?.n ?? 0) === 0) {
+      await exec(conn, 'DELETE FROM forum_topics WHERE id = ?', [post.topicId])
+      return { topicDeleted: true, slug: category.slug }
+    }
+    await refreshTopic(conn, post.topicId)
+    return { topicDeleted: false, slug: category.slug }
+  })
 }
 
 async function setTopicFlag(topicId: number, column: 'pinned' | 'closed', value: boolean): Promise<void> {
@@ -138,7 +162,10 @@ export async function deleteTopic(master: Master, topicId: number, staff: boolea
     if (!staff && topic.authorId !== master.id) fail(403, 'forbidden')
     const posts = await rows<{ hidden: number }>(conn, 'SELECT hidden FROM forum_posts WHERE topic_id = ? FOR UPDATE', [topicId])
     if (posts.some(post => post.hidden === 0)) fail(403, 'topic_not_empty')
-    if (posts.length) await exec(conn, 'DELETE FROM forum_posts WHERE topic_id = ?', [topicId])
+    if (posts.length) {
+      await clearTopicReactions(conn, topicId)
+      await exec(conn, 'DELETE FROM forum_posts WHERE topic_id = ?', [topicId])
+    }
     await exec(conn, 'DELETE FROM forum_topics WHERE id = ?', [topicId])
   })
 }

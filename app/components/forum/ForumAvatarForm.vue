@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { forumLimits } from '#shared/forum'
 
+withDefaults(defineProps<{
+  /** Картинка уже показана в шапке профиля. */
+  image?: boolean
+}>(), {
+  image: true,
+})
+
 const { t, me, errorText, refreshMe } = useForum()
 
 const input = ref<HTMLInputElement | null>(null)
@@ -60,7 +67,7 @@ async function remove() {
 
 <template>
   <div class="forum-avatar-form">
-    <ForumAvatar v-if="me?.name" :name="me.name" :src="me.avatar" />
+    <ForumAvatar v-if="image && me?.name" :name="me.name" :src="me.avatar" />
     <div class="forum-avatar-form__body">
       <div class="forum-avatar-form__actions">
         <UiButton type="button" size="sm" :loading="pending" @click="pick">

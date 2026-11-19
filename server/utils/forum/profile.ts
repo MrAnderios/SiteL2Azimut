@@ -64,10 +64,56 @@ export async function requireForumName(masterId: number): Promise<string> {
   return name
 }
 
+const seenFreshSec = 60
+
+/** Отмечает заход на форум. Повтор ближе минуты в базу не пишется. */
+export async function touchForumSeen(masterId: number): Promise<void> {
+  const at = now()
+  await exec(
+    cmsDb(),
+    'UPDATE forum_profiles SET last_seen = ? WHERE master_id = ? AND last_seen < ?',
+    [at, masterId, at - seenFreshSec],
+  )
+}
+
+export async function forumProfileCard(masterId: number, staff: boolean): Promise<{
+  name: string | null
+  registeredAt: number
+  lastSeenAt: number
+  login: string | null
+  avatar: string | null
+}> {
+  const empty = { name: null, registeredAt: 0, lastSeenAt: 0, login: null, avatar: null }
+  const found = await row<{
+    name: string
+    registeredAt: number | null
+    joinedAt: number
+    lastSeenAt: number
+    login: string | null
+    avatar: string
+    avatarAt: number
+  }>(cmsDb(), `
+    SELECT p.name, a.created_at AS registeredAt, p.created_at AS joinedAt,
+           p.last_seen AS lastSeenAt, a.login, p.avatar, p.avatar_at AS avatarAt
+    FROM forum_profiles p
+    LEFT JOIN master_accounts a ON a.id = p.master_id
+    WHERE p.master_id = ?
+  `, [masterId])
+  if (!found) return empty
+  return {
+    name: found.name,
+    registeredAt: Number(found.registeredAt || found.joinedAt || 0),
+    lastSeenAt: Number(found.lastSeenAt || 0),
+    login: staff && found.login ? found.login : null,
+    avatar: forumAvatarUrl(found.name, found.avatar, Number(found.avatarAt)),
+  }
+}
+
 export async function forumMe(event: Parameters<typeof getSessionUser>[0]): Promise<ForumMe> {
   const user = await getSessionUser(event)
   if (!user) return { name: null, isAdmin: false, authenticated: false, banned: false, avatar: null }
   const profile = await forumProfile(user.id)
+  if (profile) await touchForumSeen(user.id)
   return {
     name: profile?.name ?? null,
     isAdmin: user.isAdmin,

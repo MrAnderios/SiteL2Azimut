@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ForumPost } from '#shared/forum'
 import { forumLimits } from '#shared/forum'
-import { forumBodyReady, forumCanHidePost } from '~/utils/forum'
+import { forumBodyReady, forumCanDeletePost } from '~/utils/forum'
 
 const props = defineProps<{
   post: ForumPost
@@ -19,6 +19,7 @@ const renamingId = defineModel<number | null>('renamingId', { required: true })
 const emit = defineEmits<{
   quote: []
   changed: []
+  removed: [result: { topicDeleted: boolean, slug: string }]
   error: [message: string]
 }>()
 
@@ -35,7 +36,7 @@ const renameValue = ref('')
 const number = computed(() => (props.page - 1) * forumLimits.pageSize + props.index + 1)
 const editing = computed(() => editingId.value === props.post.id)
 const renaming = computed(() => renamingId.value === props.post.id)
-const canHide = computed(() => forumCanHidePost(
+const canDelete = computed(() => forumCanDeletePost(
   props.post,
   me.value,
   props.page === props.pages && props.index === props.count - 1,
@@ -70,11 +71,22 @@ async function saveEdit() {
   })
 }
 
-async function setHidden(hidden: boolean) {
-  if (hidden && !window.confirm(t.value.hideConfirm)) return
+async function unhide() {
   await act(async () => {
-    await $fetch(`/api/forum/posts/${props.post.id}`, { method: 'PATCH', body: { hidden } })
+    await $fetch(`/api/forum/posts/${props.post.id}`, { method: 'PATCH', body: { hidden: false } })
   })
+}
+
+async function remove() {
+  if (!window.confirm(t.value.deletePostConfirm)) return
+  emit('error', '')
+  try {
+    const result = await $fetch<{ topicDeleted: boolean, slug: string }>(`/api/forum/posts/${props.post.id}`, { method: 'DELETE' })
+    emit('removed', result)
+  }
+  catch (e) {
+    emit('error', errorText(e))
+  }
 }
 
 async function saveRename() {
@@ -117,16 +129,16 @@ async function setBan(banned: boolean) {
             @click="startEdit"
           />
           <ForumAction
-            v-if="canHide"
-            :label="t.hide"
+            v-if="canDelete"
+            :label="t.deletePost"
             icon="i-lucide-trash"
-            @click="setHidden(true)"
+            @click="remove"
           />
           <ForumAction
             v-if="me?.isAdmin && post.hidden"
             :label="t.unhide"
             icon="i-lucide-eye"
-            @click="setHidden(false)"
+            @click="unhide"
           />
           <ForumAction
             v-if="me?.isAdmin && post.authorId && !renaming"
@@ -159,6 +171,7 @@ async function setBan(banned: boolean) {
         </div>
       </form>
       <ForumPostBody v-else :body="post.body" :format="post.format" />
+      <ForumReactions :post="post" @changed="emit('changed')" @error="emit('error', $event)" />
 
       <form v-if="renaming && post.authorId" class="forum-rename" @submit.prevent="saveRename">
         <input v-model="renameValue" class="cab-input" required :maxlength="forumLimits.nameMax">

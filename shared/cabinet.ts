@@ -170,6 +170,8 @@ export type ApiErrorCode =
   | 'topic_not_empty'
   | 'post_not_found'
   | 'not_last_post'
+  | 'own_reaction'
+  | 'invalid_reaction'
   | 'unknown_category'
 
 export interface AuthUser {

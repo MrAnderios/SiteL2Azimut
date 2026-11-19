@@ -92,37 +92,14 @@ async function setBan(banned: boolean) {
 <template>
   <div class="forum">
     <div class="container">
-      <header class="forum__head">
-        <p class="forum__crumbs">
-          <NuxtLink :to="localePath('/forum')">{{ t.title }}</NuxtLink>
-          <template v-if="name">
-            <span>/</span>
-            <span>{{ name }}</span>
-          </template>
-        </p>
-        <h1 class="forum__title text-gold">{{ name || t.title }}</h1>
-        <div v-if="me?.isAdmin && data?.id" class="forum-topic__flags">
-          <span v-if="data.banned" class="forum-post__mark forum-post__mark--ban">{{ t.banned }}</span>
-          <ForumAction
-            v-if="!renaming"
-            :label="t.rename"
-            icon="i-lucide-user-pen"
-            @click="startRename"
-          />
-          <ForumAction
-            v-if="!own"
-            :label="data.banned ? t.unban : t.ban"
-            :icon="data.banned ? 'i-lucide-user-check' : 'i-lucide-ban'"
-            @click="setBan(!data.banned)"
-          />
-        </div>
-        <form v-if="renaming && data?.id" class="forum-rename" @submit.prevent="saveRename">
-          <input v-model="renameValue" class="cab-input" required :maxlength="forumLimits.nameMax" :aria-label="t.nameLabel">
-          <UiButton type="submit" size="sm">{{ t.save }}</UiButton>
-          <button type="button" class="forum-text-btn" @click="renaming = false">{{ t.cancel }}</button>
-        </form>
-        <p v-if="data?.total" class="forum__lead">{{ fmt(t.memberPosts, { n: data.total }) }}</p>
-      </header>
+      <p class="forum__crumbs">
+        <NuxtLink :to="localePath('/forum')">{{ t.title }}</NuxtLink>
+        <template v-if="name">
+          <span>/</span>
+          <span>{{ name }}</span>
+        </template>
+      </p>
+      <h1 v-if="!data?.name" class="forum__title text-gold">{{ name || t.title }}</h1>
 
       <p v-if="!cabinetEnabled" class="cab-note">{{ t.unavailable }}</p>
       <template v-else>
@@ -133,8 +110,42 @@ async function setBan(banned: boolean) {
           :error="error"
           @retry="refresh()"
         />
-        <p v-else-if="data && !data.posts.length" class="forum-hint">{{ t.memberPostsEmpty }}</p>
-        <ol v-else-if="data" class="forum__posts">
+        <template v-else-if="data">
+          <ForumProfile
+            :name="name"
+            :avatar="data.avatar"
+            :registered-at="data.registeredAt"
+            :last-seen-at="data.lastSeenAt"
+            :total="data.total"
+            :login="me?.isAdmin ? data.login : null"
+            :banned="!!(me?.isAdmin && data.banned)"
+            :show-actions="!!(me?.isAdmin && data.id)"
+          >
+            <template v-if="me?.isAdmin && data.id">
+            <div class="forum-topic__flags">
+              <ForumAction
+                v-if="!renaming"
+                :label="t.rename"
+                icon="i-lucide-user-pen"
+                @click="startRename"
+              />
+              <ForumAction
+                v-if="!own"
+                :label="data.banned ? t.unban : t.ban"
+                :icon="data.banned ? 'i-lucide-user-check' : 'i-lucide-ban'"
+                @click="setBan(!data.banned)"
+              />
+            </div>
+            <form v-if="renaming && data.id" class="forum-rename" @submit.prevent="saveRename">
+              <input v-model="renameValue" class="cab-input" required :maxlength="forumLimits.nameMax" :aria-label="t.nameLabel">
+              <UiButton type="submit" size="sm">{{ t.save }}</UiButton>
+              <button type="button" class="forum-text-btn" @click="renaming = false">{{ t.cancel }}</button>
+            </form>
+            </template>
+          </ForumProfile>
+          <p class="forum-posts-title">{{ t.postsTitle }}</p>
+          <p v-if="!data.posts.length" class="forum-hint">{{ t.memberPostsEmpty }}</p>
+          <ol v-else class="forum__posts">
           <li v-for="post in data.posts" :key="post.id" class="forum-post panel" :class="{ 'is-hidden': post.hidden }">
             <div class="forum-post__side">
               <h2 class="forum-post__author">
@@ -153,8 +164,9 @@ async function setBan(banned: boolean) {
               <ForumPostBody :body="post.body" :format="post.format" />
             </div>
           </li>
-        </ol>
-        <ForumPager v-if="data" :page="data.page" :pages="data.pages" />
+          </ol>
+          <ForumPager :page="data.page" :pages="data.pages" />
+        </template>
       </template>
     </div>
   </div>

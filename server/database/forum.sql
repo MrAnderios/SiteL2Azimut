@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS forum_profiles (
   banned TINYINT UNSIGNED NOT NULL DEFAULT 0,
   avatar VARCHAR(4) NOT NULL DEFAULT '',
   avatar_at INT UNSIGNED NOT NULL DEFAULT 0,
+  last_seen INT UNSIGNED NOT NULL DEFAULT 0,
   created_at INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (master_id),
   UNIQUE KEY uq_name (name)
@@ -84,3 +85,29 @@ SET @forum_avatar_sql := IF(
 PREPARE forum_avatar_stmt FROM @forum_avatar_sql;
 EXECUTE forum_avatar_stmt;
 DEALLOCATE PREPARE forum_avatar_stmt;
+
+-- last_seen: последний заход на форум под этим мастер-аккаунтом. 0 — ещё не отмечен.
+SET @forum_seen_col := (
+  SELECT COUNT(*)
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'forum_profiles'
+    AND COLUMN_NAME = 'last_seen'
+);
+SET @forum_seen_sql := IF(
+  @forum_seen_col = 0,
+  'ALTER TABLE forum_profiles ADD COLUMN last_seen INT UNSIGNED NOT NULL DEFAULT 0',
+  'SELECT 1'
+);
+PREPARE forum_seen_stmt FROM @forum_seen_sql;
+EXECUTE forum_seen_stmt;
+DEALLOCATE PREPARE forum_seen_stmt;
+
+-- Реакции на сообщение. kind: like, clown. Повтор той же реакции тем же игроком снимает её.
+CREATE TABLE IF NOT EXISTS forum_reactions (
+  post_id INT UNSIGNED NOT NULL,
+  master_id INT UNSIGNED NOT NULL,
+  kind VARCHAR(16) NOT NULL,
+  created_at INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (post_id, master_id, kind)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

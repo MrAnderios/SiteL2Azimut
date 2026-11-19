@@ -52,15 +52,22 @@ export function forumCanDeleteTopic(
   return !!topic?.empty && (topic.own || !!isAdmin)
 }
 
-/** Админ скрывает любое видимое сообщение. Автор — только своё последнее на последней странице. */
-export function forumCanHidePost(
+/** Игрок с именем ставит реакцию чужому видимому сообщению. Забаненный — нет. */
+export function forumCanReact(
+  me: ForumMe | null | undefined,
+  post: Pick<ForumPost, 'own' | 'hidden'>,
+): boolean {
+  return !!me?.name && !me.banned && !post.own && !post.hidden
+}
+
+/** Админ удаляет любое сообщение. Автор — только своё последнее видимое на последней странице. */
+export function forumCanDeletePost(
   post: Pick<ForumPost, 'hidden' | 'own'>,
   me: ForumMe | null | undefined,
   lastOnLastPage: boolean,
 ): boolean {
-  if (post.hidden) return false
   if (me?.isAdmin) return true
-  if (me?.banned || !post.own) return false
+  if (post.hidden || me?.banned || !post.own) return false
   return lastOnLastPage
 }
 

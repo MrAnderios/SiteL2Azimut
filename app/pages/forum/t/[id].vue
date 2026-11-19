@@ -101,6 +101,20 @@ async function setFlag(path: 'pin' | 'close', body: { pinned?: boolean, closed?:
   })
 }
 
+async function onPostRemoved(result: { topicDeleted: boolean, slug: string }) {
+  if (result.topicDeleted) {
+    await navigateTo(localePath(`/forum/${result.slug}`))
+    return
+  }
+  await refresh()
+  if (data.value && page.value > data.value.pages) {
+    await navigateTo({
+      path: route.path,
+      query: data.value.pages > 1 ? { page: String(data.value.pages) } : {},
+    })
+  }
+}
+
 async function removeTopic() {
   const slug = data.value?.slug
   if (!slug || !window.confirm(t.value.deleteTopicConfirm)) return
@@ -165,6 +179,7 @@ async function removeTopic() {
             :can-reply="canReply"
             @quote="quotePost(post)"
             @changed="refresh()"
+            @removed="onPostRemoved"
             @error="actionError = $event"
           />
         </ol>

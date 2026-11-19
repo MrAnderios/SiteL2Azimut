@@ -39,6 +39,28 @@ export const forumNamePattern = /^[\p{L}\p{N}](?:[\p{L}\p{N}_-]| (?! ))*[\p{L}\p
 /** Как сообщение хранится. plain — старые записи, markdown — редактор. Отрисовка своя у каждого, старые записи не переписываются. */
 export type ForumFormat = 'plain' | 'markdown'
 
+/** Реакции под сообщением. Названия — forum.reactions в locales. */
+export const forumReactionKinds = ['like', 'clown'] as const
+
+export type ForumReactionKind = typeof forumReactionKinds[number]
+
+export function forumReactionKind(value: string): ForumReactionKind | undefined {
+  return forumReactionKinds.find(kind => kind === value)
+}
+
+export interface ForumReaction {
+  kind: ForumReactionKind
+  count: number
+  /** Зритель уже поставил эту реакцию. */
+  mine: boolean
+  /** Кто поставил, в порядке постановки. */
+  names: string[]
+}
+
+export function emptyForumReactions(): ForumReaction[] {
+  return forumReactionKinds.map(kind => ({ kind, count: 0, mine: false, names: [] }))
+}
+
 export interface ForumLastTopic {
   id: number
   title: string
@@ -119,6 +141,7 @@ export interface ForumPost {
   own: boolean
   /** Администратор видит, что автору запрещено писать. */
   banned: boolean
+  reactions: ForumReaction[]
 }
 
 export interface ForumTopicPage {
@@ -165,6 +188,14 @@ export interface ForumOwnPost {
 /** Сообщения одного игрока, новые сверху. */
 export interface ForumOwnPosts {
   name: string | null
+  /** Регистрация мастер-аккаунта, unix-секунды. 0 — даты нет. */
+  registeredAt: number
+  /** Последний заход на форум, unix-секунды. 0 — ещё не отмечен. */
+  lastSeenAt: number
+  /** Логин мастер-аккаунта. Есть только в ответе администратору. */
+  login: string | null
+  /** Адрес аватара или null. */
+  avatar: string | null
   page: number
   pages: number
   total: number
