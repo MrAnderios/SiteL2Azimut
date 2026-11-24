@@ -85,6 +85,25 @@ async function scan() {
     scanPending.value = false
   }
 }
+
+// Журнал наград
+const logPending = ref<number | null>(null)
+
+async function removeLog(id: number) {
+  if (!window.confirm(t.value.adminReferrals.logRemoveConfirm)) return
+  logPending.value = id
+  try {
+    await $fetch(`/api/admin/referrals/log/${id}`, { method: 'DELETE' })
+    notices.success(t.value.adminReferrals.logRemoved)
+    await refresh()
+  }
+  catch (e) {
+    showError(e)
+  }
+  finally {
+    logPending.value = null
+  }
+}
 </script>
 
 <template>
@@ -155,9 +174,8 @@ async function scan() {
         <UiButton variant="secondary" :loading="scanPending" @click="scan">{{ t.adminReferrals.scan }}</UiButton>
       </section>
 
-      <div class="cab-grid">
-        <section class="panel cab-panel">
-          <h2 class="cab-panel__title">{{ t.adminReferrals.topTitle }}</h2>
+      <section class="panel cab-panel">
+        <h2 class="cab-panel__title">{{ t.adminReferrals.topTitle }}</h2>
           <div class="cab-table-wrap">
             <table class="cab-table">
               <thead>
@@ -179,42 +197,56 @@ async function scan() {
               </tbody>
             </table>
           </div>
-        </section>
+      </section>
 
-        <section class="panel cab-panel">
-          <h2 class="cab-panel__title">{{ t.adminReferrals.logTitle }}</h2>
+      <section class="panel cab-panel">
+        <h2 class="cab-panel__title">{{ t.adminReferrals.logTitle }}</h2>
           <div class="cab-table-wrap">
             <table class="cab-table">
               <thead>
                 <tr>
                   <th>{{ t.adminReferrals.master }}</th>
                   <th>{{ t.adminReferrals.kind }}</th>
+                  <th>{{ t.adminReferrals.stage }}</th>
                   <th>{{ t.adminReferrals.reward }}</th>
                   <th>{{ t.adminReferrals.player }}</th>
                   <th>{{ t.adminReferrals.date }}</th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="!data.log.length">
-                  <td colspan="5" class="cab-empty-row">{{ t.adminReferrals.noLog }}</td>
+                  <td colspan="7" class="cab-empty-row">{{ t.adminReferrals.noLog }}</td>
                 </tr>
                 <tr v-for="l in data.log" :key="l.id">
                   <td>{{ l.masterLogin ?? t.common.empty }}</td>
                   <td>{{ t.adminReferrals.kinds[l.kind] }}</td>
                   <td>
+                    <span v-if="l.type !== 'commission'" class="cab-badge cab-badge--pending">{{ t.referrals.types[l.type] }}</span>
+                    <template v-else>{{ t.common.empty }}</template>
+                  </td>
+                  <td>
                     <template v-if="l.coinAmount > 0">+{{ num(l.coinAmount) }} {{ item }}</template>
                     <template v-else-if="l.itemCount > 0">{{ fmt(t.referrals.items, { count: num(l.itemCount), id: l.itemId }) }}</template>
                     <template v-else>{{ t.common.empty }}</template>
-                    <span v-if="l.type !== 'commission'" class="cab-badge cab-badge--pending cab-ar-type">{{ t.referrals.types[l.type] }}</span>
                   </td>
                   <td>{{ l.referredLogin ?? t.common.empty }}</td>
                   <td class="cab-nowrap">{{ date(l.createdAt) }}</td>
+                  <td class="cab-num cab-ar-log-del">
+                    <UiButton
+                      size="sm"
+                      variant="ghost"
+                      icon="trash"
+                      :loading="logPending === l.id"
+                      :aria-label="t.adminReferrals.removeLog"
+                      @click="removeLog(l.id)"
+                    />
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
-        </section>
-      </div>
+      </section>
     </template>
   </div>
 </template>
@@ -238,7 +270,13 @@ async function scan() {
   margin-bottom: 16px;
 }
 
-.cab-ar-type {
-  margin-left: 6px;
+.cab-ar-log-del :deep(.btn) {
+  --cut: 5px;
+  padding: 8px;
+  gap: 0;
+}
+
+.cab-ar-log-del :deep(.btn > span:empty) {
+  display: none;
 }
 </style>

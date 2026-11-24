@@ -812,6 +812,7 @@ const en: Messages = {
       noLog: 'No rewards yet.',
       master: 'Master',
       kind: 'Type',
+      stage: 'Milestone',
       reward: 'Reward',
       player: 'Player',
       date: 'Date',
@@ -820,6 +821,9 @@ const en: Messages = {
         referrer: 'to referrer',
         player: 'to invited',
       },
+      removeLog: 'Remove log entry',
+      logRemoveConfirm: 'Remove this log entry and reset this reward? The next check can award it again.',
+      logRemoved: 'Log entry removed; the reward can be given again.',
     },
     adminStreams: {
       title: 'Homepage streams',
