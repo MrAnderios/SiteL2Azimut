@@ -19,6 +19,7 @@ const items = computed(() => {
       ? [
           { to: '/admin', label: t.value.nav.admin, admin: true },
           { to: '/admin/referrals', label: t.value.nav.adminReferrals, admin: true },
+          { to: '/admin/streams', label: t.value.nav.adminStreams, admin: true },
         ]
       : []),
   ]

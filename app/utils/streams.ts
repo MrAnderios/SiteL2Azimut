@@ -32,7 +32,7 @@ const TWITCH_RESERVED = new Set(['directory', 'videos', 'settings', 'search', 'd
 type Parsed = { platform: StreamPlatform, name: string, src: (host: string) => string }
 
 /**
- * Превращает строку из `streams` (app/data/site.ts) в плеер.
+ * Превращает строку из списка стримов (админка / GET /api/streams) в плеер.
  * `host` — домен текущей страницы, его требует Twitch (параметр parent).
  * Возвращает null, если площадка не поддерживается или ссылка не распознана.
  */

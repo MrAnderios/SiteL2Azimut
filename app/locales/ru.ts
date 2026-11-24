@@ -560,6 +560,7 @@ const ru = {
       referrals: 'Реферальная программа',
       admin: 'Админ-панель',
       adminReferrals: 'Реферальная программа: настройки',
+      adminStreams: 'Стримы на главной',
     },
     nav: {
       aria: 'Разделы кабинета',
@@ -568,6 +569,7 @@ const ru = {
       referrals: 'Рефералы',
       admin: 'Админка',
       adminReferrals: 'Рефералы: настройки',
+      adminStreams: 'Стримы',
       logout: 'Выйти',
       login: 'Войти',
       toSite: 'На сайт',
@@ -820,6 +822,15 @@ const ru = {
         referrer: 'рефереру',
         player: 'приглашённому',
       },
+    },
+    adminStreams: {
+      title: 'Стримы на главной',
+      listTitle: 'Список плееров',
+      field: 'Одна строка — один плеер, сверху вниз в том же порядке, что на сайте',
+      hint: 'Можно вставлять как есть: ссылку на канал или видео, адрес плеера или код <iframe> с Kick, Twitch, YouTube, VK Видео или Rutube. Пустое поле — плееры не показываются.',
+      placeholder: 'https://kick.com/gmhikaru\nhttps://www.twitch.tv/kaicenat',
+      save: 'Сохранить',
+      saved: 'Список стримов сохранён.',
     },
     errors: {
       unauthorized: 'Войдите в мастер-аккаунт.',

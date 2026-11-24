@@ -558,6 +558,7 @@ const en: Messages = {
       referrals: 'Referral program',
       admin: 'Admin panel',
       adminReferrals: 'Referral program: settings',
+      adminStreams: 'Homepage streams',
     },
     nav: {
       aria: 'Account sections',
@@ -566,6 +567,7 @@ const en: Messages = {
       referrals: 'Referrals',
       admin: 'Admin',
       adminReferrals: 'Referrals: settings',
+      adminStreams: 'Streams',
       logout: 'Sign out',
       login: 'Sign in',
       toSite: 'Back to site',
@@ -818,6 +820,15 @@ const en: Messages = {
         referrer: 'to referrer',
         player: 'to invited',
       },
+    },
+    adminStreams: {
+      title: 'Homepage streams',
+      listTitle: 'Player list',
+      field: 'One line per player, top to bottom matches the order on the site',
+      hint: 'Paste as-is: channel or video URL, player URL, or the full <iframe> embed from Kick, Twitch, YouTube, VK Video, or Rutube. Leave empty to hide players.',
+      placeholder: 'https://kick.com/gmhikaru\nhttps://www.twitch.tv/kaicenat',
+      save: 'Save',
+      saved: 'Stream list saved.',
     },
     errors: {
       unauthorized: 'Please sign in to your master account.',

@@ -177,6 +177,13 @@ CREATE TABLE IF NOT EXISTS forum_reactions (
   PRIMARY KEY (post_id, master_id, kind)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+-- Настройки сайта (стримы на главной и т.п.). На уже работающей базе — streams.sql.
+CREATE TABLE IF NOT EXISTS site_settings (
+  s_key VARCHAR(32) NOT NULL,
+  s_value TEXT NOT NULL,
+  PRIMARY KEY (s_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- Уникальные заходы: один IP, один раздел, одни московские сутки. На уже работающей базе — visits.sql.
 CREATE TABLE IF NOT EXISTS site_visits (
   section VARCHAR(16) NOT NULL,

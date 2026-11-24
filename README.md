@@ -62,8 +62,8 @@ server/                    # бэкенд кабинета и форума: api/
 scripts/server/            # подготовка сервера (setup.sh) и GitHub (github-setup.sh) для деплоя
 ```
 
-Стримы в разделе «Стримы AzimutLive» — массив `streams` в `app/data/site.ts`: ссылка на канал или видео
-либо код `<iframe>` с Kick, Twitch, YouTube, VK Видео или Rutube. Правила — [docs/STREAMS.md](docs/STREAMS.md).
+Стримы в разделе «Стримы AzimutLive» задаются в админке (`/admin/streams`): по одной ссылке или коду
+`<iframe>` на строку. Правила — [docs/STREAMS.md](docs/STREAMS.md).
 
 Чтобы поменять текст, правьте `app/locales/ru.ts` и `app/locales/en.ts`, ссылку или дату — `app/data/site.ts`.
 Разметку трогать не нужно. Структура `en.ts` проверяется по `ru.ts` на уровне типов: если добавить ключ

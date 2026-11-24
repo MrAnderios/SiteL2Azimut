@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { streams } from '~/data/site'
+import type { StreamsPayload } from '#shared/streams'
 import { parseStream, streamPlatformNames } from '~/utils/streams'
 
 const t = useContent()
+const cabinetEnabled = useCabinetEnabled()
+
+const streamLines = ref<string[]>([])
+
+if (cabinetEnabled) {
+  const { data } = await useFetch<StreamsPayload>('/api/streams', { key: 'site-streams' })
+  watch(() => data.value?.streams, (lines) => { streamLines.value = lines ?? [] }, { immediate: true })
+}
 
 // Twitch пускает плеер только с доменов из parent — берём текущий хост, поэтому плееры только на клиенте
 const host = ref('')
@@ -14,7 +22,7 @@ const players = computed(() => {
   if (!host.value)
     return []
   const seen = new Set<string>()
-  return streams.flatMap((input) => {
+  return streamLines.value.flatMap((input) => {
     const embed = parseStream(input, host.value)
     if (!embed) {
       if (import.meta.dev)
