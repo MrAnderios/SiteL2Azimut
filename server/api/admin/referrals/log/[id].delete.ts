@@ -12,8 +12,7 @@ export default defineEventHandler(async (event) => {
     master_id: number
     referred_id: number
     type: ReferralType | 'commission'
-    coin_amount: number
-  }>(db, 'SELECT kind, master_id, referred_id, type, coin_amount FROM referral_rewards_log WHERE id = ?', [id])
+  }>(db, 'SELECT kind, master_id, referred_id, type FROM referral_rewards_log WHERE id = ?', [id])
   if (!entry) fail(404, 'invalid_item')
 
   await transaction(db, async (conn) => {
@@ -26,10 +25,6 @@ export default defineEventHandler(async (event) => {
     else if (entry.kind === 'referrer') {
       await exec(conn, 'DELETE FROM referral_claims WHERE kind = ? AND account_id = ? AND type = ?',
         ['referrer', entry.referred_id, entry.type])
-      const coins = Number(entry.coin_amount)
-      if (coins > 0) {
-        await exec(conn, 'UPDATE master_accounts SET coins = GREATEST(coins - ?, 0) WHERE id = ?', [coins, entry.master_id])
-      }
     }
   })
 
