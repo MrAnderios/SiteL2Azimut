@@ -24,6 +24,8 @@ export default defineEventHandler(async (event) => {
       `INSERT INTO donate_log (master_id, master_login, char_name, server, item_id, amount, action, created_at)
        VALUES (?, ?, ?, '', ?, ?, ?, ?)`,
       [admin.id, admin.login, target.login, donateItem.id, amount, `admin_${action}`, now()])
+    // Ручное начисление за прямой донат тоже должно давать реферальную комиссию
+    if (action === 'credit') await referralCommission(conn, target.id, amount)
   })
 
   return { login: target.login, amount, action }
