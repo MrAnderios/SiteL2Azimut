@@ -53,7 +53,12 @@ async function toggle(kind: ForumReactionKind) {
         @click="toggle(reaction.kind)"
       >
         <UIcon v-if="reaction.kind === 'like'" name="i-lucide-thumbs-up" class="forum-react__icon" aria-hidden="true" />
-        <span v-else class="forum-react__emoji" aria-hidden="true">🤡</span>
+        <span
+          v-else
+          class="forum-react__emoji"
+          :class="{ 'is-idle': !reaction.count }"
+          aria-hidden="true"
+        >🤡</span>
         <span v-if="reaction.count" class="forum-react__count">{{ reaction.count }}</span>
       </button>
       <span
@@ -63,7 +68,12 @@ async function toggle(kind: ForumReactionKind) {
         :aria-label="label(reaction)"
       >
         <UIcon v-if="reaction.kind === 'like'" name="i-lucide-thumbs-up" class="forum-react__icon" aria-hidden="true" />
-        <span v-else class="forum-react__emoji" aria-hidden="true">🤡</span>
+        <span
+          v-else
+          class="forum-react__emoji"
+          :class="{ 'is-idle': !reaction.count }"
+          aria-hidden="true"
+        >🤡</span>
         <span v-if="reaction.count" class="forum-react__count">{{ reaction.count }}</span>
       </span>
       <span v-if="reaction.names.length" class="forum-react__who" role="tooltip">{{ reaction.names.join(', ') }}</span>

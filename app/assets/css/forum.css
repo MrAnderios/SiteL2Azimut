@@ -1090,6 +1090,17 @@ span.forum-react__btn {
   font-size: 15px;
 }
 
+.forum-react__emoji.is-idle {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+.forum-react__btn:hover .forum-react__emoji.is-idle,
+.forum-react__btn:focus-visible .forum-react__emoji.is-idle {
+  filter: none;
+  opacity: 1;
+}
+
 .forum-react__who {
   position: absolute;
   bottom: calc(100% + 6px);
